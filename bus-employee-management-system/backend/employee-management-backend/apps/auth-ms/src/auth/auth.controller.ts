@@ -45,11 +45,11 @@ export class AuthController {
     res.cookie('jwt', access_token, {
       httpOnly: true, // Cookie cannot be accessed by client-side JavaScript.
       secure: process.env.NODE_ENV === 'production', // Cookie sent only over HTTPS in production.
-      sameSite: 'lax', 
+      sameSite: 'none', //subject to change
       path: '/', // Cookie is accessible on all routes.
       maxAge: 3600 * 1000, // Cookie expiry: 1 hour.
     });
-    return { message: 'Login successful' };
+    return { message: 'Login successful', token: access_token };
   }
 
   /**

@@ -75,8 +75,8 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
       path: '/',
-      // domain: '.vercel.app', // Only if you set it when creating the cookie
+      // Do NOT set domain unless you set it when creating the cookie
     });
-    return { message: 'Logged out successfully' };
+    res.status(200).json({ message: 'Logged out' });
   }
 }

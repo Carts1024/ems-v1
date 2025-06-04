@@ -48,7 +48,6 @@ export class AuthController {
       sameSite: 'none', // Required for cross-site cookies
       path: '/',
       maxAge: 3600 * 1000,
-      domain: '.vercel.app', // Optional: only if you want the cookie to be sent to all subdomains, otherwise omit
     });
     return { message: 'Login successful', token: access_token };
   }

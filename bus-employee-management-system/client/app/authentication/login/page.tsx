@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 'use client';
 
 import { useState } from "react";
@@ -118,45 +118,40 @@ export default function LoginPage() {
       setIsSubmitting(false);
       return;
     }
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-    console.log('Using API base:', API_BASE_URL);
+
     try {
-      
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
         credentials: 'include',
       });
-
-      console.log('Response status:', formData);
-      let data = {};
-      try {
-        data = await response.json();
-      } catch {}
-
+      
+      const data = await response.json();
       if (response.ok) {
+        // Use router.push to stay on the same domain
         router.push('/homepage');
       } else if (response.status === 403) {
-        router.push(`/authentication/new-password?first=true&employeeID=${encodeURIComponent(formData.employeeId)}`);
+        router.push(
+          `/authentication/new-password?first=true&employeeID=${encodeURIComponent(
+            formData.employeeId
+          )}`
+        );
       } else {
         setErrors(prev => ({
           ...prev,
-          general: (data as any).message || 'Invalid credentials. Please try again.'
+          general: data.message || 'Invalid credentials. Please try again.',
         }));
       }
     } catch (error) {
       setErrors(prev => ({
         ...prev,
-        general: 'An error occurred. Please try again later.'
+        general: 'An error occurred. Please try again later.',
       }));
     } finally {
       setIsSubmitting(false);
     }
   };
-
   return (
     <LoginForm
       formData={formData}

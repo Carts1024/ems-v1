@@ -43,11 +43,12 @@ export class AuthController {
 
     // Set the access token as an HTTP-only cookie for security.
     res.cookie('jwt', access_token, {
-      httpOnly: true, // Cookie cannot be accessed by client-side JavaScript.
-      secure: process.env.NODE_ENV === 'production', // Cookie sent only over HTTPS in production.
-      sameSite: 'none', //subject to change
-      path: '/', // Cookie is accessible on all routes.
-      maxAge: 3600 * 1000, // Cookie expiry: 1 hour.
+      httpOnly: true,
+      secure: true, // Always true in production (HTTPS)
+      sameSite: 'none', // Required for cross-site cookies
+      path: '/',
+      maxAge: 3600 * 1000,
+      domain: '.vercel.app', // Optional: only if you want the cookie to be sent to all subdomains, otherwise omit
     });
     return { message: 'Login successful', token: access_token };
   }

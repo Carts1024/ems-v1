@@ -7,13 +7,13 @@ import { AuthMsModule } from './auth-ms.module';
 async function bootstrap() {
   const app = await NestFactory.create(AuthMsModule);
 
-  // app.connectMicroservice<MicroserviceOptions>({
-  //   transport: Transport.TCP,
-  //   options: {
-  //     host: '127.0.0.1',
-  //     port: 4003,
-  //   },
-  // });
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.TCP,
+    options: {
+      host: '127.0.0.1',
+      port: 4003,
+    },
+  });
 
   await app.startAllMicroservices();
   const port = process.env.PORT ? Number(process.env.PORT) : 4000;

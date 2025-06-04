@@ -72,8 +72,10 @@ export class AuthController {
     // Just clear the cookie right here!
     res.clearCookie('jwt', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'none',
+      path: '/',
+      // domain: '.vercel.app', // Only if you set it when creating the cookie
     });
     return { message: 'Logged out successfully' };
   }

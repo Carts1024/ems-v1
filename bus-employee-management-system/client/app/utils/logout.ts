@@ -4,10 +4,9 @@ export async function logout() {
     //     method: 'POST',
     //     credentials: 'include', // This makes sure cookies are sent and cleared
     // });
-    await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-    });
+  await fetch('/api/auth/logout', {
+    method: 'POST',
+    credentials: 'include',
+  });
 
 }

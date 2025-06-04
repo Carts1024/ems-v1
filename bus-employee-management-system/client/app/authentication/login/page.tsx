@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import LoginForm from "./LoginForm";
 import { useEffect } from "react";
+import { logout } from "@/app/utils/logout";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -24,13 +25,7 @@ export default function LoginPage() {
   const [roles, setRoles] = useState<{ id: number; name: string }[]>([]);
 
   useEffect(() => {
-    const resetSession = async () => {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-    await fetch(`${API_BASE_URL}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include', // This makes sure cookies are sent and cleared
-      });
-    };
+    
     const fetchRoles = async () => {
       const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
       console.log('Using API base:', API_BASE_URL);
@@ -57,7 +52,7 @@ export default function LoginPage() {
         }));
       }
     };
-    resetSession();
+    logout();
     fetchRoles();
   }, []);
 

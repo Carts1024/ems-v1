@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import styles from './Attendance.module.css';
+import styles from './attendance.module.css';
 
 export default function AttendancePage() {
   return (

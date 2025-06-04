@@ -10,6 +10,7 @@ const publicRoutes = [
 
 export async function middleware(request: NextRequest) {
   const jwt = request.cookies.get('jwt')?.value;
+  console.log('🔍 middleware saw cookie jwt =', jwt);
 
   if (!jwt) {
 

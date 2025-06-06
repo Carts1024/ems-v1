@@ -13,7 +13,7 @@ export class AuthService{
 
   constructor(private readonly jwtService: JwtService) {}
 
-  async validateUser(roleId: number, employeeId: string, password: string): Promise<any> {
+  async validateUser( employeeId: string, password: string): Promise<any> {
     const user = await prisma.user.findUnique({
       where: { employeeId }
     });
@@ -23,24 +23,20 @@ export class AuthService{
     if (!passwordMatch) return null;
 
     if (user.mustChangePassword) {
-      // You could throw a custom error, or return a special object if you prefer
       throw new ForbiddenException('Password must be changed');
-      // or:
-      // return { mustChangePassword: true, employeeId: user.employeeId };
     }
 
-    if (user.roleId === roleId) {
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
+    const { password: pwd, ...result } = user;
+    return result;
+
   }
 
 
   login(user: any) {
-    const payload = { employeeId: user.employeeId, sub: user.id, role: user.roleId };
+    const payload = { employeeId: user.employeeId, sub: user.id};
     return {
       access_token: this.jwtService.sign(payload),
+      role: user.roleId
     };
   }
 }

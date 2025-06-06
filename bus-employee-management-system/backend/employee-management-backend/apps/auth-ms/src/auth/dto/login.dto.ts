@@ -2,9 +2,6 @@
 import { IsString, IsNotEmpty,IsNumberString } from 'class-validator';
 
 export class LoginDto {
-  @IsNumberString()
-  @IsNotEmpty()
-  roleId: number;
 
   @IsString()
   @IsNotEmpty()

@@ -34,23 +34,22 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response, @Req() req: Request) {
     // Validate the user's role, employeeID, and password.
-    const user = await this.authService.validateUser(Number(loginDto.roleId), loginDto.employeeId, loginDto.password);
+    const user = await this.authService.validateUser(loginDto.employeeId, loginDto.password);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const { access_token } = this.authService.login(user);
+    const { access_token,role } = this.authService.login(user);
 
     // Set the access token as an HTTP-only cookie for security.
     res.cookie('jwt', access_token, {
       httpOnly: true,
       secure: true, // Always true in production (HTTPS)
       sameSite: 'none', // Required for cross-site cookies
-      domain: '.agilabuscorp.me',
       path: '/',
       maxAge: 3600 * 1000,
     });
-    return { message: 'Login successful', token: access_token };
+    return { message: 'Login successful', token: access_token,role};
   }
 
   /**

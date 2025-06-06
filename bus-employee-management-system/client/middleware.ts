@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/authentication/login', request.url));
   }
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL; // "http://192.168.100.199:3001"
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const verifyRes = await fetch(`${apiUrl}/auth/verify`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${jwt}` },

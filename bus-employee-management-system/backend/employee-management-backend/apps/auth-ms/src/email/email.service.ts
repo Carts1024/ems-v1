@@ -21,7 +21,7 @@ export class EmailService {
     }
     
     async sendResetEmail(to: string, token: string){
-        const baseUrl = process.env.ALLOWED_ORIGINS;
+        const baseUrl = process.env.AUTH_ORIGIN;
         const resetLink = `${baseUrl}/authentication/new-password?token=${token}`;
 
         await this.transporter.sendMail({

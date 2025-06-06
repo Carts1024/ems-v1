@@ -73,8 +73,10 @@ export class AuthController {
     res.clearCookie('jwt', {
       httpOnly: true,
       secure: true,
-      sameSite: 'none',
+      sameSite: 'lax',
+      domain: process.env.COOKIE_DOMAIN, // Set this to your domain if needed
       path: '/',
+      maxAge: 0, // Set maxAge to 0 to delete the cookie
       // Do NOT set domain unless you set it when creating the cookie
     });
     res.status(200).json({ message: 'Logged out' });

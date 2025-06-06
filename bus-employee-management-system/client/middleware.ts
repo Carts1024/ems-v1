@@ -14,7 +14,7 @@ export async function middleware(request: NextRequest) {
 
   if (!jwt) {
 
-    return NextResponse.redirect(new URL('/authentication/login', request.url));
+    return NextResponse.redirect(new URL('/authentication/reset-password', request.url));
   }
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;

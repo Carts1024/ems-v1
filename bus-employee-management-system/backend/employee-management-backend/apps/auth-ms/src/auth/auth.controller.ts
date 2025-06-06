@@ -46,6 +46,7 @@ export class AuthController {
       httpOnly: true,
       secure: true, // Always true in production (HTTPS)
       sameSite: 'none', // Required for cross-site cookies
+      domain: '.agilabuscorp.me',
       path: '/',
       maxAge: 3600 * 1000,
     });

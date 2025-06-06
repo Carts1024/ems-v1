@@ -48,7 +48,8 @@ export class AuthController {
     res.cookie('jwt', access_token, {
       httpOnly: true,
       secure: true, // Always true in production (HTTPS)
-      sameSite: 'none', // Required for cross-site cookies
+      sameSite: 'lax', // Required for cross-site cookies
+      domain: process.env.COOKIE_DOMAIN,
       path: '/',
       maxAge: 3600 * 1000,
     });

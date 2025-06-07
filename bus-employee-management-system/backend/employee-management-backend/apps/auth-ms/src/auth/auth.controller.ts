@@ -86,10 +86,19 @@ export class AuthController {
     employeeId: string;
     roleId: number;
     email: string,
+    birthdate: Date,
+    firstName: string,
+    lastName: string,
+    phone?: string,
+    streetAddress?: string,
+    city?: string,
+    province?: string,
+    zipCode?: string,
+    country?: string,
     securityQuestionId: number,
     securityAnswer: string;
   }) {
-    const { employeeId, roleId, email, securityQuestionId, securityAnswer } = body;
+    const { employeeId, roleId, email, birthdate, firstName, lastName, phone, streetAddress, city, province, zipCode, country, securityQuestionId, securityAnswer } = body;
 
     // Check if a user with the given employeeId already exists.
     const existing = await prisma.user.findUnique({ where: { employeeId } });
@@ -103,10 +112,10 @@ export class AuthController {
     const AnswerHash = await argon2.hash(securityAns, { type: argon2.argon2id }); // Hash the security answer.
 
     const user = await prisma.user.create({
-      data: { employeeId, roleId, password: passwordhash, email, securityQuestionId, securityAnswer: AnswerHash },
+      data: { employeeId, roleId, password: passwordhash, email, birthdate, firstName, lastName, phone, streetAddress, city, province, zipCode, country, securityQuestionId, securityAnswer: AnswerHash },
     });
 
-    await this.emailService.sendWelcomeEmail(user.email, user.employeeId, tempPassword); // Send welcome email with temporary password.
+    await this.emailService.sendWelcomeEmail(user.email, user.employeeId, tempPassword, firstName); // Send welcome email with temporary password.
 
     return {
       message: 'User registered successfully', user: {
@@ -114,6 +123,15 @@ export class AuthController {
         employeeID: user.employeeId,
         role: user.roleId,
         email: user.email,
+        birthdate: user.birthdate,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        streetAddress: user.streetAddress,
+        city: user.city,
+        province: user.province,
+        zipCode: user.zipCode,
+        country: user.country,
         securityQuestion: user.securityQuestionId,
         securityAnswerHash: user.securityAnswer, // Note: This returns the hash
         message: 'User Registered. Email Sent'

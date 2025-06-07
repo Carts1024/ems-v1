@@ -109,7 +109,8 @@ const Sidebar = () => {
 
     const handleLogout = async () => {
         await logout();
-        window.location.href = '/authentication/login'; // Ensures middleware and browser see the cookie is gone
+        const logoutRedirectUrl = 'https://auth.agilabuscorp.me';
+        window.location.href = logoutRedirectUrl;
     };
 
 

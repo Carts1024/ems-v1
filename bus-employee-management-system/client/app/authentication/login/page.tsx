@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
- 
 'use client';
 
 import { useState } from "react";
@@ -11,52 +10,22 @@ import { logout } from "@/app/utils/logout";
 export default function LoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    roleId: '',
     employeeId: '',
     password: ''
   });
   const [errors, setErrors] = useState({
-    roleId: '',
     employeeId: '',
     password: '',
     general: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [roles, setRoles] = useState<{ id: number; name: string }[]>([]);
 
   useEffect(() => {
-    
-    const fetchRoles = async () => {
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-      console.log('Using API base:', API_BASE_URL);
-      try {
-        const response = await fetch(`${API_BASE_URL}/roles`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch roles');
-        }
-
-        const data = await response.json();
-        setRoles(data);
-      } catch (error) {
-        console.error('Error fetching roles:', error);
-        setErrors(prev => ({
-          ...prev,
-          general: 'Failed to load roles. Please try again later.'
-        }));
-      }
-    };
     logout();
-    fetchRoles();
+
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -74,16 +43,10 @@ export default function LoginPage() {
   const validateForm = () => {
     let valid = true;
     const newErrors = {
-      roleId: '',
       employeeId: '',
       password: '',
       general: ''
     };
-
-    if (!formData.roleId) {
-      newErrors.roleId = 'Please select your role';
-      valid = false;
-    }
 
     if (!formData.employeeId) {
       newErrors.employeeId = 'Employee ID is required';
@@ -121,11 +84,22 @@ export default function LoginPage() {
         body: JSON.stringify(formData),
         credentials: 'include',
       });
-      
+
       const data = await response.json();
       if (response.ok) {
-        // Use router.push to stay on the same domain
-        router.push('/homepage');
+        // Get the role from backend response
+        const role = data.role;
+        // Redirect map (from .env)
+        const redirectMap: Record<string, string> = {
+          'Admin': process.env.NEXT_PUBLIC_REDIRECT_HR!,
+          'HR Manager': process.env.NEXT_PUBLIC_REDIRECT_HR!,
+          'Accountant': process.env.NEXT_PUBLIC_REDIRECT_FINANCE!,
+          'Inventory Manager': process.env.NEXT_PUBLIC_REDIRECT_INVENTORY!,
+          'Operations Manager': process.env.NEXT_PUBLIC_REDIRECT_OPERATIONS!,
+          'Dispatcher': process.env.NEXT_PUBLIC_REDIRECT_OPERATIONS!,
+        };
+        const redirectUrl = redirectMap[role] || 'https://auth.agilabuscorp.me';
+        window.location.href = redirectUrl;
       } else if (response.status === 403) {
         router.push(
           `/authentication/new-password?first=true&employeeID=${encodeURIComponent(
@@ -147,6 +121,7 @@ export default function LoginPage() {
       setIsSubmitting(false);
     }
   };
+
   return (
     <LoginForm
       formData={formData}
@@ -154,7 +129,6 @@ export default function LoginPage() {
       isSubmitting={isSubmitting}
       handleChange={handleChange}
       handleSubmit={handleSubmit}
-      roles={roles}
     />
   );
 }

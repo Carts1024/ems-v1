@@ -62,12 +62,12 @@ export class AuthService {
   }
 
 
-  async firstResetPassword(employeeId: string, newPassword: string) {
+  async firstResetPassword(employeeNumber: string, newPassword: string) {
     try {
       const authServiceUrl = this.configService.get<string>('auth.authServiceUrl');
       const response = await firstValueFrom(
         this.httpService.post(`${authServiceUrl}/auth/first-password-reset`, {
-          employeeId,
+          employeeNumber,
           newPassword,
         }),
       );

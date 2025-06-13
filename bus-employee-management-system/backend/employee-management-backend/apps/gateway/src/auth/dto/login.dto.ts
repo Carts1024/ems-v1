@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
 export class LoginDto {
-    readonly employeeID: string;
+    readonly employeeNumber: string;
     readonly password: string;
 }

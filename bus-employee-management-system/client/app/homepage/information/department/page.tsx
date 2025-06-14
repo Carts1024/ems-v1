@@ -78,30 +78,32 @@ const DepartmentPage = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredDepartments.map((dept, index) => (
-                <tr key={dept.name}>
-                  <td className={styles.firstColumn}>{index + 1}</td>
-                  <td>{dept.name}</td>
-                  <td>{dept.employees}</td>
-                  <td>mm-dd-yyyy hh:mm</td>
-                  <td>mm-dd-yyyy hh:mm</td>
-                  <td className={styles.actionCell}>
-                    <button
-                      className={styles.editButton}
-                      onClick={() => {
-                        setSelectedDept(dept.name);
-                        setShowEditModal(true);
-                      }}
-                    > <i className='ri-edit-2-line'/>
-                    </button>
-                    <button
-                      className={styles.deleteButton}
-                      onClick={() => handleDeleteRequest(dept.name)}
-                    > <i className='ri-delete-bin-line' />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+            {filteredDepartments.map((dept, index) => (
+              <tr key={dept.id}>
+                <td className={styles.firstColumn}>{index + 1}</td>
+                <td>{dept.name}</td>
+                <td>{dept.employees}</td>
+                <td>{new Date(dept.createdAt).toLocaleString()}</td>
+                <td>{new Date(dept.updatedAt).toLocaleString()}</td>
+                <td className={styles.actionCell}>
+                  <button
+                    className={styles.editButton}
+                    onClick={() => {
+                      setSelectedDept({ id: dept.id, name: dept.name });
+                      setShowEditModal(true);
+                    }}
+                  >
+                    <i className='ri-edit-2-line'/>
+                  </button>
+                  <button
+                    className={styles.deleteButton}
+                    onClick={() => handleDeleteRequest(dept.id)}
+                  >
+                    <i className='ri-delete-bin-line' />
+                  </button>
+                </td>
+              </tr>
+            ))}
             </tbody>
           </table>
         </div>
@@ -133,7 +135,7 @@ const DepartmentPage = () => {
         {showEditModal && (
           <DepartmentModal
             isEdit={true}
-            defaultValue={selectedDept}
+            defaultValue={selectedDept?.name}
             existingDepartments={departments.map((d) => d.name)}
             onClose={() => setShowEditModal(false)}
             onSubmit={handleEdit}

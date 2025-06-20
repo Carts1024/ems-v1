@@ -19,7 +19,7 @@ export default function InterviewScheduling() {
         {/* Status Filter */}
         <div className={styles.headerSection}>
           <select className={styles.statusfilterDropdown}>
-            <option value="" defaultChecked disabled>Interview Status</option>
+            <option value="" defaultChecked>Interview Status</option>
             <option value="notScheduled">Not scheduled</option>
             <option value="Scheduled">Scheduled</option>
           </select>

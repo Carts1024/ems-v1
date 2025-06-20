@@ -119,6 +119,15 @@
   background-color: #12B75C;
 }
 
+.feedbackButton {
+  background-color: #FFCC3D;
+  border-radius: 4px;
+}
+
+.feedbackButton:hover {
+  background-color: #FFC107;
+}
+
 .editButton{
   background-color: #2D8EFF;
   border-radius: 4px;

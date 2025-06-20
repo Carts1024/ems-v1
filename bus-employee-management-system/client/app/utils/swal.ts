@@ -47,7 +47,8 @@ export const showWarning = (title: string, message: string) =>
 
 export const showConfirmation = async (message: string) =>
   Swal.fire({
-    title: 'Confirmation',
+    icon: 'question',
+    title: 'Confirm',
     html: message,
     showCancelButton: true,
     confirmButtonText: 'Confirm',

@@ -52,23 +52,19 @@
   justify-content: center; 
   align-items: center; 
   gap: 8px; 
-  border-radius: 8px; 
+  border-radius: 5px; 
   background-color: #961C1E; 
   color: #FFFFFF; 
   font-size: 14px; 
   transition: all 0.3s ease-in-out; 
-  cursor: pointer; 
-  background-color: #961C1E;
-  color: white;
   border: none;
   padding: 0.5rem 1rem;
-  border-radius: 5px;
   cursor: pointer;
 }
 
 .addEmployeeButton:hover {
-  background-color: #571415 !important;
-  color: white;
+  background-color: #571415;
+
 }
 
 .importButton {

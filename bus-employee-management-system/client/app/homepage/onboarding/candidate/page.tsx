@@ -1,47 +1,86 @@
 'use client';
 
-import React from "react";
+import React from 'react';
 import styles from './candidate.module.css';
+import { useCandidateLogic } from './candidateLogic';
+import CandidateModal from '@/components/modal/onboarding/CandidateModal';
+import FeedbackModal from '@/components/modal/onboarding/FeedbackModal';
+import FilterDropDown, { FilterSection } from '@/components/ui/filterDropdown';
+import "@/styles/filters.css";
+import "@/styles/pagination.css";
 
-export default function CandidateOverview() {
+export default function CandidatePage() {
+  const {
+    candidates,
+    filteredCandidates,
+    searchTerm,
+    setSearchTerm,
+    applicationStatusFilter,
+    setApplicationStatusFilter,
+    interviewStatusFilter,
+    setInterviewStatusFilter,
+    selectedCandidate,
+    setSelectedCandidate,
+    showAddModal,
+    setShowAddModal,
+    showEditModal,
+    setShowEditModal,
+    showFeedbackModal,
+    setShowFeedbackModal,
+    isReadOnlyView,
+    setIsReadOnlyView,
+    handleAdd,
+    handleEdit,
+    handleDeleteRequest,
+    filterSections,
+    handleApplyFilters
+  } = useCandidateLogic();
+
   return (
     <div className={styles.base}>
       <div className={styles.candidateContainer}>
         <h1 className={styles.title}>Candidate Overview</h1>
 
-        {/* Status Filter */}
+        {/* Application Status Filter */}
         <div className={styles.headerSection}>
-          <select className={styles.statusfilterDropdown}>
-            <option value="" defaultChecked disabled>Applicant Status</option>
+          <select className={styles.statusfilterDropdown} value={applicationStatusFilter} onChange={(e) => setApplicationStatusFilter(e.target.value)}>
+            <option value="">Application Status</option>
             <option value="Pending">Pending</option>
             <option value="Processing">Processing</option>
             <option value="Hired">Hired</option>
           </select>
 
-          <select className={styles.statusfilterDropdown}>
-            <option value="" defaultChecked disabled>Interview Status</option>
-            <option value="notScheduled">Not scheduled</option>
+        {/* Interview Status Filter */}
+          <select className={styles.statusfilterDropdown} value={interviewStatusFilter} onChange={(e) => setInterviewStatusFilter(e.target.value)}>
+            <option value="">Interview Status</option>
+            <option value="Not Scheduled">Not Scheduled</option>
             <option value="Scheduled">Scheduled</option>
           </select>
 
-          {/* Search */}
           <div className={styles.search}>
-            <i className='ri-search-line'/>
+            <i className='ri-search-line' />
             <input
               type="text"
               placeholder="Search here..."
-              // value={searchTerm}
-              // onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
-          <button className={styles.addCandidateButton}>
-            <i className="ri-add-line"/>
-            Add candidate
+          {/* Filter Button with Dropdown */}
+          <div className="filter">
+            <FilterDropDown
+              sections={filterSections}
+              onApply={handleApplyFilters}
+            />
+          </div>
+
+          <button className={styles.addCandidateButton} onClick={() => setShowAddModal(true)}>
+            <i className="ri-add-line" />
+            Add Candidate
           </button>
         </div>
 
-        {/* Candidate Overview Table */}
         <div className={styles.tableWrapper}>
           <table className={styles.candidateTable}>
             <thead>
@@ -58,114 +97,45 @@ export default function CandidateOverview() {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className={styles.firstColumn}>1</td>
-                <td>Juan Dela Cruz</td>
-                <td>Driver</td>
-                <td>Referral</td>
-                <td>2023-01-15</td>
-                <td>Operations</td>
-                <td>Processing</td>
-                <td>Scheduled</td>
+              {filteredCandidates.map((c, index) => (
+                <tr key={`${c.firstName}-${c.lastName}-${index}`}>
+                  <td className={styles.firstColumn}>{index + 1}</td>
+                  <td>{`${c.firstName} ${c.middleName} ${c.lastName}`}</td>
+                  <td>{c.position}</td>
+                  <td>{c.sourceOfHire}</td>
+                  <td>{c.applicationDate}</td>
+                  <td>{c.department}</td>
+                  <td>{c.applicationStatus}</td>
+                  <td>{c.interviewStatus}</td>
                   <td className={styles.actionCell}>
-                    <button
-                      className={styles.viewButton}
+                    <button className={styles.viewButton}
+                      onClick={() => { 
+                        setSelectedCandidate(c); 
+                        setIsReadOnlyView(true); 
+                        setShowEditModal(true); }}>
+                        <i className="ri-eye-line" />
+                    </button>
+                    <button className={styles.feedbackButton}
                       onClick={() => {
-                        // setSelectedEmployee(emp);
-                        // setIsReadOnlyView(true);
-                        // setShowEditModal(true);
-                      }}
-                    > <i className="ri-feedback-line"/>
+                        setSelectedCandidate(c);
+                        setShowFeedbackModal(true);
+                      }}>
+                      <i className='ri-feedback-line'/>
                     </button>
-
-                    <button
-                      className={styles.editButton}
-                      onClick={() => {
-                        // setSelectedEmployee(emp);
-                        // setIsReadOnlyView(false);
-                        // setShowEditModal(true);
-                      }}
-                    > <i className="ri-edit-2-line"/> 
+                    <button className={styles.editButton}
+                      onClick={() => { 
+                        setSelectedCandidate(c); 
+                        setIsReadOnlyView(false); 
+                        setShowEditModal(true); }}>
+                        <i className="ri-edit-2-line" />
                     </button>
-                    <button
-                      className={styles.deleteButton}
-                      // onClick={() => handleDeleteRequest(emp)}
-                    > <i className="ri-delete-bin-line"/>
+                    <button className={styles.deleteButton}
+                      onClick={() => handleDeleteRequest(c)}>
+                      <i className="ri-delete-bin-line" />
                     </button>
-                </td>
-              </tr>
-              <tr>
-                <td className={styles.firstColumn}>2</td>
-                <td>Mark Reyes</td>
-                <td>Supervisor</td>
-                <td>Direct sourcing</td>
-                <td>2023-03-10</td>
-                <td>Human Resource</td>
-                <td>Pending</td>
-                <td>Not Scheduled</td>
-                  <td className={styles.actionCell}>
-                    <button
-                      className={styles.viewButton}
-                      onClick={() => {
-                        // setSelectedEmployee(emp);
-                        // setIsReadOnlyView(true);
-                        // setShowEditModal(true);
-                      }}
-                    > <i className="ri-feedback-line"/>
-                    </button>
-
-                    <button
-                      className={styles.editButton}
-                      onClick={() => {
-                        // setSelectedEmployee(emp);
-                        // setIsReadOnlyView(false);
-                        // setShowEditModal(true);
-                      }}
-                    > <i className="ri-edit-2-line"/> 
-                    </button>
-                    <button
-                      className={styles.deleteButton}
-                      // onClick={() => handleDeleteRequest(emp)}
-                    > <i className="ri-delete-bin-line"/>
-                    </button>
-                </td>
-              </tr>
-              <tr>
-                <td className={styles.firstColumn}>3</td>
-                <td>Ana Santos</td>
-                <td>Warehouse Staff</td>
-                <td>Job boards</td>
-                <td>2022-11-05</td>
-                <td>Inventory</td>
-                <td>Processing</td>
-                <td>Not Scheduled</td>
-                  <td className={styles.actionCell}>
-                    <button
-                      className={styles.viewButton}
-                      onClick={() => {
-                        // setSelectedEmployee(emp);
-                        // setIsReadOnlyView(true);
-                        // setShowEditModal(true);
-                      }}
-                    > <i className="ri-feedback-line"/>
-                    </button>
-
-                    <button
-                      className={styles.editButton}
-                      onClick={() => {
-                        // setSelectedEmployee(emp);
-                        // setIsReadOnlyView(false);
-                        // setShowEditModal(true);
-                      }}
-                    > <i className="ri-edit-2-line"/> 
-                    </button>
-                    <button
-                      className={styles.deleteButton}
-                      // onClick={() => handleDeleteRequest(emp)}
-                    > <i className="ri-delete-bin-line"/>
-                    </button>
-                </td>
-              </tr>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -183,7 +153,35 @@ export default function CandidateOverview() {
             <button className="page-btn">
               <i className="ri-arrow-right-s-line"></i>
             </button>
-        </div>
+        </div>   
+
+        {/* Modals */}
+        {showAddModal && (
+          <CandidateModal
+            isEdit={false}
+            existingCandidates={candidates}
+            onClose={() => setShowAddModal(false)}
+            onSubmit={handleAdd}
+          />
+        )}
+
+        {showEditModal && selectedCandidate && (
+          <CandidateModal
+            isEdit={!isReadOnlyView}
+            isReadOnly={isReadOnlyView}
+            defaultValue={selectedCandidate}
+            existingCandidates={candidates}
+            onClose={() => setShowEditModal(false)}
+            onSubmit={handleEdit}
+          />
+        )}
+
+        {showFeedbackModal && selectedCandidate && (
+          <FeedbackModal
+            candidate={selectedCandidate}
+            onClose={() => setShowFeedbackModal(false)}
+          />
+        )}
 
       </div>
     </div>

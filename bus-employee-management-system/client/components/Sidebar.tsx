@@ -59,8 +59,9 @@ const Sidebar = () => {
             icon: 'ri-file-list-line',
             key: 'requests',
             subItems: [
-                { path: '/requests/leave', name: 'Leave', key: 'leave' },
-                { path: '/requests/resignation', name: 'Resignation', key: 'resignation' }
+                { path: '/homepage/requests/leave', name: 'Leave', key: 'leave' },
+                { path: '/homepage/requests/resignation', name: 'Resignation', key: 'resignation' },
+                { path: '/homepage/requests/resignation', name: 'Cash Advance', key: 'cash-advance' }
             ]
         },
         {
@@ -109,8 +110,7 @@ const Sidebar = () => {
 
     const handleLogout = async () => {
         await logout();
-        const logoutRedirectUrl = 'https://auth.agilabuscorp.me';
-        window.location.href = logoutRedirectUrl;
+        window.location.href = '/authentication/login'; // Ensures middleware and browser see the cookie is gone
     };
 
 
@@ -118,7 +118,7 @@ const Sidebar = () => {
         <div className="sidebar shadow-lg">
             <div className="sidebar-content">
                 <div className="logo-img">
-                    <img src="/assets/images/agila logo.png" alt="logo" />
+                    <img src="/assets/images/AgilaBusLogo.png" alt="logo" />
                 </div>
 
                 <div className="nav-links">

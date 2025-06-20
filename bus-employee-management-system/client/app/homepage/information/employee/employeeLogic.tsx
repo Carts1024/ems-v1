@@ -130,7 +130,7 @@ export const EmployeeLogic = () => {
 
   const filterSections: FilterSection[] = [
     {
-      id: "dateRange",
+      id: "dateHiredRange",
       title: "Date Range",
       type: "dateRange",
       defaultValue: { from: "", to: "" }
@@ -172,11 +172,6 @@ export const EmployeeLogic = () => {
   const handleApplyFilters = (filterValues: Record<string, any>) => {
     let newData = [...employees];
 
-    // Status
-    if (filterValues.status && filterValues.status.length > 0) {
-      newData = newData.filter(item => filterValues.status.includes(item.status));
-    }
-
     // Department
     if (filterValues.department && filterValues.department.length > 0) {
       newData = newData.filter(item => filterValues.department.includes(item.department.toLowerCase()));
@@ -187,9 +182,9 @@ export const EmployeeLogic = () => {
       newData = newData.filter(item => filterValues.position.includes(item.position.toLowerCase()));
     }
 
-    // Date range
-    const fromDate = filterValues.dateRange?.from ? new Date(filterValues.dateRange.from) : null;
-    const toDate = filterValues.dateRange?.to ? new Date(filterValues.dateRange.to) : null;
+    // Date Hired Range
+    const fromDate = filterValues.dateHiredRange?.from ? new Date(filterValues.dateHiredRange.from) : null;
+    const toDate = filterValues.dateHiredRange?.to ? new Date(filterValues.dateHiredRange.to) : null;
     if (fromDate || toDate) {
       newData = newData.filter(item => {
         const hiredDate = new Date(item.dateHired);

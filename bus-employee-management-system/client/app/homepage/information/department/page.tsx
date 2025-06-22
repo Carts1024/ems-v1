@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import React from 'react';
@@ -156,7 +157,7 @@ const DepartmentPage = () => {
         {showEditModal && (
           <DepartmentModal
             isEdit={true}
-            defaultValue={selectedDept?.name}
+            defaultValue={selectedDept}
             existingDepartments={departments.map((d) => d.name)}
             onClose={() => setShowEditModal(false)}
             onSubmit={handleEdit}

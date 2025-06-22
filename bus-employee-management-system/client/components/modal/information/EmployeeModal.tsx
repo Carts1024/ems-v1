@@ -7,7 +7,6 @@ import { useEmployeeModal, Employee } from './EmployeeModalLogic';
 import { useEmployeeRecords } from './EmployeeRecordsLogic';
 import { showConfirmation } from '@/app/utils/swal';
 
-// Add positions prop!
 interface EmployeeModalProps {
   isEdit: boolean;
   isReadOnly?: boolean;
@@ -15,7 +14,6 @@ interface EmployeeModalProps {
   existingEmployees: Employee[];
   onClose: () => void;
   onSubmit: (employee: Employee) => void;
-  positions: { id: number; positionName: string }[]; // <-- NEW!
 }
 
 const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
@@ -46,45 +44,45 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
       deleteGovernmentID,
       govIdError,
 
-    deductionList,
-    tempDeduct,
-    editingDeductIndex,
-    setTempDeduct,
-    addDeduction,
-    saveDeduction,
-    editDeduction,
-    cancelDeductionEdit,
-    deleteDeduction,
-    isTempDeductValid,
-    deductDateError,
+      deductionList,
+      tempDeduct,
+      editingDeductIndex,
+      setTempDeduct,
+      addDeduction,
+      saveDeduction,
+      editDeduction,
+      cancelDeductionEdit,
+      deleteDeduction,
+      isTempDeductValid,
+      deductDateError,
 
-    workExperiences,
-    tempWork,
-    editingWorkIndex,
-    setTempWork,
-    addWork,
-    saveWork,
-    editWork,
-    cancelWorkEdit,
-    deleteWork,
-    isTempWorkValid,
-    workDateError,
-    setWorkDateError,
-    validateWorkDates,
-
-    educationList,
-    tempEduc,
-    editingEducIndex,
-    setTempEduc,
-    addEducation,
-    saveEducation,
-    editEducation,
-    cancelEducationEdit,
-    deleteEducation,
-    isTempEducValid,
-    educDateError,
-    setEducDateError
-  } = useEmployeeRecords();
+      workExperiences,
+      tempWork,
+      editingWorkIndex,
+      setTempWork,
+      addWork,
+      saveWork,
+      editWork,
+      cancelWorkEdit,
+      deleteWork,
+      isTempWorkValid,
+      workDateError,
+      setWorkDateError,
+      validateWorkDates,
+  
+      educationList,
+      tempEduc,
+      editingEducIndex,
+      setTempEduc,
+      addEducation,
+      saveEducation,
+      editEducation,
+      cancelEducationEdit,
+      deleteEducation,
+      isTempEducValid,
+      educDateError,
+      setEducDateError
+    } = useEmployeeRecords();
 
   const [hasChanges, setHasChanges] = useState(false);
 
@@ -171,14 +169,18 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
               />
               {fieldErrors.firstName && <p className={styles.errorText}>{fieldErrors.firstName}</p>}
 
-              <label className={styles.label}>Middle Name (Optional)</label>
-              <input
-                className={styles.inputField}
-                value={employee.middleName || ''}
-                onChange={(e) => handleChangeWrapper('middleName', e.target.value)}
-                placeholder="Enter middle name"
-                disabled={props.isReadOnly}
-              />
+              {!(props.isReadOnly && !employee.middleName) && (
+                <>
+                  <label className={styles.label}>Middle Name (Optional)</label>
+                  <input
+                    className={styles.inputField}
+                    value={employee.middleName}
+                    onChange={(e) => handleChangeWrapper('middleName', e.target.value)}
+                    placeholder="Enter middle name"
+                    disabled={props.isReadOnly}
+                  />
+                </>
+              )}
 
               <label className={styles.label}>Birthdate</label>
               <input
@@ -215,6 +217,15 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
 
             <div className={styles.contactInfo}>
               <h4>Contact Details</h4>
+              <label className={styles.label}>Email</label>
+              <input
+                className={`${styles.inputField} ${fieldErrors.email ? styles.inputError : ''}`}
+                value={employee.email}
+                onChange={(e) => handleChangeWrapper('email', e.target.value)}
+                placeholder="Enter email"
+                disabled={props.isReadOnly}
+              />
+              {fieldErrors.email && <p className={styles.errorText}>{fieldErrors.email}</p>}
 
               <label className={styles.label}>Contact No.</label>
               <input
@@ -483,8 +494,6 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
             />
             {fieldErrors.dateHired && <p className={styles.errorText}>{fieldErrors.dateHired}</p>}
 
-            {/* -- Position dropdown instead of department/position text fields -- */}
-            <label className={styles.label}>Position</label>
             <select
               className={`${styles.inputField} ${fieldErrors.department ? styles.inputError : ''}`}
               value={employee.department}
@@ -497,7 +506,18 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
               <option value="Inventory">Inventory</option>
               <option value="Operations">Operations</option>
             </select>
-            {fieldErrors.positionId && <p className={styles.errorText}>{fieldErrors.positionId}</p>}
+            {fieldErrors.department && <p className={styles.errorText}>{fieldErrors.department}</p>}
+
+            <label className={styles.label}>Position</label>
+            <input
+              className={`${styles.inputField} ${fieldErrors.position ? styles.inputError : ''}`}
+              value={employee.position}
+              onChange={(e) => handleChangeWrapper('position', e.target.value)}
+              placeholder="Enter position"
+              disabled={props.isReadOnly}
+            />
+            {fieldErrors.position && <p className={styles.errorText}>{fieldErrors.position}</p>}
+
             {/* Government ID Section */}
             <div className={styles.sectionHeader}>
               <h4>Government Identification</h4>

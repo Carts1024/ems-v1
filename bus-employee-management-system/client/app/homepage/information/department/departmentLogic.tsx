@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useMemo } from 'react';
 import { showSuccess, showWarning, showConfirmation, showError } from '@/app/utils/swal';
 import { FilterSection } from '@/components/ui/filterDropdown'; // Import FilterSection
@@ -10,8 +12,7 @@ export interface Department {
 export const DepartmentLogic = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedDept, setSelectedDept] = useState<{ id: number; name: string } | null>(null);
-  const [modalDeptName, setModalDeptName] = useState('');
+  const [selectedDept, setSelectedDept] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [employeeFilter, setEmployeeFilter] = useState('');
 
@@ -146,12 +147,12 @@ export const DepartmentLogic = () => {
     showSuccess('Success', 'Department updated successfully.');
   };
 
-  // --- Delete ---
-  const handleDeleteRequest = async (deptId: number) => {
-    const dept = departments.find((d) => d.id === deptId);
+  const handleDeleteRequest = async (deptName: string) => {
+    const dept = departments.find((d) => d.name === deptName);
     if (dept && dept.employees > 0) {
       return showError('Error', 'This department cannot be deleted because it still contains employees.');
     }
+
     const result = await showConfirmation('Are you sure you want to delete this department?');
     if (result.isConfirmed) {
       const updatedList = departments.filter((d) => d.name !== deptName);
@@ -166,17 +167,6 @@ export const DepartmentLogic = () => {
     setOpenActionDropdownIndex(openActionDropdownIndex === index ? null : index);
   };
 
-
-  // Modal open/close helpers
-  const openAddModal = () => {
-    setModalDeptName('');
-    setShowAddModal(true);
-  };
-  const openEditModal = (dept: { id: number; name: string }) => {
-    setSelectedDept(dept);
-    setModalDeptName(dept.name);
-    setShowEditModal(true);
-  };
 
   return {
     searchTerm,

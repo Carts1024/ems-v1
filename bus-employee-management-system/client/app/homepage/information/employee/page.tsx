@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import React from "react";
@@ -5,7 +6,7 @@ import styles from './employee.module.css';
 import { EmployeeLogic } from './employeeLogic';
 import PaginationComponent from "@/components/ui/pagination";
 import EmployeeModal from '@/components/modal/information/EmployeeModal';
-import FilterDropDown from '@/components/ui/filterDropdown';
+import FilterDropDown, { FilterSection } from '@/components/ui/filterDropdown';
 import "@/styles/filters.css";
 
 export default function EmployeePage() {
@@ -46,6 +47,7 @@ export default function EmployeePage() {
         <h1 className={styles.title}>Employee List</h1>
 
         <div className={styles.headerSection}>
+          {/* Status Filter */}
           <select
             className={styles.statusfilterDropdown}
             value={statusFilter}
@@ -57,6 +59,7 @@ export default function EmployeePage() {
             <option value="Resigned">Resigned</option>
           </select>
 
+          {/* Search */}
           <div className={styles.search}>
             <i className='ri-search-line'/>
             <input
@@ -93,6 +96,7 @@ export default function EmployeePage() {
                 <th>Status</th>
                 <th>Name</th>
                 <th>Date Hired</th>
+                <th>Department</th>
                 <th>Position</th>
                 <th>Actions</th>
               </tr>
@@ -183,7 +187,6 @@ export default function EmployeePage() {
             existingEmployees={employees}
             onClose={() => setShowAddModal(false)}
             onSubmit={handleAdd}
-            positions={positions}
           />
         )}
 
@@ -192,6 +195,10 @@ export default function EmployeePage() {
           <EmployeeModal
             isEdit={!isReadOnlyView}
             isReadOnly={isReadOnlyView}
+            defaultValue={selectedEmployee}
+            existingEmployees={employees}
+            onClose={() => setShowEditModal(false)}
+            onSubmit={handleEdit}
           />
         )}
       </div>

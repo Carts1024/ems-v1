@@ -1,11 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef, useMemo } from 'react'; // Import useEffect and useRef
 import { showSuccess, showConfirmation } from '@/app/utils/swal';
 import { Employee } from '@/components/modal/information/EmployeeModalLogic';
 import { FilterSection } from '@/components/ui/filterDropdown';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-const EMPLOYEE_API = `${API_BASE_URL}/employees`;
-const POSITIONS_API = `${API_BASE_URL}/positions`;
 
 export const EmployeeLogic = () => {
   const [showAddModal, setShowAddModal] = useState(false);

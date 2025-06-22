@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { showSuccess, showError, showConfirmation } from '@/app/utils/swal';
@@ -11,26 +12,65 @@ export const DepartmentLogic = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [employeeFilter, setEmployeeFilter] = useState('');
 
-  const [departments, setDepartments] = useState<
-    { id: number; name: string; employees: number; createdAt: string; updatedAt: string }[]
-  >([]);
+  // Schema-aligned department type
+  type DepartmentShape = {
+    id: number;
+    departmentName: string;
+    positions: {
+      id: number;
+      positionName: string;
+      _count?: { employees: number }; // If using Prisma's count
+      employees?: any[]; // fallback, if not using _count
+    }[];
+    createdAt: string;
+    updatedAt: string;
+  };
+
+  // Store mapped departments for the table
+  const [departments, setDepartments] = useState<{
+    id: number;
+    name: string;
+    employees: number;
+    createdAt: string;
+    updatedAt: string;
+  }[]>([]);
+
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  // Fetch departments from backend
-  useEffect(() => {
-    
-    fetch(`${apiUrl}/departments`)
-      .then((res) => res.json())
-      .then((data) => {
-        const mapped = data.map((dept: any) => ({
+
+  // Fetch departments and map to expected table data
+  const fetchDepartments = async () => {
+    try {
+      const res = await fetch(`${apiUrl}/departments`);
+      if (!res.ok) throw new Error();
+      const data: DepartmentShape[] = await res.json();
+
+      // Sum up all employees in all positions for each department
+      const mapped = data.map(dept => {
+        let totalEmployees = 0;
+        dept.positions.forEach(pos => {
+          if (pos._count && typeof pos._count.employees === 'number') {
+            totalEmployees += pos._count.employees;
+          } else if (pos.employees) {
+            totalEmployees += pos.employees.length;
+          }
+        });
+        return {
           id: dept.id,
           name: dept.departmentName,
-          employees: dept._count.employee,
+          employees: totalEmployees,
           createdAt: dept.createdAt,
           updatedAt: dept.updatedAt,
-        }));
-        setDepartments(mapped);
-      })
-      .catch(() => showError('Error', 'Failed to load departments'));
+        };
+      });
+
+      setDepartments(mapped);
+    } catch (e) {
+      showError('Error', 'Failed to load departments');
+    }
+  };
+
+  useEffect(() => {
+    fetchDepartments();
   }, []);
 
   // --- Add ---
@@ -42,17 +82,7 @@ export const DepartmentLogic = () => {
         body: JSON.stringify({ departmentName: newName }),
       });
       if (!res.ok) throw new Error();
-      const added = await res.json();
-      setDepartments((prev) => [
-        ...prev,
-        {
-          id: added.id,
-          name: added.departmentName,
-          employees: 0,
-          createdAt: added.createdAt,
-          updatedAt: added.updatedAt,
-        },
-      ]);
+      await fetchDepartments();
       showSuccess('Success', 'Department added successfully.');
     } catch {
       showError('Error', 'Failed to add department.');
@@ -69,11 +99,7 @@ export const DepartmentLogic = () => {
         body: JSON.stringify({ departmentName: updatedName }),
       });
       if (!res.ok) throw new Error();
-      setDepartments((prev) =>
-        prev.map((dept) =>
-          dept.id === selectedDept.id ? { ...dept, name: updatedName } : dept
-        )
-      );
+      await fetchDepartments();
       showSuccess('Success', 'Department updated successfully.');
     } catch {
       showError('Error', 'Failed to update department.');
@@ -91,7 +117,7 @@ export const DepartmentLogic = () => {
       try {
         const res = await fetch(`${apiUrl}/departments/${deptId}`, { method: 'DELETE' });
         if (!res.ok) throw new Error();
-        setDepartments((prev) => prev.filter((d) => d.id !== deptId));
+        await fetchDepartments();
         showSuccess('Success', 'Department deleted successfully.');
       } catch {
         showError('Error', 'Failed to delete department.');
@@ -145,5 +171,6 @@ export const DepartmentLogic = () => {
     setModalDeptName,
     openAddModal,
     openEditModal,
+    fetchDepartments,
   };
 };

@@ -28,7 +28,7 @@ const Sidebar = () => {
             key: 'dashboard'
         },
         {
-            name: 'Onboarding',
+            name: 'Recruitment',
             icon: 'ri-user-add-line',
             key: 'onboarding',
             subItems: [

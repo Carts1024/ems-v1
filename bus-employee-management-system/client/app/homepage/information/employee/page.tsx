@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import React from "react";
 import styles from './employee.module.css';
 import { EmployeeLogic } from './employeeLogic';
 import EmployeeModal from '@/components/modal/information/EmployeeModal';
-import FilterDropDown, { FilterSection } from '@/components/ui/filterDropdown';
+import FilterDropDown from '@/components/ui/filterDropdown';
 import "@/styles/filters.css";
 import "@/styles/pagination.css";
 
@@ -29,7 +28,9 @@ export default function EmployeePage() {
     filteredEmployees,
     employees,
     filterSections,
-    handleApplyFilters
+    handleApplyFilters,
+    positions,
+    getPositionName,
   } = EmployeeLogic();
 
   return (
@@ -38,7 +39,6 @@ export default function EmployeePage() {
         <h1 className={styles.title}>Employee List</h1>
 
         <div className={styles.headerSection}>
-          {/* Status Filter */}
           <select
             className={styles.statusfilterDropdown}
             value={statusFilter}
@@ -50,7 +50,6 @@ export default function EmployeePage() {
             <option value="Resigned">Resigned</option>
           </select>
 
-          {/* Search */}
           <div className={styles.search}>
             <i className='ri-search-line'/>
             <input
@@ -61,7 +60,6 @@ export default function EmployeePage() {
             />
           </div>
 
-           {/* Filter Button with Dropdown */}
           <div className="filter">
             <FilterDropDown
               sections={filterSections}
@@ -87,20 +85,18 @@ export default function EmployeePage() {
                 <th>Status</th>
                 <th>Name</th>
                 <th>Date Hired</th>
-                <th>Department</th>
                 <th>Position</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredEmployees.map((emp, index) => (
-                <tr key={`${emp.firstName}-${emp.lastName}-${index}`}>
+                <tr key={emp.id}>
                   <td className={styles.firstColumn}>{index + 1}</td>
                   <td>{emp.status}</td>
-                  <td>{`${emp.firstName} ${emp.middleName} ${emp.lastName}`}</td>
+                  <td>{`${emp.firstName} ${emp.middleName ?? ''} ${emp.lastName}`}</td>
                   <td>{emp.dateHired}</td>
-                  <td>{emp.department}</td>
-                  <td>{emp.position}</td>
+                  <td>{typeof emp.positionId === "number" ? getPositionName(emp.positionId) : ""}</td>
                   <td className={styles.actionCell}>
                     <button
                       className={styles.viewButton}
@@ -119,7 +115,7 @@ export default function EmployeePage() {
                         setIsReadOnlyView(false);
                         setShowEditModal(true);
                       }}
-                    > <i className="ri-edit-2-line"/> 
+                    > <i className="ri-edit-2-line"/>
                     </button>
                     <button
                       className={styles.deleteButton}
@@ -133,7 +129,6 @@ export default function EmployeePage() {
           </table>
         </div>
 
-        {/* Pagination */}
         <div className="pagination">
             <button className="page-btn">
               <i className="ri-arrow-left-s-line"></i>
@@ -155,6 +150,7 @@ export default function EmployeePage() {
             existingEmployees={employees}
             onClose={() => setShowAddModal(false)}
             onSubmit={handleAdd}
+            positions={positions}
           />
         )}
 
@@ -165,20 +161,10 @@ export default function EmployeePage() {
             existingEmployees={employees}
             onClose={() => setShowEditModal(false)}
             onSubmit={handleEdit}
-          />
-        )}
-
-        {showEditModal && selectedEmployee && (
-          <EmployeeModal
-            isEdit={!isReadOnlyView}
+            positions={positions}
             isReadOnly={isReadOnlyView}
-            defaultValue={selectedEmployee}
-            existingEmployees={employees}
-            onClose={() => setShowEditModal(false)}
-            onSubmit={handleEdit}
           />
         )}
-        
       </div>
     </div>
   );

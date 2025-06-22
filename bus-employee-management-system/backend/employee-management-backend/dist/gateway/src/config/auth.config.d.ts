@@ -1,4 +1,7 @@
 declare const _default: () => {
-    jwtSecret: string | undefined;
+    auth: {
+        jwtSecret: string | undefined;
+        authServiceUrl: string | undefined;
+    };
 };
 export default _default;

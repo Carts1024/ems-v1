@@ -10,6 +10,7 @@ import appConfig from './config/app.config';
 import authConfig from './config/auth.config';
 import { RolesController } from './auth/roles.controller';
 import { DepartmentController } from './hr-service/information/department/department.controller';
+import { EmployeeModule } from './hr-service/information/employee/employee.module';
 
 
 
@@ -23,6 +24,7 @@ import { DepartmentController } from './hr-service/information/department/depart
     }),
     HttpModule,
     AuthModule,
+    EmployeeModule, // Import EmployeeModule
     ClientsModule.register([
       {
         

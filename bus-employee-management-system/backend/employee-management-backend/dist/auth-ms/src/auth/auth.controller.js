@@ -34,20 +34,24 @@ let AuthController = class AuthController {
         this.jwtService = jwtService;
     }
     async login(loginDto, res, req) {
-        const user = await this.authService.validateUser(Number(loginDto.roleId), loginDto.employeeId, loginDto.password);
+        const user = await this.authService.validateUser(loginDto.employeeId, loginDto.password);
         if (!user) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
+        const role = await this.authService.getRole(user);
+        if (!role) {
+            throw new common_1.BadRequestException('Role not found for user');
+        }
         const { access_token } = this.authService.login(user);
-        const isLocalhost = req.hostname === 'localhost' || req.hostname === '127.0.0.1';
         res.cookie('jwt', access_token, {
             httpOnly: true,
-            secure: false,
+            secure: true,
             sameSite: 'lax',
+            domain: process.env.COOKIE_DOMAIN,
             path: '/',
             maxAge: 3600 * 1000,
         });
-        return { message: 'Login successful' };
+        return { message: 'Login successful', token: access_token, role: role.name };
     }
     async verify(req, res) {
         const authHeader = req.headers.authorization;
@@ -64,7 +68,7 @@ let AuthController = class AuthController {
         }
     }
     async register(body) {
-        const { employeeId, roleId, email, birthdate, firstName, lastName, phone, streetAddress, city, province, zipCode, country, securityQuestionId, securityAnswer } = body;
+        const { employeeId, roleId, email, securityQuestionId, securityAnswer } = body;
         const existing = await prisma.user.findUnique({ where: { employeeId } });
         if (existing) {
             throw new common_1.BadRequestException('User already exists');
@@ -74,24 +78,15 @@ let AuthController = class AuthController {
         const securityAns = body.securityAnswer ?? '';
         const AnswerHash = await argon2.hash(securityAns, { type: argon2.argon2id });
         const user = await prisma.user.create({
-            data: { employeeId, roleId, password: passwordhash, email, birthdate, firstName, lastName, phone, streetAddress, city, province, zipCode, country, securityQuestionId, securityAnswer: AnswerHash },
+            data: { employeeId, roleId, password: passwordhash, email, securityQuestionId, securityAnswer: AnswerHash },
         });
-        await this.emailService.sendWelcomeEmail(user.email, user.employeeId, tempPassword, firstName);
+        await this.emailService.sendWelcomeEmail(user.email, user.employeeId, tempPassword);
         return {
             message: 'User registered successfully', user: {
                 id: user.id,
                 employeeID: user.employeeId,
                 role: user.roleId,
                 email: user.email,
-                birthdate: user.birthdate,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                phone: user.phone,
-                streetAddress: user.streetAddress,
-                city: user.city,
-                province: user.province,
-                zipCode: user.zipCode,
-                country: user.country,
                 securityQuestion: user.securityQuestionId,
                 securityAnswerHash: user.securityAnswer,
                 message: 'User Registered. Email Sent'

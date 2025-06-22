@@ -10,21 +10,14 @@ export declare class AuthController {
     constructor(authService: AuthService, emailService: EmailService, jwtService: JwtService);
     login(loginDto: LoginDto, res: Response, req: Request): Promise<{
         message: string;
+        token: string;
+        role: string;
     }>;
     verify(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
     register(body: {
         employeeId: string;
         roleId: number;
         email: string;
-        birthdate: Date;
-        firstName: string;
-        lastName: string;
-        phone?: string;
-        streetAddress?: string;
-        city?: string;
-        province?: string;
-        zipCode?: string;
-        country?: string;
         securityQuestionId: number;
         securityAnswer: string;
     }): Promise<{
@@ -34,15 +27,6 @@ export declare class AuthController {
             employeeID: string;
             role: number;
             email: string;
-            birthdate: Date;
-            firstName: string;
-            lastName: string;
-            phone: string | null;
-            streetAddress: string | null;
-            city: string | null;
-            province: string | null;
-            zipCode: string | null;
-            country: string | null;
             securityQuestion: number;
             securityAnswerHash: string;
             message: string;

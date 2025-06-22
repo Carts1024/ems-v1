@@ -16,10 +16,16 @@ exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const login_dto_1 = require("./dto/login.dto");
+const axios_1 = require("@nestjs/axios");
+const rxjs_1 = require("rxjs");
 let AuthController = class AuthController {
     authService;
-    constructor(authService) {
+    httpService;
+    HR_SERVICE_URL = process.env.HR_SERVICE_URL || 'http://localhost:4002';
+    AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:4001';
+    constructor(authService, httpService) {
         this.authService = authService;
+        this.httpService = httpService;
     }
     async login(credentials, res) {
         const response = await this.authService.login(credentials);
@@ -28,12 +34,46 @@ let AuthController = class AuthController {
         }
         res.status(response.status).json(response.data);
     }
-    async firstResetPassword(body) {
-        const { employeeId, newPassword } = body;
-        if (!employeeId || !newPassword) {
-            throw new Error('Employee ID and new password are required');
+    async register(body) {
+        const { employeeNumber, firstName, lastName, birthdate, hiredate, phone, barangay, zipCode, positionId, email, roleId, securityQuestionId, securityAnswer, } = body;
+        let employee;
+        try {
+            const res = await (0, rxjs_1.firstValueFrom)(this.httpService.get(`${this.HR_SERVICE_URL}/employees/by-number/${employeeNumber}`));
+            employee = res.data;
         }
-        return this.authService.firstResetPassword(employeeId, newPassword);
+        catch (e) {
+            const res = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.HR_SERVICE_URL}/employees`, {
+                employeeNumber,
+                firstName,
+                lastName,
+                birthdate,
+                hiredate,
+                phone,
+                barangay,
+                zipCode,
+                positionId,
+            }));
+            employee = res.data;
+        }
+        if (!employee?.id)
+            throw new common_1.BadRequestException('Could not create or fetch employee');
+        const userRes = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.AUTH_SERVICE_URL}/auth/register`, {
+            employeeId: employee.id,
+            email,
+            roleId,
+            securityQuestionId,
+            securityAnswer,
+            firstName,
+            employeeNumber,
+        }));
+        return userRes.data;
+    }
+    async firstResetPassword(body) {
+        const { employeeNumber, newPassword } = body;
+        if (!employeeNumber || !newPassword) {
+            throw new Error('Employee Number and new password are required');
+        }
+        return this.authService.firstResetPassword(employeeNumber, newPassword);
     }
     async verify(authHeader) {
         if (!authHeader) {
@@ -62,9 +102,11 @@ let AuthController = class AuthController {
         res.clearCookie('jwt', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            path: '/',
+            maxAge: 0,
         });
-        return { message: 'Logged out successfully' };
+        res.status(200).json({ message: 'Logged out' });
     }
 };
 exports.AuthController = AuthController;
@@ -76,6 +118,13 @@ __decorate([
     __metadata("design:paramtypes", [login_dto_1.LoginDto, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
+__decorate([
+    (0, common_1.Post)('register'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "register", null);
 __decorate([
     (0, common_1.Post)('first-password-reset'),
     __param(0, (0, common_1.Body)()),
@@ -120,6 +169,7 @@ __decorate([
 ], AuthController.prototype, "logout", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
-    __metadata("design:paramtypes", [auth_service_1.AuthService])
+    __metadata("design:paramtypes", [auth_service_1.AuthService,
+        axios_1.HttpService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

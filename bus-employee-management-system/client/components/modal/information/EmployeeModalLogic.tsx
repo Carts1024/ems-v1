@@ -4,26 +4,25 @@ import { useState } from 'react';
 import { showConfirmation, showSuccess, showError } from '@/app/utils/swal';
 
 export interface Employee {
+  id?: string;
   firstName: string;
-  middleName: string;
+  middleName?: string;
   lastName: string;
   birthdate: string;
-  email: string;
   contact: string;
-  address: string;
-  emergencyContactName: string;
-  emergencyContactNo: string;
+  address?: string;
+  emergencyContactName?: string;
+  emergencyContactNo?: string;
   status: string;
   dateHired: string;
-  department: string;
-  position: string;
-  basicPay: string;
-  govtIdType: string;
-  govtIdNo: string;
-  licenseType: string;
-  licenseNo: string;
-  restrictionCodes: string[];
-  expireDate: string;
+  positionId: number | '';
+  basicPay?: string;
+  govtIdType?: string;
+  govtIdNo?: string;
+  licenseType?: string;
+  licenseNo?: string;
+  restrictionCodes?: string[];
+  expireDate?: string;
 }
 
 const isAtLeast18 = (birthdate: string) => {
@@ -34,7 +33,6 @@ const isAtLeast18 = (birthdate: string) => {
   return age > 18 || (age === 18 && m >= 0);
 };
 
-const isValidEmail = (email: string) => /^[\w.-]+@[\w.-]+\.[A-Za-z]{2,}$/.test(email);
 const isValidContact = (contact: string) => /^\d{11}$/.test(contact);
 const isValidPhilippineContact = (contact: string) => /^(09)\d{9}$/.test(contact);
 const isValidDateHired = (date: string) => new Date(date) <= new Date();
@@ -52,15 +50,13 @@ export const useEmployeeModal = (
     middleName: '',
     lastName: '',
     birthdate: '',
-    email: '',
     contact: '',
     address: '',
     emergencyContactName: '',
     emergencyContactNo: '',
     status: '',
     dateHired: '',
-    department: '',
-    position: '',
+    positionId: '', // dropdown
     basicPay: '',
     govtIdType: '',
     govtIdNo: '',
@@ -78,22 +74,11 @@ export const useEmployeeModal = (
     if (!employee.firstName.trim()) errors.firstName = 'Required';
     if (!employee.lastName.trim()) errors.lastName = 'Required';
     if (!employee.birthdate || !isAtLeast18(employee.birthdate)) errors.birthdate = 'Must be at least 18 years old.';
-    if (!employee.email || !isValidEmail(employee.email)) errors.email = 'Invalid email format.';
     if (!isValidContact(employee.contact) || !isValidPhilippineContact(employee.contact)) errors.contact = 'Invalid format.';
-    if (!employee.address) errors.address = 'Required';
-    if (!employee.emergencyContactName) errors.emergencyContactName = 'Required';
-    if (!employee.emergencyContactNo || !/^(09)\d{9}$/.test(employee.emergencyContactNo)) errors.emergencyContactNo = 'Invalid format.';
     if (!employee.status) errors.status = 'Required';
     if (!employee.dateHired || !isValidDateHired(employee.dateHired)) errors.dateHired = 'Date Hired cannot be a future date.';
-    if (!employee.department) errors.department = 'Required';
-    if (!employee.position.trim()) errors.position = 'Required';
-    if (!employee.basicPay || isNaN(Number(employee.basicPay))) errors.basicPay = 'Required and must be numeric';
-    if (!employee.govtIdType) errors.govtIdType = 'Required';
-    if (!employee.govtIdNo) errors.govtIdNo = 'Required';
+    if (!employee.positionId) errors.positionId = 'Position is required';
     if (employee.expireDate && isPastDate(employee.expireDate)) errors.expireDate = 'Expiry date cannot be in the past.';
-    if (!employee.licenseNo && employee.position.toLowerCase() === 'driver') errors.licenseNo = 'Required for drivers';
-    if (employee.position.toLowerCase() === 'driver' && employee.restrictionCodes.length === 0) errors.licenseType = 'At least one restriction code is required';
-
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -108,7 +93,7 @@ export const useEmployeeModal = (
     );
   };
 
-  const handleChange = (field: keyof Employee, value: string | string[]) => {
+  const handleChange = (field: keyof Employee, value: string | string[] | number) => {
     setEmployee(prev => ({ ...prev, [field]: value }));
     setFieldErrors(prev => ({ ...prev, [field]: undefined }));
   };

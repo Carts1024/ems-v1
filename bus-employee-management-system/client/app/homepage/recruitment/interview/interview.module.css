@@ -3,11 +3,12 @@
   height: 100%;
 }
 
-.departmentContainer {
+.interviewContainer {
   max-width: auto;
-  height: 100%;
+  height: auto;
+  max-height: none; 
   padding: 2rem;
-  padding-top: 0.01rem;
+  padding-top: 0.01rem; 
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0,0,0,0.05);
@@ -16,7 +17,7 @@
 .title {
   font-size: 24px;
   font-weight: 600 (bold);
-  margin-Bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .search {
@@ -45,25 +46,30 @@
   font-size: 14px; 
 }
 
-.addDepartmentButton {
-  width: 160px; 
+.scheduleInterviewButton {
+  width: 175px;
   height: 35px; 
   display: flex; 
   justify-content: center; 
   align-items: center; 
   gap: 8px; 
-  border-radius: 5px; 
+  border-radius: 8px; 
   background-color: #961C1E; 
   color: #FFFFFF; 
   font-size: 14px; 
   transition: all 0.3s ease-in-out; 
+  cursor: pointer; 
+  background-color: #961C1E;
+  color: white;
   border: none;
   padding: 0.5rem 1rem;
+  border-radius: 5px;
   cursor: pointer;
 }
 
-.addDepartmentButton:hover {
-  background-color: #571415;
+.scheduleInterviewButton:hover {
+  background-color: #571415 !important;
+  color: white;
 }
 
 .headerSection {
@@ -75,10 +81,10 @@
   flex-wrap: wrap;
 }
 
-.filterDropdown {
+.statusfilterDropdown {
   border: 1px solid var(--border-color); 
   border-radius: 8px; 
-  width: 200px; 
+  width: 150px; 
   height: 35px; 
   padding-right: 0 8px; 
   font-size: 14px; 
@@ -89,22 +95,65 @@
   width: 75px;
 }
 
-/* ================================= */
+/* .actionCell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
+.actionCell i{
+  padding: 3px 6px; 
+  font-size: 14px; 
+  border-radius: 4px; 
+  color: #FFFFFF; 
+  transition: all 0.3s ease-in-out; 
+  cursor: pointer; 
+  border: none; 
+}
+
+.viewButton {
+  background-color: #13CE66;
+  border-radius: 4px;
+}
+
+.viewButton:hover {
+  background-color: #12B75C;
+}
+
+.editButton{
+  background-color: #2D8EFF;
+  border-radius: 4px;
+}
+
+.editButton:hover {
+  background-color: #267BDB;
+}
+
+.deleteButton {
+  background-color: #FF4949;
+  border-radius: 4px;
+}
+
+.deleteButton:hover {
+  background-color: #DE3939;
+} */
+
+/* =================================== */
 /* .tableWrapper {
   width: 100%;
-  max-height: 100%;
   overflow-x: auto;
 }
 
-.departmentTable {
+.interviewTable {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
   text-align: center;
+  color: red;
+
 }
 
-.departmentTable thead th {
+.interviewTable thead th {
   position: sticky;
   top: 0;
   background: #fff;
@@ -113,26 +162,26 @@
   padding: 10px;
 }
 
-.departmentTable tbody {
+.interviewTable tbody {
   display: block;
   max-height: 300px; /* scroll height
   overflow-y: auto;
   width: 100%;
 }
 
-.departmentTable thead,
-.departmentTable tbody tr {
+.interviewTable thead,
+.interviewTable tbody tr {
   display: table;
   width: 100%;
   table-layout: fixed;
 }
 
-.departmentTable tbody td {
+.interviewTable tbody td {
   padding: 10px;
   border-bottom: 1px solid #eee;
 } */
 
-/* ==================================== */
+/* =========================================== */
 /* Table Styling */
 .tableWrapper {
   flex: 1 1 auto;
@@ -175,8 +224,7 @@
   scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color);
 }
 
-
-.departmentTable {
+.interviewTable {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
@@ -186,11 +234,11 @@
   border-collapse: collapse;
 }
 
-.departmentTable thead {
+.interviewTable thead {
   background-color: #f2f2f2;
 }
 
-.departmentTable thead th {
+.interviewTable thead th {
   padding: 12px 15px;
   font-weight: 600;
   color: black;
@@ -202,35 +250,34 @@
   text-overflow: ellipsis;
   vertical-align: top;
 }
-.departmentTable thead.tr:hover {
-  background-color: red;
-}
-/* Flexible column sizing. Adjust percentages as needed. */
-.departmentTable thead th:nth-child(1) { width: 5%; } /* No. */
-.departmentTable thead th:nth-child(2) { width: 10%; } /* Department Name */
-.departmentTable thead th:nth-child(3) { width: 10%; } /* No of Employees */
-.departmentTable thead th:nth-child(4) { width: 20%; } /* Time added */
-.departmentTable thead th:nth-child(5) { width: 20%; } /* Time modified */
-.departmentTable thead th:nth-child(6) { width: 10%; } /* Actions */
 
-.departmentTable thead th:first-child {
+/* Flexible column sizing. Adjust percentages as needed. */
+.interviewTable thead th:nth-child(1) { width: 5%; } /* No. */
+.interviewTable thead th:nth-child(2) { width: 10%; } /* Interview Status */
+.interviewTable thead th:nth-child(3) { width: 15%; } /* Name */
+.interviewTable thead th:nth-child(4) { width: 10%; } /* Desired position */
+.interviewTable thead th:nth-child(5) { width: 16%; } /* Interview date */
+.interviewTable thead th:nth-child(6) { width: 10%; } /* Actions */
+
+
+.interviewTable thead th:first-child {
   border-top-left-radius: 6px;
 }
 
-.departmentTable thead th:last-child {
+.interviewTable thead th:last-child {
   border-top-right-radius: 6px;
 }
 
-.departmentTable tbody tr {
+.interviewTable tbody tr {
   transition: background-color 0.2s;
   overflow: visible; 
 }
 
-.departmentTable tbody tr:nth-child(even) {
+.interviewTable tbody tr:nth-child(even) {
   background-color: #fafafa;
 }
 
-.departmentTable tbody tr:hover {
+.interviewTable tbody tr:hover {
   background-color: #f1f1f1;
     color: black;
 
@@ -243,7 +290,7 @@ td.truncate {
 }
 
 
-.departmentTable tbody td {
+.interviewTable tbody td {
   padding: 12px 15px;
   text-align: center;
   border-bottom: 1px solid #eee;
@@ -324,3 +371,28 @@ td.truncate {
 
 .deleteButton { background-color: #FF4949; }
 .deleteButton:hover { background-color: #DE3939; }
+
+/* Status Badges */
+.interviewStatus {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.interview-not-scheduled {
+  background-color: #f2dede;
+  color: #a94442;
+}
+
+.interview-scheduled {
+  background-color: #d9edf7;
+  color: #31708f;
+}
+
+.interview-completed {
+  background-color: #D1F7D1;
+  color: #23915F;
+}

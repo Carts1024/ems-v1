@@ -10,9 +10,13 @@ export interface Employee {
   lastName: string;
   birthdate: string;
   contact: string;
-  address?: string;
-  emergencyContactName?: string;
-  emergencyContactNo?: string;
+  houseStreetBarangay: string;
+  city: string;
+  stateProvinceRegion: string;
+  country: string;
+  zipCode: string;
+  emergencyContactName: string;
+  emergencyContactNo: string;
   status: string;
   dateHired: string;
   positionId: number | '';
@@ -51,7 +55,11 @@ export const useEmployeeModal = (
     lastName: '',
     birthdate: '',
     contact: '',
-    address: '',
+    houseStreetBarangay: '',
+    city: '',
+    stateProvinceRegion: '',
+    country: '',
+    zipCode: '',
     emergencyContactName: '',
     emergencyContactNo: '',
     status: '',
@@ -75,10 +83,37 @@ export const useEmployeeModal = (
     if (!employee.lastName.trim()) errors.lastName = 'Required';
     if (!employee.birthdate || !isAtLeast18(employee.birthdate)) errors.birthdate = 'Must be at least 18 years old.';
     if (!isValidContact(employee.contact) || !isValidPhilippineContact(employee.contact)) errors.contact = 'Invalid format.';
+    if (!employee.houseStreetBarangay) errors.houseStreetBarangay = 'Required';
+    if (!employee.city) errors.city = 'Required';
+    if (!employee.stateProvinceRegion) errors.stateProvinceRegion = 'Required';
+    if (!employee.country) errors.country = 'Required';
+    if (!employee.zipCode) errors.zipCode = 'Required';
+    if (!employee.emergencyContactName) errors.emergencyContactName = 'Required';
+    if (!employee.emergencyContactNo || !/^(09)\d{9}$/.test(employee.emergencyContactNo)) errors.emergencyContactNo = 'Invalid format.';
     if (!employee.status) errors.status = 'Required';
     if (!employee.dateHired || !isValidDateHired(employee.dateHired)) errors.dateHired = 'Date Hired cannot be a future date.';
-    if (!employee.positionId) errors.positionId = 'Position is required';
+    if (!employee.department) errors.department = 'Required';
+    if (!employee.position.trim()) errors.position = 'Required';
+    if (!employee.basicPay || isNaN(Number(employee.basicPay))) errors.basicPay = 'Required and must be numeric';
     if (employee.expireDate && isPastDate(employee.expireDate)) errors.expireDate = 'Expiry date cannot be in the past.';
+    if (!employee.licenseNo && employee.position.toLowerCase() === 'driver') errors.licenseNo = 'Required';
+    if (employee.position.toLowerCase() === 'driver') {
+      if (!employee.licenseNo) {
+        errors.licenseNo = 'Required for drivers';
+      }
+
+      if (
+        employee.position.toLowerCase() === 'driver' &&
+        !employee.restrictionCodes.includes('D : Passenger Bus (M3)')
+      ) {
+        errors.restrictionCodes = 'Restriction Code D is required to operate a passenger bus';
+      }
+
+      if (employee.expireDate && isPastDate(employee.expireDate)) {
+        errors.expireDate = 'Expiry date cannot be in the past.';
+      }
+    }
+
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -99,28 +134,33 @@ export const useEmployeeModal = (
   };
 
   const handleSubmit = async () => {
-    if (!validateInput()) return;
+    const isValid = validateInput();
+    if (!isValid) {
+      showError('Error', 'Please correct the errors in the form.');
+      return;
+    }
     if (isDuplicateEmployee()) {
       showError('Oops!', 'Employee already exists.');
       return;
     }
     onSubmit(employee);
-    showSuccess('Success', isEdit ? 'Employee updated successfully.' : 'Employee added successfully.');
+    showSuccess('Success', 'Employee added successfully.');
     onClose();
   };
 
   const handleUpdateConfirm = async () => {
-    if (!validateInput()) return;
+    const isValid = validateInput();
+    if (!isValid) {
+      showError('Validation Error', 'Please correct the errors in the form.');
+      return;
+    }
     if (isDuplicateEmployee()) {
       showError('Oops!', 'Employee already exists.');
       return;
     }
-    const result = await showConfirmation('Are you sure you want to update this employee?');
-    if (result.isConfirmed) {
-      onSubmit(employee);
-      showSuccess('Success', 'Employee updated successfully.');
-      onClose();
-    }
+    onSubmit(employee);
+    showSuccess('Success', 'Employee added successfully.');
+    onClose();
   };
 
   return {

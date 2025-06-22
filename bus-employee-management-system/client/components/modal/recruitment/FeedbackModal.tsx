@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import styles from './OnboardingModal.module.css';
+import styles from './RecruitmentModal.module.css';
 import { Candidate } from './CandidateModalLogic';
 import { useFeedbackModal } from './FeedbackModalLogic';
 

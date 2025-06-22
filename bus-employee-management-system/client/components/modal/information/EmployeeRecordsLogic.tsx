@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { showConfirmation, showSuccess } from '@/app/utils/swal';
+import { showConfirmation, showSuccess, showError } from '@/app/utils/swal';
 
 // Types
 interface WorkExperience {
@@ -137,7 +137,7 @@ export const useEmployeeRecords = () => {
       case 'UMID':
         return /^[A-Za-z0-9]+$/.test(number) ? null : 'UMID must be alphanumeric.';
       default:
-        return 'Invalid ID type';
+        return 'Required';
     }
   };
 
@@ -240,6 +240,14 @@ export const useEmployeeRecords = () => {
   };
 
   // Government ID logic
+  const validateGovernmentIds = () => {
+    if (governmentIds.length === 0) {
+      showError('Validation Error', 'At least one Government ID is required.');
+      return false;
+    }
+    return true;
+  };
+
   const addGovernmentID = () => {
     setEditingGovIdIndex(governmentIds.length);
     setTempGovId({ idType: '', idNumber: '' });
@@ -350,6 +358,7 @@ export const useEmployeeRecords = () => {
     tempGovId,
     editingGovIdIndex,
     setTempGovId,
+    validateGovernmentIds,
     addGovernmentID,
     saveGovernmentID,
     editGovernmentID,

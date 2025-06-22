@@ -52,7 +52,7 @@ export default function LoginPage() {
       newErrors.employeeId = 'Employee ID is required';
       valid = false;
     } else if (!/^[a-zA-Z0-9@._-]{4,20}$/.test(formData.employeeId)) {
-      newErrors.employeeId = 'Employee ID must be 4-20 characters and can contain letters, numbers, @, ., _, or -';
+      newErrors.employeeId = 'Invalid credentials.';
       valid = false;
     }
 
@@ -60,7 +60,7 @@ export default function LoginPage() {
       newErrors.password = 'Password is required';
       valid = false;
     } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{}|;:,.<>?])[A-Za-z\d!@#$%^&*()_+[\]{}|;:,.<>?]{8,20}$/.test(formData.password)) {
-      newErrors.password = 'Password must be 8-20 characters with at least one uppercase, one lowercase, one number, and one special character';
+      newErrors.password = 'Invalid credentials.';
       valid = false;
     }
 

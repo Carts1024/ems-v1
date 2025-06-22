@@ -6,12 +6,19 @@ import "@/styles/filters.css"
 import "@/styles/pagination.css"
 import DepartmentModal from '@/components/modal/information/DepartmentModalLogic';
 import { DepartmentLogic } from './departmentLogic';
+import PaginationComponent from '@/components/ui/pagination';
 
 const DepartmentPage = () => {
   const {
     filteredDepartments,
     searchTerm,
     setSearchTerm,
+    paginatedDepartments,
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    totalPages,
     employeeFilter,
     setEmployeeFilter,
     showAddModal,
@@ -24,6 +31,8 @@ const DepartmentPage = () => {
     handleAdd,
     handleEdit,
     handleDeleteRequest,
+    openActionDropdownIndex,
+    toggleActionDropdown,
   } = DepartmentLogic();
 
   return (
@@ -78,50 +87,62 @@ const DepartmentPage = () => {
               </tr>
             </thead>
             <tbody>
-            {filteredDepartments.map((dept, index) => (
-              <tr key={dept.id}>
-                <td className={styles.firstColumn}>{index + 1}</td>
-                <td>{dept.name}</td>
-                <td>{dept.employees}</td>
-                <td>{new Date(dept.createdAt).toLocaleString()}</td>
-                <td>{new Date(dept.updatedAt).toLocaleString()}</td>
-                <td className={styles.actionCell}>
-                  <button
-                    className={styles.editButton}
-                    onClick={() => {
-                      setSelectedDept({ id: dept.id, name: dept.name });
-                      setShowEditModal(true);
-                    }}
-                  >
-                    <i className='ri-edit-2-line'/>
-                  </button>
-                  <button
-                    className={styles.deleteButton}
-                    onClick={() => handleDeleteRequest(dept.id)}
-                  >
-                    <i className='ri-delete-bin-line' />
-                  </button>
-                </td>
-              </tr>
-            ))}
+              {paginatedDepartments.map((dept, index) => (
+                <tr key={dept.name}>
+                  <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
+                  <td>{dept.name}</td>
+                  <td>{dept.employees}</td>
+                  <td>mm-dd-yyyy hh:mm</td>
+                  <td>mm-dd-yyyy hh:mm</td>
+                  <td className={styles.actionCell}>
+                    {/* The main action button */}
+                    <button
+                      className={styles.mainActionButton} // You might need to define this style
+                      onClick={() => toggleActionDropdown(index)}
+                    >
+                      <i className="ri-more-2-fill" />
+                    </button>
+
+                    {/* Action dropdown container, conditionally rendered */}
+                    {openActionDropdownIndex === index && (
+                      <div className={styles.actionDropdown}>
+                        <button
+                          className={styles.editButton}
+                          onClick={() => {
+                            setSelectedDept(dept.name);
+                            setShowEditModal(true);
+                            toggleActionDropdown(null); // Close dropdown after action
+                          }}
+                        > <i className='ri-edit-2-line'/> Edit
+                        </button>
+                        <button
+                          className={styles.deleteButton}
+                          onClick={() => {
+                            handleDeleteRequest(dept.name);
+                            toggleActionDropdown(null); // Close dropdown after action
+                          }}
+                        > <i className='ri-delete-bin-line' /> Delete
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
 
         {/* Pagination */}
-        <div className="pagination">
-            <button className="page-btn">
-              <i className="ri-arrow-left-s-line"></i>
-            </button>
-            <button className="page-btn active">1</button>
-            <button className="page-btn">2</button>
-            <button className="page-btn">3</button>
-            <button className="page-btn">4</button>
-            <button className="page-btn">5</button>
-            <button className="page-btn">
-              <i className="ri-arrow-right-s-line"></i>
-            </button>
-        </div>
+        <PaginationComponent
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPageChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1); // reset to page 1 when size changes
+          }}
+        />
 
         {showAddModal && (
           <DepartmentModal

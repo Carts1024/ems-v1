@@ -1,138 +1,100 @@
+/* Variables */
+:root {
+  --border-color: #ddd;
+  /* Custom scrollbar colors */
+  --scrollbar-track-color: #f1f1f1;
+  --scrollbar-thumb-color: #ccc;
+  --scrollbar-thumb-hover-color: #999;
+}
+
+/* Layout Containers */
 .base {
   width: 100%;
   height: 100%;
 }
 
-.departmentContainer {
+.candidateContainer {
   max-width: auto;
-  height: 100%;
+  height: auto;
+  max-height: none; 
   padding: 2rem;
-  padding-top: 0.01rem;
+  padding-top: 0.01rem; 
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0,0,0,0.05);
 }
 
+/* Header / Title */
 .title {
   font-size: 24px;
-  font-weight: 600 (bold);
-  margin-Bottom: 15px;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
 }
 
+/* Search Bar */
 .search {
   display: flex;
-  flex-direction: row;
   align-items: center;
 }
 
 .search i {
-  display: flex; 
-  align-items: center; 
-  border: 1px solid #B3B3B3; 
-  border-right: none; 
-  border-radius: 8px 0 0 8px; 
-  height: 35px; 
-  padding: 8px; 
+  border: 1px solid #B3B3B3;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  height: 35px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
 }
 
 .search input {
   border: 1px solid var(--border-color);
   border-left: none;
-  border-radius: 0 8px 8px 0; 
-  width: 400px; 
-  height: 35px; 
-  padding-right: 0 8px; 
-  font-size: 14px; 
+  border-radius: 0 8px 8px 0;
+  width: 400px;
+  height: 35px;
+  padding: 0 8px;
+  font-size: 14px;
 }
 
-.addDepartmentButton {
-  width: 160px; 
-  height: 35px; 
-  display: flex; 
-  justify-content: center; 
-  align-items: center; 
-  gap: 8px; 
-  border-radius: 5px; 
-  background-color: #961C1E; 
-  color: #FFFFFF; 
-  font-size: 14px; 
-  transition: all 0.3s ease-in-out; 
-  border: none;
+/* Action Buttons & Filters */
+.headerSection {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.statusfilterDropdown {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  width: 150px;
+  height: 35px;
+  padding: 0.5rem;
+  font-size: 14px;
+}
+
+.addCandidateButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 0.5rem 1rem;
+  background-color: #961C1E;
+  color: #fff;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-.addDepartmentButton:hover {
+.addCandidateButton:hover {
   background-color: #571415;
 }
 
-.headerSection {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.filterDropdown {
-  border: 1px solid var(--border-color); 
-  border-radius: 8px; 
-  width: 200px; 
-  height: 35px; 
-  padding-right: 0 8px; 
-  font-size: 14px; 
-  padding: 0.5rem;
-}
-
-.firstColumn {
-  width: 75px;
-}
-
-/* ================================= */
-
-/* .tableWrapper {
-  width: 100%;
-  max-height: 100%;
-  overflow-x: auto;
-}
-
-.departmentTable {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-  text-align: center;
-}
-
-.departmentTable thead th {
-  position: sticky;
-  top: 0;
-  background: #fff;
-  z-index: 2;
-  border-bottom: 2px solid #ddd;
-  padding: 10px;
-}
-
-.departmentTable tbody {
-  display: block;
-  max-height: 300px; /* scroll height
-  overflow-y: auto;
-  width: 100%;
-}
-
-.departmentTable thead,
-.departmentTable tbody tr {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
-}
-
-.departmentTable tbody td {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-} */
-
-/* ==================================== */
 /* Table Styling */
 .tableWrapper {
   flex: 1 1 auto;
@@ -176,7 +138,7 @@
 }
 
 
-.departmentTable {
+.candidateTable {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
@@ -186,11 +148,11 @@
   border-collapse: collapse;
 }
 
-.departmentTable thead {
+.candidateTable thead {
   background-color: #f2f2f2;
 }
 
-.departmentTable thead th {
+.candidateTable thead th {
   padding: 12px 15px;
   font-weight: 600;
   color: black;
@@ -202,35 +164,44 @@
   text-overflow: ellipsis;
   vertical-align: top;
 }
-.departmentTable thead.tr:hover {
+.candidateTable thead.tr:hover {
   background-color: red;
 }
 /* Flexible column sizing. Adjust percentages as needed. */
-.departmentTable thead th:nth-child(1) { width: 5%; } /* No. */
-.departmentTable thead th:nth-child(2) { width: 10%; } /* Department Name */
-.departmentTable thead th:nth-child(3) { width: 10%; } /* No of Employees */
-.departmentTable thead th:nth-child(4) { width: 20%; } /* Time added */
-.departmentTable thead th:nth-child(5) { width: 20%; } /* Time modified */
-.departmentTable thead th:nth-child(6) { width: 10%; } /* Actions */
+.candidateTable thead th:nth-child(1) { width: 3%; } /* No. */
+.candidateTable thead th:nth-child(2) { width: 20%; } /* Name */
+.candidateTable thead th:nth-child(3) { width: 15%; } /* Desired Position */
+.candidateTable thead th:nth-child(4) { width: 10%; } /* Source of Hire */
+.candidateTable thead th:nth-child(5) { width: 10%; } /* Application Date */
+.candidateTable thead th:nth-child(6) { width: 10%; } /* Department */
+.candidateTable thead th:nth-child(7) { width: 10%; } /* Application Status */
+.candidateTable thead th:nth-child(8) { width: 10%; } /* Interview Status */
 
-.departmentTable thead th:first-child {
+.candidateTable thead th:nth-child(9) { 
+  width: 30%; 
+  padding-right: 50px; 
+  padding-left: 27px;
+} /* Actions */
+
+
+.candidateTable thead th:first-child {
   border-top-left-radius: 6px;
 }
 
-.departmentTable thead th:last-child {
+.candidateTable thead th:last-child {
   border-top-right-radius: 6px;
 }
 
-.departmentTable tbody tr {
+.candidateTable tbody tr {
   transition: background-color 0.2s;
   overflow: visible; 
 }
 
-.departmentTable tbody tr:nth-child(even) {
+.candidateTable tbody tr:nth-child(even) {
   background-color: #fafafa;
 }
 
-.departmentTable tbody tr:hover {
+.candidateTable tbody tr:hover {
   background-color: #f1f1f1;
     color: black;
 
@@ -243,7 +214,7 @@ td.truncate {
 }
 
 
-.departmentTable tbody td {
+.candidateTable tbody td {
   padding: 12px 15px;
   text-align: center;
   border-bottom: 1px solid #eee;
@@ -324,3 +295,51 @@ td.truncate {
 
 .deleteButton { background-color: #FF4949; }
 .deleteButton:hover { background-color: #DE3939; }
+
+
+/* Status Badges */
+.applicationStatus {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+}
+
+.app-pending {
+  background-color: #f0ad4e; 
+}
+
+.app-processing {
+  background-color: #5bc0de; 
+}
+
+.app-hired {
+  background-color: #5cb85c; 
+}
+
+.interviewStatus {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.interview-not-scheduled {
+  background-color: #f2dede;
+  color: #a94442;
+}
+
+.interview-scheduled {
+  background-color: #d9edf7;
+  color: #31708f;
+}
+
+.interview-completed {
+  background-color: #D1F7D1;
+  color: #23915F;
+}

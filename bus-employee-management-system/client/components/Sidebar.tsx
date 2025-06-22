@@ -30,10 +30,10 @@ const Sidebar = () => {
         {
             name: 'Recruitment',
             icon: 'ri-user-add-line',
-            key: 'onboarding',
+            key: 'recruitment',
             subItems: [
-                { path: '/homepage/onboarding/candidate', name: 'Candidate Overview', key: 'candidate-overview' },
-                { path: '/homepage/onboarding/interview', name: 'Interview Scheduling', key: 'interview-scheduling' }
+                { path: '/homepage/recruitment/candidate', name: 'Candidate Overview', key: 'candidate-overview' },
+                { path: '/homepage/recruitment/interview', name: 'Interview Scheduling', key: 'interview-scheduling' }
             ]
         },
         {

@@ -112,7 +112,8 @@ select.inputField {
 .exitDetailsTable,
 .leaveRequestTable,
 .govtIdTable,
-.deductTable {
+.deductTable,
+.benefitTable {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.95rem;
@@ -125,12 +126,14 @@ select.inputField {
 .leaveRequestTable th,
 .govtIdTable th,
 .deductTable th,
+.benefitTable th,
 .workExpTable td,
 .educTable td,
 .exitDetailsTable td,
 .leaveRequestTable td,
 .govtIdTable td,
-.deductTable td {
+.deductTable td,
+.benefitTable td {
   padding: 0.75rem;
   text-align: left;
   background-color: #fff;
@@ -149,7 +152,8 @@ select.inputField {
 .exitDetailsTable th,
 .leaveRequestTable th,
 .govtIdTable th,
-.deductTable th {
+.deductTable th,
+.benefitTable th {
   background-color: #FEB71F;
   font-weight: 600;
   color: #374151;
@@ -191,7 +195,8 @@ select.inputField {
 .addWorkExpButton,
 .addEducButton,
 .addGovtIdButton,
-.addDeductButton {
+.addDeductButton,
+.addBenefitButton {
   width: 25px; 
   height: 30px;
   display: flex;
@@ -210,7 +215,8 @@ select.inputField {
 .addWorkExpButton:hover,
 .addEducButton:hover,
 .addGovtIdButton:hover,
-.addDeductButton:hover {
+.addDeductButton:hover,
+.addBenefitButton:hover {
   background-color: #571415;
 }
 

@@ -23,6 +23,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
     handleChange,
     handleSubmit,
     handleUpdateConfirm,
+    formatCurrency
   } = useEmployeeModal(
     props.isEdit,
     props.defaultValue,
@@ -54,7 +55,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
       cancelDeductionEdit,
       deleteDeduction,
       isTempDeductValid,
-      deductDateError,
+      deductFieldError,
 
       workExperiences,
       tempWork,
@@ -81,7 +82,20 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
       deleteEducation,
       isTempEducValid,
       educDateError,
-      setEducDateError
+      setEducDateError,
+
+      benefitList,
+      tempBenefit,
+      editingBenefitIndex,
+      setTempBenefit,
+      addBenefit,
+      saveBenefit,
+      editBenefit,
+      cancelBenefitEdit,
+      deleteBenefit,
+      isTempBenefitValid,
+      benefitFieldError,
+      setBenefitFieldError
     } = useEmployeeRecords();
 
   const [hasChanges, setHasChanges] = useState(false);
@@ -177,6 +191,19 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
                     value={employee.middleName}
                     onChange={(e) => handleChangeWrapper('middleName', e.target.value)}
                     placeholder="Enter middle name"
+                    disabled={props.isReadOnly}
+                  />
+                </>
+              )}
+
+              {!(props.isReadOnly && !employee.suffix) && (
+                <>
+                  <label className={styles.label}>Suffix</label>
+                  <input
+                    className={styles.inputField}
+                    value={employee.suffix}
+                    onChange={(e) => handleChangeWrapper('suffix', e.target.value)}
+                    placeholder="Enter suffix"
                     disabled={props.isReadOnly}
                   />
                 </>
@@ -494,19 +521,33 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
             />
             {fieldErrors.dateHired && <p className={styles.errorText}>{fieldErrors.dateHired}</p>}
 
+            <label className={styles.label}>Employee Type</label>
             <select
-              className={`${styles.inputField} ${fieldErrors.department ? styles.inputError : ''}`}
-              value={employee.department}
-              // onChange={(e) => handleChangeWrapper('department', e.target.value)}
-              disabled
+              className={`${styles.inputField} ${fieldErrors.employeeType ? styles.inputError : ''}`}
+              value={employee.employeeType}
+              onChange={(e) => handleChangeWrapper('employeeType', e.target.value)}
+              disabled={props.isReadOnly}
             >
-              <option value="">Departments</option>
-              <option value="Accounting">Accounting</option>
-              <option value="Human Resource">Human Resource</option>
-              <option value="Inventory">Inventory</option>
-              <option value="Operations">Operations</option>
+              <option value="">Select Employee Type</option>
+              <option value="Regular">Regular</option>
+              <option value="Contractual">Contractual</option>
+              <option value="Probation">Probation</option>
+              <option value="Temporary">Temporary</option>
             </select>
-            {fieldErrors.department && <p className={styles.errorText}>{fieldErrors.department}</p>}
+            {fieldErrors.employeeType && <p className={styles.errorText}>{fieldErrors.employeeType}</p>}
+
+            <label className={styles.label}>Employee Classification</label>
+            <select
+              className={`${styles.inputField} ${fieldErrors.employeeClassification ? styles.inputError : ''}`}
+              value={employee.employeeClassification}
+              onChange={(e) => handleChangeWrapper('employeeClassification', e.target.value)}
+              disabled={props.isReadOnly}
+            >
+              <option value="">Select Employee Classification</option>
+              <option value="Full-time">Full-time</option>
+              <option value="Part-time">Part-time</option>
+            </select>
+            {fieldErrors.employeeClassification && <p className={styles.errorText}>{fieldErrors.employeeClassification}</p>}
 
             <label className={styles.label}>Position</label>
             <input
@@ -517,6 +558,19 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
               disabled={props.isReadOnly}
             />
             {fieldErrors.position && <p className={styles.errorText}>{fieldErrors.position}</p>}
+
+            <select
+              className={`${styles.inputField} ${fieldErrors.department ? styles.inputError : ''}`}
+              value={employee.department}
+              disabled
+            >
+              <option value="">Departments</option>
+              <option value="Accounting">Accounting</option>
+              <option value="Human Resource">Human Resource</option>
+              <option value="Inventory">Inventory</option>
+              <option value="Operations">Operations</option>
+            </select>
+            {fieldErrors.department && <p className={styles.errorText}>{fieldErrors.department}</p>}
 
             {/* Government ID Section */}
             <div className={styles.sectionHeader}>
@@ -530,11 +584,14 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
                 <tr>
                   <th>ID Type</th>
                   <th>ID Number</th>
+                  <th>Issued Date</th>
+                  <th>Expiry Date</th>
+                  <th>Status</th>
                   {!props.isReadOnly && <th>Actions</th>}
                 </tr>
               </thead>
               <tbody>
-                {[...governmentIds, ...(editingGovIdIndex === governmentIds.length ? [{ idType: '', idNumber: '' }] : [])].map((id, index) => (
+                {[...governmentIds, ...(editingGovIdIndex === governmentIds.length ? [{ idType: '', idNumber: '', issuedDate: '', expiryDate: '' , status: '' }] : [])].map((id, index) => (
                   <tr key={index}>
                     {editingGovIdIndex === index ? (
                       <>
@@ -565,7 +622,47 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
                             value={tempGovId.idNumber}
                             onChange={(e) => setTempGovId({ ...tempGovId, idNumber: e.target.value })}
                           />
-                          {govIdError && <p className={styles.errorText}>{govIdError}</p>}
+                          {govIdError.idNumber && <p className={styles.errorText}>{govIdError.idNumber}</p>}
+                        </td>
+                        <td>
+                          <input
+                            type='date'
+                            className={styles.tableInput}
+                            value={tempGovId.issuedDate}
+                            onChange={(e) => setTempGovId ({ ...tempGovId, issuedDate: e.target.value})}
+                          />
+                          {govIdError.issuedDate && <p className={styles.errorText}>{govIdError.issuedDate}</p>}
+                        </td>
+                        <td>
+                          <input
+                            type='date'
+                            className={styles.tableInput}
+                            value={tempGovId.expiryDate}
+                            onChange={(e) => setTempGovId ({ ...tempGovId, expiryDate: e.target.value})}
+                          />
+                          {govIdError.expiryDate && <p className={styles.errorText}>{govIdError.expiryDate}</p>}
+                        </td>
+                        <td>
+                          <select
+                            className={styles.tableInput}
+                            value={tempGovId.status}
+                            onChange={(e) => setTempGovId({ ...tempGovId, status: e.target.value })}
+                          >
+                            <option value="">Select ID status</option>
+                            {['Active', 'Expired', 'Pending', 'For Renewal', 'Missing'].map((status) => {
+                              const isDisabled = governmentIds.some((id, idx) =>
+                                id.status === status &&
+                                // allow editing the same one
+                                editingGovIdIndex !== idx
+                              );
+                              return (
+                                <option key={status} value={status} disabled={isDisabled}>
+                                  {status}
+                                </option>
+                              );
+                            })}
+                          </select>
+                          {govIdError.status && <p className={styles.errorText}>{govIdError.status}</p>}
                         </td>
                         <td className={styles.actionCell}>
                           <button className={styles.xButton} onClick={cancelGovernmentIDEdit}><i className="ri-close-line" /></button>
@@ -576,6 +673,9 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
                       <>
                         <td>{id.idType}</td>
                         <td>{id.idNumber.replace(/.(?=.{4})/g, '*')}</td>
+                        <td>{id.issuedDate}</td>
+                        <td>{id.expiryDate}</td>
+                        <td>{id.status}</td>
                         {!props.isReadOnly && (
                           <td className={styles.actionCell}>
                             <button className={styles.editButton} onClick={() => editGovernmentID(index)}><i className="ri-edit-2-line" /></button>
@@ -592,6 +692,9 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
             <h4>Salary Information</h4>
             <label className={styles.label}>Basic Pay</label>
             <input
+              type="number"
+              step="0.01"
+              min="0"
               className={`${styles.inputField} ${fieldErrors.basicPay ? styles.inputError : ''}`}
               value={employee.basicPay}
               onChange={(e) => handleChangeWrapper('basicPay', e.target.value)}
@@ -604,7 +707,9 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
             <div className={styles.sectionHeader}>
               <h4>Deductions</h4>
               {!props.isReadOnly && (
-                <button onClick={addDeduction} className={styles.addDeductButton}><i className="ri-add-line" /></button>
+                <button onClick={addDeduction} className={styles.addDeductButton}>
+                  <i className="ri-add-line" />
+                </button>
               )}
             </div>
             <table className={styles.deductTable}>
@@ -612,46 +717,237 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
                 <tr>
                   <th>No.</th>
                   <th>Reason</th>
+                  <th>Frequency</th>
                   <th>Amount</th>
-                  <th>Date</th>
+                  <th>Effective Date</th>
+                  <th>End Date</th>
+                  <th>Status</th>
                   {!props.isReadOnly && <th>Actions</th>}
                 </tr>
               </thead>
               <tbody>
-                {[...deductionList, ...(editingDeductIndex === deductionList.length ? [{ institute: '', amount: '', deductionDate: '' }] : [])].map((d, index) => (
+                {[...deductionList, ...(editingDeductIndex === deductionList.length ? [{
+                  reason: '', amount: '', frequency: '', effectiveDate: '', endDate: '', status: ''
+                }] : [])].map((d, index) => (
                   <tr key={index}>
                     {editingDeductIndex === index ? (
                       <>
                         <td>{index + 1}</td>
-                        <td><input className={styles.tableInput} value={tempDeduct.institute} onChange={(e) => setTempDeduct({ ...tempDeduct, institute: e.target.value })} /></td>
-                        <td><input className={styles.tableInput} value={tempDeduct.amount} onChange={(e) => setTempDeduct({ ...tempDeduct, amount: e.target.value })} /></td>
+                        <td>
+                          <select
+                            className={styles.tableInput}
+                            value={tempDeduct.reason}
+                            onChange={(e) => setTempDeduct({ ...tempDeduct, reason: e.target.value })}
+                          >
+                            <option value="">Select reason</option>
+                            {['SSS', 'Pag-IBIG', 'PhilHealth', 'Withholding Tax', 'Cash Advance', 'Others'].map(reason => (
+                              <option key={reason} value={reason}>{reason}</option>
+                            ))}
+                          </select>
+                          {deductFieldError.reason && <p className={styles.errorText}>{deductFieldError.reason}</p>}
+                        </td>
+                        <td>
+                          <select
+                            className={styles.tableInput}
+                            value={tempDeduct.frequency}
+                            onChange={(e) => setTempDeduct({ ...tempDeduct, frequency: e.target.value })}
+                          >
+                            <option value="">Select frequency</option>
+                            {['Once', 'Daily', 'Weekly', 'Monthly', 'Annually'].map(freq => (
+                              <option key={freq} value={freq}>{freq}</option>
+                            ))}
+                          </select>
+                          {deductFieldError.frequency && <p className={styles.errorText}>{deductFieldError.frequency}</p>}
+                        </td>
                         <td>
                           <input
+                            type="number"
+                            step="0.01"
+                            min="0"
                             className={styles.tableInput}
-                            type="date"
-                            value={tempDeduct.deductionDate}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              setTempDeduct({ ...tempDeduct, deductionDate: value });
-                            }}
+                            value={tempDeduct.amount}
+                            onChange={(e) => setTempDeduct({ ...tempDeduct, amount: e.target.value })}
                           />
-                          {deductDateError && <p className={styles.errorText}>{deductDateError}</p>}
+                          {deductFieldError.amount && <p className={styles.errorText}>{deductFieldError.amount}</p>}
+                        </td>
+                        <td>
+                          <input
+                            type="date"
+                            className={styles.tableInput}
+                            value={tempDeduct.effectiveDate}
+                            onChange={(e) => setTempDeduct({ ...tempDeduct, effectiveDate: e.target.value })}
+                          />
+                          {deductFieldError.effectiveDate && <p className={styles.errorText}>{deductFieldError.effectiveDate}</p>}
+                        </td>
+                        <td>
+                          <input
+                            type="date"
+                            className={styles.tableInput}
+                            value={tempDeduct.endDate}
+                            onChange={(e) => setTempDeduct({ ...tempDeduct, endDate: e.target.value })}
+                          />
+                          {deductFieldError.endDate && <p className={styles.errorText}>{deductFieldError.endDate}</p>}
+                        </td>
+                        <td>
+                          <select
+                            className={styles.tableInput}
+                            value={tempDeduct.status}
+                            onChange={(e) => setTempDeduct({ ...tempDeduct, status: e.target.value })}
+                          >
+                            <option value="">Select status</option>
+                            {['Active', 'Exempt'].map(stat => (
+                              <option key={stat} value={stat}>{stat}</option>
+                            ))}
+                          </select>
+                          {deductFieldError.status && <p className={styles.errorText}>{deductFieldError.status}</p>}
                         </td>
                         <td className={styles.actionCell}>
                           <button className={styles.xButton} onClick={cancelDeductionEdit}><i className="ri-close-line" /></button>
-                          <button className={styles.saveButton} onClick={saveDeduction} disabled={!isTempDeductValid}><i className="ri-save-line" /></button>
+                          <button className={styles.saveButton} onClick={saveDeduction}>
+                            <i className="ri-save-line" />
+                          </button>
                         </td>
                       </>
                     ) : (
                       <>
                         <td>{index + 1}</td>
-                        <td>{d.institute}</td>
+                        <td>{d.reason}</td>
+                        <td>{d.frequency}</td>
                         <td>{d.amount}</td>
-                        <td>{d.deductionDate}</td>
+                        <td>{d.effectiveDate}</td>
+                        <td>{d.endDate}</td>
+                        <td>{d.status}</td>
                         {!props.isReadOnly && (
                           <td className={styles.actionCell}>
                             <button className={styles.editButton} onClick={() => editDeduction(index)}><i className="ri-edit-2-line" /></button>
                             <button className={styles.deleteButton} onClick={() => deleteDeduction(index)}><i className="ri-delete-bin-line" /></button>
+                          </td>
+                        )}
+                      </>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Benefits Table */}
+            <div className={styles.sectionHeader}>
+              <h4>Benefits</h4>
+              {!props.isReadOnly && (
+                <button onClick={addBenefit} className={styles.addBenefitButton}>
+                  <i className="ri-add-line" />
+                </button>
+              )}
+            </div>
+            <table className={styles.benefitTable}>
+              <thead>
+                <tr>
+                  <th>No.</th>
+                  <th>Benefit</th>
+                  <th>Frequency</th>
+                  <th>Amount</th>
+                  <th>Effective Date</th>
+                  <th>End Date</th>
+                  <th>Status</th>
+                  {!props.isReadOnly && <th>Actions</th>}
+                </tr>
+              </thead>
+              <tbody>
+                {[...benefitList, ...(editingBenefitIndex === benefitList.length ? [{
+                  benefit: '', amount: '', frequency: '', effectiveDate: '', endDate: '', status: ''
+                }] : [])].map((b, index) => (
+                  <tr key={index}>
+                    {editingBenefitIndex === index ? (
+                      <>
+                        <td>{index + 1}</td>
+                        <td>
+                          <select
+                            className={styles.tableInput}
+                            value={tempBenefit.benefit}
+                            onChange={(e) => setTempBenefit({ ...tempBenefit, benefit: e.target.value })}
+                          >
+                            <option value="">Select benefit</option>
+                            {['Service Incentive Leave (SIL)', 'Holiday', '13-month Pay', 'Safety', 'Others'].map(benefit => (
+                              <option key={benefit} value={benefit}>{benefit}</option>
+                            ))}
+                          </select>
+                          {benefitFieldError.benefit && <p className={styles.errorText}>{benefitFieldError.benefit}</p>}
+                        </td>
+                        <td>
+                          <select
+                            className={styles.tableInput}
+                            value={tempBenefit.frequency}
+                            onChange={(e) => setTempBenefit({ ...tempBenefit, frequency: e.target.value })}
+                          >
+                            <option value="">Select frequency</option>
+                            {['Once', 'Daily', 'Weekly', 'Monthly', 'Annually'].map(freq => (
+                              <option key={freq} value={freq}>{freq}</option>
+                            ))}
+                          </select>
+                          {benefitFieldError.frequency && <p className={styles.errorText}>{benefitFieldError.frequency}</p>}
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            className={styles.tableInput}
+                            value={tempBenefit.amount}
+                            onChange={(e) => setTempBenefit({ ...tempBenefit, amount: e.target.value })}
+                          />
+                          {benefitFieldError.amount && <p className={styles.errorText}>{benefitFieldError.amount}</p>}
+                        </td>
+                        <td>
+                          <input
+                            type="date"
+                            className={styles.tableInput}
+                            value={tempBenefit.effectiveDate}
+                            onChange={(e) => setTempBenefit({ ...tempBenefit, effectiveDate: e.target.value })}
+                          />
+                          {benefitFieldError.effectiveDate && <p className={styles.errorText}>{benefitFieldError.effectiveDate}</p>}
+                        </td>
+                        <td>
+                          <input
+                            type="date"
+                            className={styles.tableInput}
+                            value={tempBenefit.endDate}
+                            onChange={(e) => setTempBenefit({ ...tempBenefit, endDate: e.target.value })}
+                          />
+                          {benefitFieldError.endDate && <p className={styles.errorText}>{benefitFieldError.endDate}</p>}
+                        </td>
+                        <td>
+                          <select
+                            className={styles.tableInput}
+                            value={tempBenefit.status}
+                            onChange={(e) => setTempBenefit({ ...tempBenefit, status: e.target.value })}
+                          >
+                            <option value="">Select status</option>
+                            {['Active', 'Inactive', 'Pending', 'Terminated'].map(stat => (
+                              <option key={stat} value={stat}>{stat}</option>
+                            ))}
+                          </select>
+                          {benefitFieldError.status && <p className={styles.errorText}>{benefitFieldError.status}</p>}
+                        </td>
+                        <td className={styles.actionCell}>
+                          <button className={styles.xButton} onClick={cancelBenefitEdit}><i className="ri-close-line" /></button>
+                          <button className={styles.saveButton} onClick={saveBenefit}>
+                            <i className="ri-save-line" />
+                          </button>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td>{index + 1}</td>
+                        <td>{b.benefit}</td>
+                        <td>{b.frequency}</td>
+                        <td>{b.amount}</td>
+                        <td>{b.effectiveDate}</td>
+                        <td>{b.endDate}</td>
+                        <td>{b.status}</td>
+                        {!props.isReadOnly && (
+                          <td className={styles.actionCell}>
+                            <button className={styles.editButton} onClick={() => editBenefit(index)}><i className="ri-edit-2-line" /></button>
+                            <button className={styles.deleteButton} onClick={() => deleteBenefit(index)}><i className="ri-delete-bin-line" /></button>
                           </td>
                         )}
                       </>

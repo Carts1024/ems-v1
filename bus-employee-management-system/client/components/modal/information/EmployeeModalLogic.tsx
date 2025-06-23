@@ -8,6 +8,7 @@ export interface Employee {
   firstName: string;
   middleName: string;
   lastName: string;
+  suffix: string;
   birthdate: string;
   email: string;
   contact: string;
@@ -20,6 +21,8 @@ export interface Employee {
   emergencyContactNo: string;
   status: string;
   dateHired: string;
+  employeeType: string;
+  employeeClassification: string,
   department: string;
   position: string;
   basicPay: string;
@@ -56,6 +59,7 @@ export const useEmployeeModal = (
     firstName: '',
     middleName: '',
     lastName: '',
+    suffix: '',
     birthdate: '',
     email: '',
     contact: '',
@@ -68,6 +72,8 @@ export const useEmployeeModal = (
     emergencyContactNo: '',
     status: '',
     dateHired: '',
+    employeeType: '',
+    employeeClassification: '',
     department: '',
     position: '',
     basicPay: '',
@@ -81,6 +87,17 @@ export const useEmployeeModal = (
   });
 
   const [fieldErrors, setFieldErrors] = useState<{ [key in keyof Employee]?: string }>({});
+
+  const formatCurrency = (amount: string) => {
+    const num = parseFloat(amount);
+    return isNaN(num)
+      ? ''
+      : num.toLocaleString('en-PH', {
+          style: 'currency',
+          currency: 'PHP',
+          minimumFractionDigits: 2,
+        });
+  };
 
   const validateInput = () => {
     const errors: typeof fieldErrors = {};
@@ -98,10 +115,18 @@ export const useEmployeeModal = (
     if (!employee.emergencyContactNo || !/^(09)\d{9}$/.test(employee.emergencyContactNo)) errors.emergencyContactNo = 'Invalid format.';
     if (!employee.status) errors.status = 'Required';
     if (!employee.dateHired || !isValidDateHired(employee.dateHired)) errors.dateHired = 'Date Hired cannot be a future date.';
+    if (!employee.employeeType) errors.employeeType = 'Required';
+    if (!employee.employeeClassification) errors.employeeClassification = 'Required';
     if (!employee.department) errors.department = 'Required';
     if (!employee.position.trim()) errors.position = 'Required';
-    if (!employee.basicPay || isNaN(Number(employee.basicPay))) errors.basicPay = 'Required and must be numeric';
-    if (employee.expireDate && isPastDate(employee.expireDate)) errors.expireDate = 'Expiry date cannot be in the past.';
+
+    const pay = parseFloat(employee.basicPay);
+    if (!employee.basicPay || isNaN(pay) || pay < 0) {
+      errors.basicPay = 'Required and must be a non-negative number.';
+    } else {
+      employee.basicPay = pay.toFixed(2); // always store formatted decimal string
+    }
+
     if (!employee.licenseNo && employee.position.toLowerCase() === 'driver') errors.licenseNo = 'Required';
     if (employee.position.toLowerCase() === 'driver') {
       if (!employee.licenseNo) {
@@ -142,7 +167,7 @@ export const useEmployeeModal = (
   const handleSubmit = async () => {
     const isValid = validateInput();
     if (!isValid) {
-      showError('Error', 'Please correct the errors in the form.');
+      showError('Error', 'Please correct the highlighted errors.');
       return;
     }
     if (isDuplicateEmployee()) {
@@ -165,7 +190,7 @@ export const useEmployeeModal = (
       return;
     }
     onSubmit(employee);
-    showSuccess('Success', 'Employee added successfully.');
+    showSuccess('Success', 'Employee updated successfully.');
     onClose();
   };
 
@@ -174,6 +199,7 @@ export const useEmployeeModal = (
     fieldErrors,
     handleChange,
     handleSubmit,
-    handleUpdateConfirm
+    handleUpdateConfirm,
+    formatCurrency
   };
 };

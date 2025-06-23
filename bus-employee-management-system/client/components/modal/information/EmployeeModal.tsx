@@ -107,6 +107,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
           {...employeeRecords}
         />
 
+        <h3>Salary Information</h3>
         <SalaryBenefitsSection
           employee={employee}
           fieldErrors={fieldErrors}

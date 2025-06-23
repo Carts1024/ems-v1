@@ -64,7 +64,6 @@ const SalaryBenefitsSection: React.FC<Props> = ({
 }) => {
   return (
     <div className={styles.sectionGroup}>
-        <h4>Salary Information</h4>
         <label className={styles.label}>Basic Pay</label>
         <input
             type="number"

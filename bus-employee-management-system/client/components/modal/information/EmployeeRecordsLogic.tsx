@@ -17,12 +17,19 @@ interface Education {
   completionDate: string;
 }
 
-interface GovernmentID {
+export interface GovernmentID {
   idType: string;
   idNumber: string;
   issuedDate: string;
   expiryDate: string;
   status: string;
+}
+
+export interface GovIdErrors {
+  idNumber?: string;
+  issuedDate?: string;
+  expiryDate?: string;
+  status?: string;
 }
 
 interface Deduction {
@@ -176,32 +183,36 @@ export const useEmployeeRecords = () => {
   };
 
   // Boolean flags for form button enabling
-  const isTempWorkValid =
+  const isTempWorkValid = Boolean(
     tempWork.company.trim() &&
     tempWork.position.trim() &&
     tempWork.from &&
     tempWork.to &&
     isDateValid(tempWork.from) &&
-    isDateValid(tempWork.to);
+    isDateValid(tempWork.to)
+  );
 
-  const isTempEducValid =
+  const isTempEducValid = Boolean(
     tempEduc.institute.trim() &&
     tempEduc.degree.trim() &&
     tempEduc.specialization.trim() &&
     tempEduc.completionDate &&
-    isDateValid(tempEduc.completionDate);
+    isDateValid(tempEduc.completionDate)
+  );
 
-  const isTempDeductValid =
+  const isTempDeductValid = Boolean(
     tempDeduct.reason.trim() &&
     tempDeduct.amount.trim() &&
     tempDeduct.effectiveDate &&
-    isDateValid(tempDeduct.effectiveDate);
+    isDateValid(tempDeduct.effectiveDate)
+  );
 
-  const isTempBenefitValid =
+  const isTempBenefitValid = Boolean(
     tempBenefit.benefit.trim() &&
     tempBenefit.amount.trim() &&
     tempBenefit.effectiveDate &&
-    isDateValid(tempBenefit.effectiveDate);
+    isDateValid(tempBenefit.effectiveDate)
+  );
 
   // Work logic
   const addWork = () => {

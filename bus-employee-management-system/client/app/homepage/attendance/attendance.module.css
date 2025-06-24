@@ -304,11 +304,12 @@ td.truncate {
 }
 
 .deleteButton {
-  color: #FF4949;
+  background-color: #FF4949;
+  border-radius: 4px;
 }
 
 .deleteButton:hover {
-  color: #DE3939;
+  background-color: #DE3939;
 }
 
 /* Status Badges */

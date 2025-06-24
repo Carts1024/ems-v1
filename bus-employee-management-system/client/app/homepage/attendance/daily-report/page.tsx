@@ -90,29 +90,37 @@ export default function AttendancePage() {
               </tr>
             </thead>
             <tbody>
-              {paginatedEmployees.map((emp, index) => (
-                <tr key={`${emp.employeeName}-${index}`}> {/* Assume employeeName is unique enough */}
-                  <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
-                  <td>
-                    <span className={`${styles.empStatus} ${styles[`status-${emp.attendanceStatus}`]}`}>
-                      {emp.attendanceStatus}
-                    </span>
-                  </td>
-                  <td>{emp.employeeName}</td>
-                  <td>{emp.dateHired}</td>
-                  <td>{emp.department}</td>
-                  <td>{emp.position}</td>
-                  <td>{emp.attendanceDate}</td>
-                  <td className={styles.actionCell}>
-                    <button
-                      className={styles.deleteButton}
-                      onClick={() => handleDeleteRequest(emp)}
-                    >
-                      <i className="ri-delete-bin-line" />
-                    </button>
+              {paginatedEmployees.length === 0 ? (
+                <tr>
+                  <td colSpan={8} style={{ textAlign: 'center' }}>
+                    No attendance records found.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                paginatedEmployees.map((emp, index) => (
+                  <tr key={`${emp.employeeName}-${index}`}>
+                    <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
+                    <td>
+                      <span className={`${styles.empStatus} ${styles[`status-${emp.attendanceStatus}`]}`}>
+                        {emp.attendanceStatus}
+                      </span>
+                    </td>
+                    <td>{emp.employeeName}</td>
+                    <td>{emp.dateHired}</td>
+                    <td>{emp.department}</td>
+                    <td>{emp.position}</td>
+                    <td>{emp.attendanceDate}</td>
+                    <td className={styles.actionCell}>
+                      <button
+                        className={styles.deleteButton}
+                        onClick={() => handleDeleteRequest(emp)}
+                      >
+                        <i className="ri-delete-bin-line" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

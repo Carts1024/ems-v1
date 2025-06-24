@@ -47,7 +47,7 @@
 }
 
 .addAttendanceButton {
-  width: 160px; 
+  width: 175px; 
   height: 35px; 
   display: flex; 
   justify-content: center; 
@@ -70,7 +70,7 @@
 
 .importButton,
 .exportButton {
-  width: 160px; 
+  width: 90px; 
   height: 35px; 
   display: flex; 
   justify-content: center; 
@@ -303,8 +303,13 @@ td.truncate {
   color: #fff;
 }
 
-.deleteButton {color: #FF4949; }
-.deleteButton:hover {color: #DE3939; }
+.deleteButton {
+  color: #FF4949;
+}
+
+.deleteButton:hover {
+  color: #DE3939;
+}
 
 /* Status Badges */
 .empStatus {

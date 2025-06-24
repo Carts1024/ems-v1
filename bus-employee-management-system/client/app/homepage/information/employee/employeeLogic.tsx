@@ -44,7 +44,10 @@ export const EmployeeLogic = () => {
       licenseType: 'professional',
       licenseNo: '',
       restrictionCodes: [],
-      expireDate: ''
+      expireDate: '',
+      suffix: '',
+      employeeType: '',
+      employeeClassification: ''
     },
     {
       status: 'On Leave',
@@ -70,7 +73,10 @@ export const EmployeeLogic = () => {
       licenseType: '',
       licenseNo: '',
       restrictionCodes: [],
-      expireDate: ''
+      expireDate: '',
+      suffix: '',
+      employeeType: '',
+      employeeClassification: ''
     },
     {
       status: 'Active',
@@ -96,7 +102,10 @@ export const EmployeeLogic = () => {
       licenseType: '',
       licenseNo: '',
       restrictionCodes: [],
-      expireDate: ''
+      expireDate: '',
+      suffix: '',
+      employeeType: '',
+      employeeClassification: ''
     },
     {
       status: "Active",
@@ -122,7 +131,10 @@ export const EmployeeLogic = () => {
       licenseType: '',
       licenseNo: '',
       restrictionCodes: [],
-      expireDate: ''
+      expireDate: '',
+      suffix: '',
+      employeeType: '',
+      employeeClassification: ''
     },
     {
       status: "Active",
@@ -148,7 +160,10 @@ export const EmployeeLogic = () => {
       licenseType: '',
       licenseNo: '',
       restrictionCodes: [],
-      expireDate: ''
+      expireDate: '',
+      suffix: '',
+      employeeType: '',
+      employeeClassification: ''
     },
     {
       status: "Active",
@@ -174,7 +189,10 @@ export const EmployeeLogic = () => {
       licenseType: '',
       licenseNo: '',
       restrictionCodes: [],
-      expireDate: ''
+      expireDate: '',
+      suffix: '',
+      employeeType: '',
+      employeeClassification: ''
     },
     {
       status: "On Leave",
@@ -200,7 +218,10 @@ export const EmployeeLogic = () => {
       licenseType: '',
       licenseNo: '',
       restrictionCodes: [],
-      expireDate: ''
+      expireDate: '',
+      suffix: '',
+      employeeType: '',
+      employeeClassification: ''
     },
     {
       status: "Active",
@@ -226,7 +247,10 @@ export const EmployeeLogic = () => {
       licenseType: '',
       licenseNo: '',
       restrictionCodes: [],
-      expireDate: ''
+      expireDate: '',
+      suffix: '',
+      employeeType: '',
+      employeeClassification: ''
     }
   ]);
 

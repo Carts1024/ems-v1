@@ -25,7 +25,13 @@ export default function AttendancePage() {
     setCurrentPage,
     pageSize,
     setPageSize,
-    totalPages
+    totalPages,
+    openActionDropdownIndex,
+    toggleActionDropdown,
+    selectedAttendance,
+    setSelectedAttendance,
+    isViewMode,
+    setIsViewMode,
   } = DailyReportLogic();
 
   return (
@@ -101,22 +107,47 @@ export default function AttendancePage() {
                   <tr key={`${emp.employeeName}-${index}`}>
                     <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
                     <td>
-                      <span className={`${styles.empStatus} ${styles[`status-${emp.attendanceStatus}`]}`}>
-                        {emp.attendanceStatus}
+                      <span className={`${styles.empStatus} ${styles[`status-${emp.status}`]}`}>
+                        {emp.status}
                       </span>
                     </td>
                     <td>{emp.employeeName}</td>
-                    <td>{emp.dateHired}</td>
+                    <td>{emp.hiredate}</td>
                     <td>{emp.department}</td>
                     <td>{emp.position}</td>
-                    <td>{emp.attendanceDate}</td>
+                    <td>{emp.date}</td>
                     <td className={styles.actionCell}>
+                      {/* The main action button */}
                       <button
-                        className={styles.deleteButton}
-                        onClick={() => handleDeleteRequest(emp)}
+                        className={styles.mainActionButton} // You might need to define this style
+                        onClick={() => toggleActionDropdown(index)}
                       >
-                        <i className="ri-delete-bin-line" />
+                        <i className="ri-more-2-fill" />
                       </button>
+
+                      {/* Action dropdown container, conditionally rendered */}
+                      {openActionDropdownIndex === index && (
+                        <div className={styles.actionDropdown}>
+                          <button
+                            className={styles.viewButton}
+                              onClick={() => {
+                                setSelectedAttendance(emp);
+                                setIsViewMode(true);
+                                setShowAddModal(true);
+                                toggleActionDropdown(null);
+                              }}
+                          > <i className='ri-eye-line'/> View
+                          </button>
+                          <button
+                            className={styles.deleteButton}
+                            onClick={() => {
+                              handleDeleteRequest(emp);
+                              toggleActionDropdown(null); // Close dropdown after action
+                            }}
+                          > <i className='ri-delete-bin-line' /> Delete
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -137,7 +168,16 @@ export default function AttendancePage() {
         />
 
         {showAddModal && (
-          <AttendanceModal onClose={() => setShowAddModal(false)} onSubmit={handleAdd} />
+          <AttendanceModal
+            onClose={() => {
+              setShowAddModal(false);
+              setSelectedAttendance(null);
+              setIsViewMode(false);
+            }}
+            onSubmit={handleAdd}
+            defaultValue={selectedAttendance || undefined}
+            isView={isViewMode}
+          />
         )}
       </div>
     </div>

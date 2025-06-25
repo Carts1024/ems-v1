@@ -353,15 +353,6 @@ td.truncate {
   color: #fff;
 }
 
-.deleteButton {
-  background-color: #FF4949;
-  border-radius: 4px;
-}
-
-.deleteButton:hover {
-  background-color: #DE3939;
-}
-
 /* Status Badges */
 .empStatus {
   display: inline-block;
@@ -387,3 +378,15 @@ td.truncate {
   background-color: #D1F7D1;
   color: #23915F;
 }
+
+.viewButton { background-color: #13CE66; }
+.viewButton:hover { background-color: #12B75C; }
+
+.feedbackButton { background-color: #FFCC3D; }
+.feedbackButton:hover { background-color: #FFC107; }
+
+.editButton { background-color: #2D8EFF; }
+.editButton:hover { background-color: #267BDB; }
+
+.deleteButton { background-color: #FF4949; }
+.deleteButton:hover { background-color: #DE3939; }

@@ -6,16 +6,23 @@ import { Attendance } from '@/app/homepage/attendance/daily-report/dailyReportLo
 
 export const useAttendanceModal = (
   onSubmit: (attendance: Attendance) => void,
-  onClose: () => void
+  onClose: () => void,
+  isView?: boolean,
+  defaultValue?: Attendance,
 ) => {
-  const [attendance, setAttendance] = useState<Attendance>({
-    attendanceStatus: '',
-    employeeName: '',
-    dateHired: '',
-    department: '',
-    position: '',
-    attendanceDate: '',
-  });
+  const [attendance, setAttendance] = useState<Attendance>(
+    defaultValue ?? {
+      status: '',
+      employeeName: '',
+      hiredate: '',
+      department: '',
+      position: '',
+      date: '',
+      timeIn: '',
+      timeOut: '',
+      remarks: '',
+    }
+  );
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
@@ -43,18 +50,18 @@ export const useAttendanceModal = (
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    if (!attendance.attendanceStatus) {
-      errors.attendanceStatus = 'Status is required';
+    if (!attendance.status) {
+      errors.status = 'Status is required';
     }
 
     if (!attendance.employeeName.trim()) {
       errors.employeeName = 'Employee name is required';
     }
 
-    if (!attendance.dateHired) {
-    errors.dateHired = 'Date hired is required';
-    } else if (normalizeDate(attendance.dateHired) > today) {
-    errors.dateHired = 'Date hired cannot be in the future';
+    if (!attendance.hiredate) {
+    errors.hiredate = 'Date hired is required';
+    } else if (normalizeDate(attendance.hiredate) > today) {
+    errors.hiredate = 'Date hired cannot be in the future';
     }
 
     if (!attendance.department) {
@@ -65,10 +72,29 @@ export const useAttendanceModal = (
       errors.position = 'Position is required';
     }
 
-    if (!attendance.attendanceDate) {
-    errors.attendanceDate = 'Attendance date is required';
-    } else if (normalizeDate(attendance.attendanceDate) > today) {
+    if (!attendance.date) {
+    errors.date = 'Attendance date is required';
+    } else if (normalizeDate(attendance.date) > today) {
     errors.attendanceDate = 'Date cannot be in the future';
+    }
+
+    if (attendance.timeIn && attendance.timeOut) {
+      const [inHour, inMinute] = attendance.timeIn.split(':').map(Number);
+      const [outHour, outMinute] = attendance.timeOut.split(':').map(Number);
+
+      const timeInDate = new Date();
+      timeInDate.setHours(inHour, inMinute, 0, 0);
+
+      const timeOutDate = new Date();
+      timeOutDate.setHours(outHour, outMinute, 0, 0);
+
+      if (timeInDate.getTime() === timeOutDate.getTime()) {
+        errors.timeIn = 'Time In and Time Out cannot be the same';
+        errors.timeOut = 'Time In and Time Out cannot be the same';
+      } else if (timeInDate.getTime() > timeOutDate.getTime()) {
+        errors.timeIn = 'Time In cannot be later than Time Out';
+        errors.timeOut = 'Time Out cannot be earlier than Time In';
+      }
     }
 
     setFieldErrors(errors);
@@ -112,5 +138,6 @@ export const useAttendanceModal = (
     handleExitClick,
     fullDateText,
     numericDateTime,
+    isView, defaultValue
   };
 };

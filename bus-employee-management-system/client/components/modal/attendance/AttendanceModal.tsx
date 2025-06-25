@@ -8,9 +8,16 @@ import { useAttendanceModal } from './AttendanceModalLogic';
 interface AttendanceModalProps {
   onClose: () => void;
   onSubmit: (attendance: Attendance) => void;
+  defaultValue?: Attendance;
+  isView?: boolean;
 }
 
-const AttendanceModal: React.FC<AttendanceModalProps> = ({ onClose, onSubmit }) => {
+const AttendanceModal: React.FC<AttendanceModalProps> = ({
+  onClose,
+  onSubmit,
+  isView = false,
+  defaultValue,
+}) => {
   const {
     attendance,
     fieldErrors,
@@ -19,7 +26,7 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({ onClose, onSubmit }) 
     handleExitClick,
     fullDateText,
     numericDateTime,
-  } = useAttendanceModal(onSubmit, onClose);
+  } = useAttendanceModal(onSubmit, onClose, isView, defaultValue);
 
   return (
     <div className={styles.modalOverlay}>
@@ -38,16 +45,17 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({ onClose, onSubmit }) 
 
         <label className={styles.label}>Status</label>
         <select
-          className={`${styles.inputField} ${fieldErrors.attendanceStatus ? styles.inputError : ''}`}
-          value={attendance.attendanceStatus}
-          onChange={(e) => handleChangeWrapper('attendanceStatus', e.target.value)}
+          className={`${styles.inputField} ${fieldErrors.status ? styles.inputError : ''}`}
+          value={attendance.status}
+          onChange={(e) => handleChangeWrapper('status', e.target.value)}
+          disabled={isView}
         >
           <option value="">Select status</option>
           <option value="Present">Present</option>
           <option value="Absent">Absent</option>
           <option value="Late">Late</option>
         </select>
-        {fieldErrors.attendanceStatus && <p className={styles.errorText}>{fieldErrors.attendanceStatus}</p>}
+        {fieldErrors.status && <p className={styles.errorText}>{fieldErrors.status}</p>}
 
         <label className={styles.label}>Employee Name</label>
         <input
@@ -55,23 +63,26 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({ onClose, onSubmit }) 
           value={attendance.employeeName}
           onChange={(e) => handleChangeWrapper('employeeName', e.target.value)}
           placeholder="Enter employee name"
+          disabled={isView}
         />
         {fieldErrors.employeeName && <p className={styles.errorText}>{fieldErrors.employeeName}</p>}
 
         <label className={styles.label}>Date Hired</label>
         <input
           type="date"
-          className={`${styles.inputField} ${fieldErrors.dateHired ? styles.inputError : ''}`}
-          value={attendance.dateHired}
-          onChange={(e) => handleChangeWrapper('dateHired', e.target.value)}
+          className={`${styles.inputField} ${fieldErrors.hiredate ? styles.inputError : ''}`}
+          value={attendance.hiredate}
+          onChange={(e) => handleChangeWrapper('hiredate', e.target.value)}
+          disabled={isView}
         />
-        {fieldErrors.dateHired && <p className={styles.errorText}>{fieldErrors.dateHired}</p>}
+        {fieldErrors.hiredate && <p className={styles.errorText}>{fieldErrors.hiredate}</p>}
 
         <label className={styles.label}>Department</label>
         <select
           className={`${styles.inputField} ${fieldErrors.department ? styles.inputError : ''}`}
           value={attendance.department}
           onChange={(e) => handleChangeWrapper('department', e.target.value)}
+          disabled={isView}
         >
           <option value="">Departments</option>
           <option value="Accounting">Accounting</option>
@@ -87,22 +98,61 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({ onClose, onSubmit }) 
           value={attendance.position}
           onChange={(e) => handleChangeWrapper('position', e.target.value)}
           placeholder="Enter position"
+          disabled={isView}
         />
         {fieldErrors.position && <p className={styles.errorText}>{fieldErrors.position}</p>}
 
         <label className={styles.label}>Attendance Date</label>
         <input
           type="date"
-          className={`${styles.inputField} ${fieldErrors.attendanceDate ? styles.inputError : ''}`}
-          value={attendance.attendanceDate}
-          onChange={(e) => handleChangeWrapper('attendanceDate', e.target.value)}
+          className={`${styles.inputField} ${fieldErrors.date ? styles.inputError : ''}`}
+          value={attendance.date}
+          onChange={(e) => handleChangeWrapper('date', e.target.value)}
+          disabled={isView}
         />
-        {fieldErrors.attendanceDate && <p className={styles.errorText}>{fieldErrors.attendanceDate}</p>}
+        {fieldErrors.date && <p className={styles.errorText}>{fieldErrors.date}</p>}
 
-        <div className={styles.buttonGroup}>
-          <button onClick={handleExitClick} className={styles.cancelButton}>Cancel</button>
-          <button onClick={handleSubmitWrapper} className={styles.submitButton}>Record</button>
+        <div className={styles.timeRow}>
+          <div className={styles.timeColumn}>
+            <label className={styles.label}>Time In</label>
+            <input
+              type="time"
+              className={styles.inputField}
+              value={attendance.timeIn}
+              onChange={(e) => handleChangeWrapper('timeIn', e.target.value)}
+              disabled={isView}
+            />
+            {fieldErrors.timeIn && <p className={styles.errorText}>{fieldErrors.timeIn}</p>}
+          </div>
+          <div className={styles.timeColumn}>
+            <label className={styles.label}>Time Out</label>
+            <input
+              type="time"
+              className={styles.inputField}
+              value={attendance.timeOut}
+              onChange={(e) => handleChangeWrapper('timeOut', e.target.value)}
+              disabled={isView}
+            />
+            {fieldErrors.timeOut && <p className={styles.errorText}>{fieldErrors.timeOut}</p>}
+          </div>
         </div>
+
+        <label className={styles.label}>Remarks</label>
+          <textarea
+            value={attendance.remarks}
+            onChange={(e) => handleChangeWrapper('remarks', e.target.value)}
+            className={styles.inputField}
+            placeholder="Write remarks"
+            rows={3}
+            disabled={isView}
+          />
+
+          {!isView && (
+            <div className={styles.buttonGroup}>
+              <button onClick={handleExitClick} className={styles.cancelButton}>Cancel</button>
+              <button onClick={handleSubmitWrapper} className={styles.submitButton}>Record</button>
+            </div>
+          )}
       </div>
     </div>
   );

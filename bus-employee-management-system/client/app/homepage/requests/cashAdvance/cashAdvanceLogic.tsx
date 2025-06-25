@@ -1,14 +1,11 @@
-// src/app/cashAdvance/cashAdvanceLogic.ts
 import { useState, useEffect, useMemo } from 'react';
 import { showConfirmation, showSuccess, showError } from '@/app/utils/swal';
 import { FilterSection } from '@/components/ui/filterDropdown';
 
-// --- Type Definitions (Moved to CAModalLogic as well for clarity, but kept here for now for dependency) ---
 export type AdvanceType = 'General Cash Advance' | 'Travel Advance' | 'Project Advance' | 'Emergency Advance' | 'Other';
 export type PaymentMethod = 'Deduction from next payroll' | 'Deduction over periods' | 'Full repayment on specific date';
 export type AdvanceStatus = 'Pending' | 'Approved' | 'Rejected' | 'Reimbursed' | 'Cancelled';
 
-// Interface for form data (what the modal submits)
 export interface CashAdvanceForm {
     employeeName: string;
     department: string;
@@ -29,8 +26,6 @@ export interface CashAdvanceForm {
     supportingDocuments?: string;
 }
 
-// Interface for the full Cash Advance object (stored in the list)
-// This extends CashAdvanceForm and adds unique ID and timestamps
 export interface CashAdvance extends CashAdvanceForm {
     id: string;
     timeAdded: string;

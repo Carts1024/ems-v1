@@ -1,12 +1,10 @@
-// cashadvancepage.tsx
 'use client';
 
 import React from 'react';
 import styles from './cashAdvance.module.css';
 import "@/styles/filters.css"
 import "@/styles/pagination.css"
-// UPDATED IMPORT PATH:
-import CAModal from '@/components/modal/requests/cashAdvance/CAModal'; // Import the new CAModal from its new location
+import CAModal from '@/components/modal/requests/cashAdvance/CAModal'; 
 import { CashAdvanceLogic, CashAdvance } from './cashAdvanceLogic';
 import PaginationComponent from '@/components/ui/pagination';
 import FilterDropdown from '@/components/ui/filterDropdown';

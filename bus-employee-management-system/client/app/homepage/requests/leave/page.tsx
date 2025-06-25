@@ -66,8 +66,7 @@ const LeavePage = () => {
     });
   };
 
-  // Define a default/empty LeaveForm object for "Add" mode.
-  // Ensure all properties of LeaveForm are initialized.
+
   const defaultAddLeaveForm: LeaveForm = {
     employeeName: '',
     department: '',
@@ -90,8 +89,8 @@ const LeavePage = () => {
 
   // Function to open the "View" modal
   const openViewModal = (leave: Leave) => {
-    setSelectedLeave(leave); // Set the selected leave to be viewed
-    setShowViewModal(true); // Open the view modal
+    setSelectedLeave(leave); 
+    setShowViewModal(true); 
   };
 
   return (
@@ -179,9 +178,9 @@ const LeavePage = () => {
                           <i className="ri-edit-2-line" aria-hidden="true"></i> Edit
                         </button>
                         <button
-                          className={styles.viewButton} // New class for view button
+                          className={styles.viewButton}
                           onClick={() => {
-                            openViewModal(leave); // Call openViewModal
+                            openViewModal(leave); 
                             toggleActionDropdown(null);
                           }}
                         >
@@ -212,7 +211,7 @@ const LeavePage = () => {
           onPageChange={(page) => setCurrentPage(page)}
           onPageSizeChange={(size) => {
             setPageSize(size);
-            setCurrentPage(1); // reset to page 1 when size changes
+            setCurrentPage(1); 
           }}
         />
 
@@ -235,7 +234,7 @@ const LeavePage = () => {
             isView={false} // Not a view modal
             defaultValue={{
               // Explicitly cast selectedLeave to unknown first, then to LeaveForm
-              // This is a workaround until the 'Leave' interface in leaveLogic.tsx is updated.
+              // IMPORTANT BY CLANG: This is a workaround until the 'Leave' interface in leaveLogic.tsx is updated.
               ...(selectedLeave as unknown as LeaveForm)
             } as LeaveForm}
             onClose={() => setShowEditModal(false)}
@@ -247,10 +246,9 @@ const LeavePage = () => {
         {/* View Leave Modal: New modal for viewing details */}
         {showViewModal && selectedLeave && (
           <LeaveFormModal
-            isEdit={false} // Viewing mode, not editing
-            isView={true} // Indicate it's a view modal
+            isEdit={false} 
+            isView={true} 
             defaultValue={{
-              // Cast selectedLeave to LeaveForm for display
               ...(selectedLeave as unknown as LeaveForm)
             } as LeaveForm}
             onClose={() => setShowViewModal(false)}

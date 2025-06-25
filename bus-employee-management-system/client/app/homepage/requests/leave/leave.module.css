@@ -89,10 +89,9 @@
 }
 
 .searchAndFilterContainer {
-  display: flex; /* Makes search and filter side-by-side */
-  align-items: center; /* Vertically centers the search input and filter button */
-  gap: 10px; /* Space between the search bar and the filter button */
-  /* REMOVE OR COMMENT OUT THIS LINE: flex-grow: 1; */ /* This was making search take all space */
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
 }
 
 .firstColumn {
@@ -220,7 +219,7 @@ td.truncate {
   padding: 12px 15px;
   text-align: center;
   border-bottom: 1px solid #eee;
-  white-space: normal; /* Allow text wrapping for body cells */
+  white-space: normal; 
   text-overflow: ellipsis;
 }
 
@@ -289,9 +288,6 @@ td.truncate {
 
 .viewButton { background-color: #13CE66; }
 .viewButton:hover { background-color: #12B75C; }
-
-.feedbackButton { background-color: #FFCC3D; }
-.feedbackButton:hover { background-color: #FFC107; }
 
 .editButton { background-color: #2D8EFF; }
 .editButton:hover { background-color: #267BDB; }

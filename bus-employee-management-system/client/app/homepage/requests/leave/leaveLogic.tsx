@@ -1,32 +1,27 @@
-// src/app/leave/leaveLogic.ts
 import { useState, useEffect, useMemo } from 'react';
-// Correct import for swal functions
 import { showConfirmation, showSuccess, showError } from '@/app/utils/swal';
 import { FilterSection } from '@/components/ui/filterDropdown';
-// Import LeaveForm, SpecificLeaveType, DurationType, LeaveStatus from its correct location
 import { LeaveForm, SpecificLeaveType, DurationType, LeaveStatus } from '@/components/modal/requests/leave/leaveFormModalLogic';
 
-// Define the interface for a Leave object
-// This interface now includes all fields from LeaveForm to ensure type compatibility
 export interface Leave {
     id: string;
     employeeName: string;
-    department: string; // Added field
-    dateHired: string; // Added field (YYYY-MM-DD format)
-    jobPosition: string; // Added field
-    leaveType: SpecificLeaveType; // Updated to use SpecificLeaveType
-    customLeaveType?: string; // Added field for custom leave, optional
-    startDate: string; // YYYY-MM-DD
-    endDate: string;   // YYYY-MM-DD
-    durationType: DurationType; // Added field
-    numberOfHours?: number; // Added field, optional
-    specificPartialDate?: string; // Added field, optional (YYYY-MM-DD format)
-    reasonForLeave: string; // Added field
-    contactInformation: string; // Added field, optional
-    supportingDocuments: string; // Added field, optional (just filename for now)
-    approver: string; // Added field
-    remarks: string; // Added field, optional
-    status: LeaveStatus; // Updated to use LeaveStatus
+    department: string; 
+    dateHired: string; 
+    jobPosition: string; 
+    leaveType: SpecificLeaveType; 
+    customLeaveType?: string; 
+    startDate: string;
+    endDate: string; 
+    durationType: DurationType; 
+    numberOfHours?: number; 
+    specificPartialDate?: string; 
+    reasonForLeave: string; 
+    contactInformation: string; 
+    supportingDocuments: string;
+    approver: string; 
+    remarks: string; 
+    status: LeaveStatus; 
     timeAdded: string;
     timeModified: string;
 }
@@ -37,12 +32,12 @@ export const LeaveLogic = () => {
     const [selectedLeave, setSelectedLeave] = useState<Leave | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     
-    // Using a single state for active filters from FilterDropdown
-    const [activeFilters, setActiveFilters] = useState<Record<string, any>>({}); // Use 'any' or more specific types based on your filter section types
+    //  single state for active filters from FilterDropdown
+    const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
 
     const [openActionDropdownIndex, setOpenActionDropdownIndex] = useState<number | null>(null);
 
-    // Initial dummy data for leaves, now including all new fields
+    // dummy data
     const [leaves, setLeaves] = useState<Leave[]>([
         {
             id: 'l1',
@@ -156,16 +151,13 @@ export const LeaveLogic = () => {
         },
     ]);
 
-    // Use a separate state for current filtered leaves to apply all filters dynamically
+    // a separate state for current filtered leaves
     const [currentFilteredLeaves, setCurrentFilteredLeaves] = useState<Leave[]>(leaves);
 
-    // Update currentFilteredLeaves whenever 'leaves' state changes (e.g., after add/edit/delete)
     useEffect(() => {
-        // Re-apply filters whenever the base 'leaves' data changes
-        handleApplyFilters(activeFilters); // Re-apply existing filters
-    }, [leaves]); // Dependency on 'leaves'
+        handleApplyFilters(activeFilters); 
+    }, [leaves]); 
 
-    // Define filter sections for the Leave page.
     const filterSections: FilterSection[] = [
         {
             id: "leaveType",
@@ -285,8 +277,8 @@ export const LeaveLogic = () => {
             const matchesSearch =
                 leave.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 leave.leaveType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                leave.department.toLowerCase().includes(searchTerm.toLowerCase()) || // Added department to search
-                leave.jobPosition.toLowerCase().includes(searchTerm.toLowerCase()); // Added jobPosition to search
+                leave.department.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                leave.jobPosition.toLowerCase().includes(searchTerm.toLowerCase()); 
             return matchesSearch;
         });
     }, [currentFilteredLeaves, searchTerm]);
@@ -318,7 +310,7 @@ export const LeaveLogic = () => {
                 department: newLeaveData.department,
                 dateHired: newLeaveData.dateHired,
                 jobPosition: newLeaveData.jobPosition,
-                leaveType: newLeaveData.leaveType, // No cast needed if type is compatible
+                leaveType: newLeaveData.leaveType, 
                 customLeaveType: newLeaveData.customLeaveType,
                 startDate: newLeaveData.startDate,
                 endDate: newLeaveData.endDate,
@@ -330,7 +322,7 @@ export const LeaveLogic = () => {
                 supportingDocuments: newLeaveData.supportingDocuments,
                 approver: newLeaveData.approver,
                 remarks: newLeaveData.remarks,
-                status: newLeaveData.status, // No cast needed if type is compatible
+                status: newLeaveData.status, 
                 timeAdded: now,
                 timeModified: now,
             };

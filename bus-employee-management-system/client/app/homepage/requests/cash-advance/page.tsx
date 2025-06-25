@@ -1,21 +1,19 @@
 'use client';
 
 import React from 'react';
-import styles from './leave.module.css';
+import styles from './cashAdvance.module.css';
 import "@/styles/filters.css"
 import "@/styles/pagination.css"
-import LeaveFormModal from '@/components/modal/requests/leave/LeaveFormModal';
-import { LeaveForm, SpecificLeaveType, DurationType, LeaveStatus } from '@/components/modal/requests/leave/LeaveFormModalLogic';
-import { LeaveLogic, Leave } from './leaveLogic';
+import CAModal from '@/components/modal/requests/cashAdvance/CAModal'; 
+import { CashAdvanceLogic, CashAdvance } from './cashAdvanceLogic';
 import PaginationComponent from '@/components/ui/pagination';
 import FilterDropdown from '@/components/ui/filterDropdown';
 
-const LeavePage = () => {
+const CashAdvancePage = () => {
   const {
-    filteredLeaves,
     searchTerm,
     setSearchTerm,
-    paginatedLeaves,
+    paginatedCashAdvances,
     currentPage,
     setCurrentPage,
     pageSize,
@@ -25,9 +23,8 @@ const LeavePage = () => {
     setShowAddModal,
     showEditModal,
     setShowEditModal,
-    selectedLeave,
-    setSelectedLeave,
-    leaves,
+    selectedCashAdvance,
+    setSelectedCashAdvance,
     handleAdd,
     handleEdit,
     handleDeleteRequest,
@@ -37,9 +34,8 @@ const LeavePage = () => {
     openEditModal,
     filterSections,
     handleApplyFilters,
-  } = LeaveLogic();
+  } = CashAdvanceLogic();
 
-  // State to control the visibility of the "View" modal
   const [showViewModal, setShowViewModal] = React.useState(false);
 
   const formatDate = (isoString: string) => {
@@ -62,41 +58,19 @@ const LeavePage = () => {
     }) + ' ' + date.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false, // 24-hour format
+      hour12: false,
     });
   };
 
-
-  const defaultAddLeaveForm: LeaveForm = {
-    employeeName: '',
-    department: '',
-    dateHired: '',
-    jobPosition: '',
-    leaveType: '', // Initial value for the select dropdown
-    customLeaveType: '',
-    startDate: new Date().toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0],
-    durationType: 'Full Days', // Default to Full Days
-    numberOfHours: undefined, // Default to undefined for number input
-    specificPartialDate: '',
-    reasonForLeave: '',
-    contactInformation: '',
-    supportingDocuments: '',
-    approver: '',
-    remarks: '',
-    status: 'Pending', // Default status for new requests
-  };
-
-  // Function to open the "View" modal
-  const openViewModal = (leave: Leave) => {
-    setSelectedLeave(leave); 
-    setShowViewModal(true); 
+  const openViewModal = (cashAdvance: CashAdvance) => {
+    setSelectedCashAdvance(cashAdvance);
+    setShowViewModal(true);
   };
 
   return (
     <div className={styles.base}>
-      <div className={styles.leaveContainer}>
-        <h1 className={styles.title}>Leave List</h1>
+      <div className={styles.cashAdvanceContainer}>
+        <h1 className={styles.title}>Cash Advance List</h1>
 
         <div className={styles.headerSection}>
           <div className={styles.searchAndFilterContainer}>
@@ -104,7 +78,7 @@ const LeavePage = () => {
               <i className="ri-search-line" aria-hidden="true"></i>
               <input
                 type="text"
-                placeholder="Search here..."
+                placeholder="Search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -117,47 +91,52 @@ const LeavePage = () => {
             />
           </div>
 
-          <button onClick={openAddModal} className={styles.addLeaveButton}>
-            <i className="ri-add-line" aria-hidden="true"></i> Add Leave
+          <button onClick={openAddModal} className={styles.addCashAdvanceButton}>
+            <i className="ri-add-line" aria-hidden="true"></i> Add Cash Advance
           </button>
         </div>
 
         <div className={styles.tableWrapper}>
-          <table className={styles.leaveTable}>
+          <table className={styles.cashAdvanceTable}>
             <thead>
               <tr>
                 <th className={styles.firstColumn}>No.</th>
                 <th>Employee Name</th>
-                <th>Leave Type</th>
-                <th>Start Date</th>
-                <th>End Date</th>
+                <th>Advance Type</th>
+                <th>Amount</th>
+                <th>Due Date</th>
+                <th>Repay Method</th>
                 <th>Status</th>
-                <th>Time Added</th>
-                <th>Time Modified</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {paginatedLeaves.map((leave, index) => (
-                <tr key={leave.id}>
+              {paginatedCashAdvances.map((cashAdvance, index) => (
+                <tr key={cashAdvance.id}>
                   <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
-                  <td>{leave.employeeName}</td>
-                  <td>{leave.leaveType}</td>
-                  <td>{formatDate(leave.startDate)}</td>
-                  <td>{formatDate(leave.endDate)}</td>
+                  <td>{cashAdvance.employeeName}</td>
+                  <td>{cashAdvance.advanceType}</td>
+                  <td>PHP {cashAdvance.amount.toFixed(2)}</td>
+                  <td>{formatDate(cashAdvance.dueDate)}</td>
                   <td>
-                    <span className={`${styles.leaveStatus} ${
-                        leave.status === 'Pending' ? styles['status-Pending'] :
-                        leave.status === 'Approved' ? styles['status-Approved'] :
-                        leave.status === 'Rejected' ? styles['status-Rejected'] :
-                        styles['interview-cancelled']
+                    {cashAdvance.repaymentMethod === 'Deduction over periods'
+                      ? `Deduction over ${cashAdvance.numberOfRepaymentPeriods} periods`
+                      : cashAdvance.repaymentMethod === 'Full repayment on specific date'
+                      ? `Full by ${formatDate(cashAdvance.fullRepaymentDate || '')}`
+                      : cashAdvance.repaymentMethod
+                    }
+                  </td>
+                  <td>
+                    <span className={`${styles.cashAdvanceStatus} ${
+                        cashAdvance.status === 'Pending' ? styles['status-Pending'] :
+                        cashAdvance.status === 'Approved' ? styles['status-Approved'] :
+                        cashAdvance.status === 'Rejected' ? styles['status-Rejected'] :
+                        cashAdvance.status === 'Reimbursed' ? styles['status-Reimbursed'] :
+                        styles['status-Cancelled']
                       }`}>
-                      {leave.status}
+                      {cashAdvance.status}
                     </span>
                   </td>
-                  <td>{formatDateTime(leave.timeAdded)}</td>
-                  <td>{formatDateTime(leave.timeModified)}</td>
-
                   <td className={styles.actionCell}>
                     <button
                       className={styles.mainActionButton}
@@ -171,7 +150,7 @@ const LeavePage = () => {
                         <button
                           className={styles.editButton}
                           onClick={() => {
-                            openEditModal(leave);
+                            openEditModal(cashAdvance);
                             toggleActionDropdown(null);
                           }}
                         >
@@ -180,7 +159,7 @@ const LeavePage = () => {
                         <button
                           className={styles.viewButton}
                           onClick={() => {
-                            openViewModal(leave); 
+                            openViewModal(cashAdvance);
                             toggleActionDropdown(null);
                           }}
                         >
@@ -189,7 +168,7 @@ const LeavePage = () => {
                         <button
                           className={styles.deleteButton}
                           onClick={() => {
-                            handleDeleteRequest(leave.id);
+                            handleDeleteRequest(cashAdvance.id);
                             toggleActionDropdown(null);
                           }}
                         >
@@ -211,54 +190,41 @@ const LeavePage = () => {
           onPageChange={(page) => setCurrentPage(page)}
           onPageSizeChange={(size) => {
             setPageSize(size);
-            setCurrentPage(1); 
+            setCurrentPage(1);
           }}
         />
-
-        {/* Add Leave Modal: Now correctly uses LeaveFormModal */}
-        {showAddModal && (
-          <LeaveFormModal
-            isEdit={false}
-            isView={false} // Not a view modal
-            defaultValue={defaultAddLeaveForm}
-            onClose={() => setShowAddModal(false)}
-            onSubmit={handleAdd}
-            existingEmployees={leaves.map(l => l.employeeName)}
-          />
-        )}
-
-        {/* Edit Leave Modal: Now correctly uses LeaveFormModal */}
-        {showEditModal && selectedLeave && (
-          <LeaveFormModal
-            isEdit={true}
-            isView={false} // Not a view modal
-            defaultValue={{
-              // Explicitly cast selectedLeave to unknown first, then to LeaveForm
-              // IMPORTANT BY CLANG: This is a workaround until the 'Leave' interface in leaveLogic.tsx is updated.
-              ...(selectedLeave as unknown as LeaveForm)
-            } as LeaveForm}
-            onClose={() => setShowEditModal(false)}
-            onSubmit={handleEdit}
-            existingEmployees={leaves.map(l => l.employeeName)}
-          />
-        )}
-
-        {/* View Leave Modal: New modal for viewing details */}
-        {showViewModal && selectedLeave && (
-          <LeaveFormModal
-            isEdit={false} 
-            isView={true} 
-            defaultValue={{
-              ...(selectedLeave as unknown as LeaveForm)
-            } as LeaveForm}
-            onClose={() => setShowViewModal(false)}
-            onSubmit={() => { /* No submission in view mode */ }}
-            existingEmployees={leaves.map(l => l.employeeName)}
-          />
-        )}
       </div>
+
+      {showAddModal && (
+        <CAModal
+          isEdit={false}
+          isView={false}
+          onClose={() => setShowAddModal(false)}
+          onSubmit={handleAdd}
+        />
+      )}
+
+      {showEditModal && selectedCashAdvance && (
+        <CAModal
+          isEdit={true}
+          isView={false}
+          defaultValue={selectedCashAdvance}
+          onClose={() => setShowEditModal(false)}
+          onSubmit={handleEdit}
+        />
+      )}
+
+      {showViewModal && selectedCashAdvance && (
+        <CAModal
+          isEdit={false}
+          isView={true}
+          defaultValue={selectedCashAdvance}
+          onClose={() => setShowViewModal(false)}
+          onSubmit={() => { /* No submission in view mode */ }}
+        />
+      )}
     </div>
   );
 };
 
-export default LeavePage;
+export default CashAdvancePage;

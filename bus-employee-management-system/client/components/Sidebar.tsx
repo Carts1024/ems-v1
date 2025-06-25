@@ -64,15 +64,21 @@ const Sidebar = () => {
             subItems: [
                 { path: '/homepage/requests/leave', name: 'Leave', key: 'leave' },
                 { path: '/homepage/requests/resignation', name: 'Resignation', key: 'resignation' },
-                { path: '/homepage/requests/resignation', name: 'Cash Advance', key: 'cash-advance' }
+                { path: '/homepage/requests/cash-advance', name: 'Cash Advance', key: 'cash-advance' }
             ]
         },
-        {
-            path: '/homepage/documents/orgfiles',
-            name: 'Documents',
+                {
+            path: '/homepage/user-management',
+            name: 'User Management',
             icon: 'ri-folder-line',
             key: 'documents'
         },
+        // {
+        //     path: '/homepage/documents/orgfiles',
+        //     name: 'Documents',
+        //     icon: 'ri-folder-line',
+        //     key: 'documents'
+        // },
         {
             path: '/authentication/new-password',
             name: 'Settings',

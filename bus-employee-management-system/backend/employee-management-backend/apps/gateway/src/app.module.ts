@@ -15,7 +15,7 @@ import { BenefitsModule } from './hr-service/benefits/benefits.module';
 import { DeductionsModule } from './hr-service/deductions/deductions.module';
 import { PositionsModule } from './hr-service/information/positions/positions.module';
 import { AttendanceModule } from './hr-service/attendance/attendance.module';
-
+import { FinanceEmpModule } from './hr-service/finance/finance.module';
 
 
 
@@ -33,6 +33,7 @@ import { AttendanceModule } from './hr-service/attendance/attendance.module';
     DeductionsModule,
     PositionsModule,
     AttendanceModule,
+    FinanceEmpModule,
     ClientsModule.register([
       {
         

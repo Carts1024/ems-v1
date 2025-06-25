@@ -35,6 +35,7 @@ export interface GovIdErrors {
 interface Deduction {
   reason: string;
   frequency: string;
+  type: 'fixed' | 'percentage';
   amount: string;
   effectiveDate: string;
   endDate: string;
@@ -98,11 +99,12 @@ export const useEmployeeRecords = () => {
   const [deductionList, setDeductionList] = useState<Deduction[]>([]);
   const [editingDeductIndex, setEditingDeductIndex] = useState<number | null>(null);
   const [tempDeduct, setTempDeduct] = useState<Deduction>({
-    reason: '', frequency:'', amount: '', effectiveDate: '', endDate: '', status: ''
+    reason: '', frequency:'', type: 'fixed', amount: '', effectiveDate: '', endDate: '', status: ''
   });
   const [deductFieldError, setDeductFieldError] = useState<{
     reason?: string;
     frequency?: string;
+    type?: string;
     amount?: string;
     effectiveDate?: string;
     endDate?: string;
@@ -381,25 +383,36 @@ export const useEmployeeRecords = () => {
   // Deduction logic
     const addDeduction = () => {
     setEditingDeductIndex(deductionList.length);
-    setTempDeduct({ reason: '', frequency: '', amount: '', effectiveDate: '', endDate: '', status: '' });
+    setTempDeduct({ reason: '', frequency: '', type: 'fixed', amount: '', effectiveDate: '', endDate: '', status: '' });
   };
 
   const saveDeduction = () => {
     const errors: {
       reason?: string;
       frequency?: string;
+      type?: string;
       amount?: string;
       effectiveDate?: string;
       endDate?: string;
       status?: string;
     } = {};
 
-    const { reason, frequency, amount, effectiveDate, endDate, status } = tempDeduct;
+    const { reason, frequency, type, amount, effectiveDate, endDate, status } = tempDeduct;
 
     // Required fields
     if (!reason) errors.reason = 'Required';
     if (!frequency) errors.frequency = 'Required';
-    if (!amount) errors.amount = 'Required';
+    if (!type) errors.type = 'Required';
+
+    const amt = parseFloat(amount);
+    if (!amount) {
+      errors.amount = 'Required';
+    } else if (type === 'fixed' && (isNaN(amt) || amt < 0)) {
+      errors.amount = 'Must be a non-negative number.';
+    } else if (type === 'percentage' && (isNaN(amt) || amt < 1 || amt > 50)) {
+      errors.amount = 'Must be between 1 and 50.';
+    }
+
     if (!effectiveDate) errors.effectiveDate = 'Required';
     if (!endDate) errors.endDate = 'Required';
     if (!status) errors.status = 'Required';

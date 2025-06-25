@@ -91,6 +91,20 @@ const WorkGovSection: React.FC<WorkGovSectionProps> = ({
         </select>
         {fieldErrors.employeeClassification && <p className={styles.errorText}>{fieldErrors.employeeClassification}</p>}
 
+        <select
+          className={`${styles.inputField} ${fieldErrors.department ? styles.inputError : ''}`}
+          value={employee.department}
+          onChange={(e) => handleChangeWrapper('department', e.target.value)}
+          disabled={isReadOnly}
+        >
+          <option value="">Departments</option>
+          <option value="Accounting">Accounting</option>
+          <option value="Human Resource">Human Resource</option>
+          <option value="Inventory">Inventory</option>
+          <option value="Operations">Operations</option>
+        </select>
+        {fieldErrors.department && <p className={styles.errorText}>{fieldErrors.department}</p>}
+
         <label className={styles.label}>Position</label>
         <input
           className={`${styles.inputField} ${fieldErrors.position ? styles.inputError : ''}`}
@@ -100,19 +114,6 @@ const WorkGovSection: React.FC<WorkGovSectionProps> = ({
           disabled={isReadOnly}
         />
         {fieldErrors.position && <p className={styles.errorText}>{fieldErrors.position}</p>}
-
-        <select
-          className={`${styles.inputField} ${fieldErrors.department ? styles.inputError : ''}`}
-          value={employee.department}
-          disabled
-        >
-          <option value="">Departments</option>
-          <option value="Accounting">Accounting</option>
-          <option value="Human Resource">Human Resource</option>
-          <option value="Inventory">Inventory</option>
-          <option value="Operations">Operations</option>
-        </select>
-        {fieldErrors.department && <p className={styles.errorText}>{fieldErrors.department}</p>}
 
         {/* Government ID Section */}
         <div className={styles.sectionHeader}>

@@ -64,7 +64,7 @@ const SalaryBenefitsSection: React.FC<Props> = ({
 }) => {
   return (
     <div className={styles.sectionGroup}>
-        <label className={styles.label}>Basic Pay</label>
+        <label className={styles.label}>Basic Rate</label>
         <input
             type="number"
             step="0.01"
@@ -72,7 +72,7 @@ const SalaryBenefitsSection: React.FC<Props> = ({
             className={`${styles.inputField} ${fieldErrors.basicPay ? styles.inputError : ''}`}
             value={employee.basicPay}
             onChange={(e) => handleChangeWrapper('basicPay', e.target.value)}
-            placeholder="Enter basic pay"
+            placeholder="Enter basic rate"
             disabled={isReadOnly}
         />
         {fieldErrors.basicPay && <p className={styles.errorText}>{fieldErrors.basicPay}</p>}
@@ -92,6 +92,7 @@ const SalaryBenefitsSection: React.FC<Props> = ({
                 <th>No.</th>
                 <th>Reason</th>
                 <th>Frequency</th>
+                <th>Type</th>
                 <th>Amount</th>
                 <th>Effective Date</th>
                 <th>End Date</th>
@@ -132,6 +133,17 @@ const SalaryBenefitsSection: React.FC<Props> = ({
                         ))}
                         </select>
                         {deductFieldError.frequency && <p className={styles.errorText}>{deductFieldError.frequency}</p>}
+                    </td>
+                    <td>
+                        <select
+                            className={styles.tableInput}
+                            value={tempDeduct.type}
+                            onChange={(e) => setTempDeduct({ ...tempDeduct, type: e.target.value as 'fixed' | 'percentage' })}
+                        >
+                            <option value="fixed">fixed</option>
+                            <option value="percentage">percentage</option>
+                        </select>
+                        {deductFieldError.type && <p className={styles.errorText}>{deductFieldError.type}</p>}
                     </td>
                     <td>
                         <input
@@ -187,6 +199,7 @@ const SalaryBenefitsSection: React.FC<Props> = ({
                     <td>{index + 1}</td>
                     <td>{d.reason}</td>
                     <td>{d.frequency}</td>
+                    <td>{d.type}</td>
                     <td>{d.amount}</td>
                     <td>{d.effectiveDate}</td>
                     <td>{d.endDate}</td>

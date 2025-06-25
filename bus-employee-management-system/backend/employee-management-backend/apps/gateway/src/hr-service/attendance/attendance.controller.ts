@@ -1,5 +1,3 @@
-// apps/gateway/src/attendance/attendance.controller.ts
-
 import {
   Controller,
   Get,
@@ -15,24 +13,38 @@ import { AttendanceService } from './attendance.service';
 export class AttendanceController {
   constructor(private readonly attendanceService: AttendanceService) {}
 
+  // GLOBAL ATTENDANCE ENDPOINTS
+
   @Get()
-  getAllAttendances() {
-    return this.attendanceService.getAllAttendances();
+  findAll() {
+    return this.attendanceService.findAll();
   }
 
   @Get(':id')
-  getAttendanceById(@Param('id') id: string) {
-    return this.attendanceService.getAttendanceById(Number(id));
+  findOne(@Param('id') id: string) {
+    return this.attendanceService.findOne(Number(id));
   }
+
+  @Post()
+  create(@Body() payload: any) {
+    return this.attendanceService.create(payload);
+  }
+
+  @Put(':id')
+  update(@Param('id') id: string, @Body() payload: any) {
+    return this.attendanceService.update(Number(id), payload);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.attendanceService.remove(Number(id));
+  }
+
+  // EMPLOYEE-CENTRIC ATTENDANCE ENDPOINTS
 
   @Get('employee/:employeeId')
   getAttendancesByEmployee(@Param('employeeId') employeeId: string) {
     return this.attendanceService.getAttendancesByEmployee(employeeId);
-  }
-
-  @Post()
-  createAttendance(@Body() payload: any) {
-    return this.attendanceService.createAttendance(payload);
   }
 
   @Post('employee/:employeeId')
@@ -46,13 +58,38 @@ export class AttendanceController {
     );
   }
 
-  @Put(':id')
-  updateAttendance(@Param('id') id: string, @Body() payload: any) {
-    return this.attendanceService.updateAttendance(Number(id), payload);
+  @Get('employee/:employeeId/:id')
+  getAttendanceOfEmployee(
+    @Param('employeeId') employeeId: string,
+    @Param('id') id: string,
+  ) {
+    return this.attendanceService.getAttendanceOfEmployee(
+      employeeId,
+      Number(id),
+    );
   }
 
-  @Delete(':id')
-  deleteAttendance(@Param('id') id: string) {
-    return this.attendanceService.deleteAttendance(Number(id));
+  @Put('employee/:employeeId/:id')
+  updateAttendanceOfEmployee(
+    @Param('employeeId') employeeId: string,
+    @Param('id') id: string,
+    @Body() payload: any,
+  ) {
+    return this.attendanceService.updateAttendanceOfEmployee(
+      employeeId,
+      Number(id),
+      payload,
+    );
+  }
+
+  @Delete('employee/:employeeId/:id')
+  deleteAttendanceOfEmployee(
+    @Param('employeeId') employeeId: string,
+    @Param('id') id: string,
+  ) {
+    return this.attendanceService.deleteAttendanceOfEmployee(
+      employeeId,
+      Number(id),
+    );
   }
 }

@@ -5,10 +5,9 @@
 
 .attendanceContainer {
   max-width: auto;
-  height: auto;
-  max-height: none; 
+  height: 100%;
   padding: 2rem;
-  padding-top: 0.01rem; 
+  padding-top: 0.01rem;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0,0,0,0.05);
@@ -17,7 +16,7 @@
 .title {
   font-size: 24px;
   font-weight: 600 (bold);
-  margin-bottom: 15px;
+  margin-Bottom: 15px;
 }
 
 .search {
@@ -47,7 +46,7 @@
 }
 
 .addAttendanceButton {
-  width: 175px; 
+  width: 100px; 
   height: 35px; 
   display: flex; 
   justify-content: center; 
@@ -65,12 +64,11 @@
 
 .addAttendanceButton:hover {
   background-color: #571415;
-
 }
 
 .importButton,
 .exportButton {
-  width: 90px; 
+  width: 100px; 
   height: 35px; 
   display: flex; 
   justify-content: center; 
@@ -115,10 +113,64 @@
   padding: 0.5rem;
 }
 
+.filterDropdown {
+  border: 1px solid var(--border-color); 
+  border-radius: 8px; 
+  width: 200px; 
+  height: 35px; 
+  padding-right: 0 8px; 
+  font-size: 14px; 
+  padding: 0.5rem;
+}
+
 .firstColumn {
   width: 75px;
 }
 
+/* ================================= */
+
+/* .tableWrapper {
+  width: 100%;
+  max-height: 100%;
+  overflow-x: auto;
+}
+
+.departmentTable {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  text-align: center;
+}
+
+.departmentTable thead th {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 2;
+  border-bottom: 2px solid #ddd;
+  padding: 10px;
+}
+
+.departmentTable tbody {
+  display: block;
+  max-height: 300px; /* scroll height
+  overflow-y: auto;
+  width: 100%;
+}
+
+.departmentTable thead,
+.departmentTable tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.departmentTable tbody td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+} */
+
+/* ==================================== */
 /* Table Styling */
 .tableWrapper {
   flex: 1 1 auto;
@@ -161,6 +213,7 @@
   scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color);
 }
 
+
 .attendanceTable {
   width: 100%;
   border-collapse: separate;
@@ -187,17 +240,18 @@
   text-overflow: ellipsis;
   vertical-align: top;
 }
-
+.attendanceTable thead.tr:hover {
+  background-color: red;
+}
 /* Flexible column sizing. Adjust percentages as needed. */
 .attendanceTable thead th:nth-child(1) { width: 5%; } /* No. */
-.attendanceTable thead th:nth-child(2) { width: 15%; } /* Status */
-.attendanceTable thead th:nth-child(3) { width: 15%; } /* Name */
+.attendanceTable thead th:nth-child(2) { width: 10%; } /* Status */
+.attendanceTable thead th:nth-child(3) { width: 20%; } /* Name */
 .attendanceTable thead th:nth-child(4) { width: 10%; } /* Date Hired */
-.attendanceTable thead th:nth-child(5) { width: 10%; } /* Department */
-.attendanceTable thead th:nth-child(6) { width: 10%; } /* Position */
-.attendanceTable thead th:nth-child(7) { width: 10%; } /* Actions */
-
-
+.attendanceTable thead th:nth-child(5) { width: 20%; } /* Department */
+.attendanceTable thead th:nth-child(6) { width: 15%; } /* Position */
+.attendanceTable thead th:nth-child(7) { width: 15%; } /* Attendance Date */
+.attendanceTable thead th:nth-child(8) { width: 5%; } /* Actions */
 
 .attendanceTable thead th:first-child {
   border-top-left-radius: 6px;
@@ -229,13 +283,14 @@ td.truncate {
 }
 
 
-.attendanceTabl tbody td {
+.attendanceTable tbody td {
   padding: 12px 15px;
   text-align: center;
   border-bottom: 1px solid #eee;
   white-space: normal; /* Allow text wrapping for body cells */
   text-overflow: ellipsis;
 }
+
 /* Action Icons */
 .actionCell {
   position: relative; /* Keep this if you want the button to be centered/styled within the TD */
@@ -259,11 +314,6 @@ td.truncate {
   color: #333; 
   cursor: pointer;
   transition: background-color 0.2s;
-}
-
-.mainActionButton i {
-  color: #333;
-  font-size: 20px;
 }
 
 .mainActionButton:hover {

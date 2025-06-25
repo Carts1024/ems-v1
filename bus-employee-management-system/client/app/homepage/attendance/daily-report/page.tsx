@@ -63,7 +63,7 @@ export default function AttendancePage() {
           </div>
 
           <button className={styles.addAttendanceButton} onClick={() => setShowAddModal(true)}>
-            <i className="ri-add-line" /> Record Attendance
+            <i className="ri-add-line" /> Record
           </button>
 
           <button className={styles.importButton}>

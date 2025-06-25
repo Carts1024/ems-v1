@@ -207,8 +207,9 @@
 }
 /* Flexible column sizing. Adjust percentages as needed. */
 .positionsTable thead th:nth-child(1) { width: 5%; } /* No. */
-.positionsTable thead th:nth-child(2) { width: 85%; } /* Benefit Name */
-.positionsTable thead th:nth-child(6) { width: 10%; } /* Actions */
+.positionsTable thead th:nth-child(2) { width: 40%; } /* Position*/
+.positionsTable thead th:nth-child(3) { width: 40%; } /* Department */
+.positionsTable thead th:nth-child(4) { width: 10%; } /* Actions */
 
 .positionsTable thead th:first-child {
   border-top-left-radius: 6px;

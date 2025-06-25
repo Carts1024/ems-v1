@@ -1,0 +1,326 @@
+.base {
+  width: 100%;
+  height: 100%;
+}
+
+.leaveContainer { /* to do: apply to other pages */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 2rem;
+  padding-top: 0.01rem;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600 (bold);
+  margin-Bottom: 15px;
+}
+
+.search {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.search i {
+  display: flex; 
+  align-items: center; 
+  border: 1px solid #B3B3B3; 
+  border-right: none; 
+  border-radius: 8px 0 0 8px; 
+  height: 35px; 
+  padding: 8px; 
+}
+
+.search input {
+  border: 1px solid var(--border-color);
+  border-left: none;
+  border-radius: 0 8px 8px 0; 
+  width: 400px; 
+  height: 35px; 
+  padding-right: 0 8px; 
+  font-size: 14px; 
+  padding-left: 10px;
+}
+
+.addLeaveButton {
+  width: 160px; 
+  height: 35px; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  gap: 8px; 
+  border-radius: 5px; 
+  background-color: #961C1E; 
+  color: #FFFFFF; 
+  font-size: 14px; 
+  transition: all 0.3s ease-in-out; 
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.addDepartmentButton:hover {
+  background-color: #571415;
+}
+
+.headerSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filterDropdown {
+  border: 1px solid var(--border-color); 
+  border-radius: 8px; 
+  width: 200px; 
+  height: 35px; 
+  padding-right: 0 8px; 
+  font-size: 14px; 
+  padding: 0.5rem;
+}
+
+.searchAndFilterContainer {
+  display: flex; /* Makes search and filter side-by-side */
+  align-items: center; /* Vertically centers the search input and filter button */
+  gap: 10px; /* Space between the search bar and the filter button */
+  /* REMOVE OR COMMENT OUT THIS LINE: flex-grow: 1; */ /* This was making search take all space */
+}
+
+.firstColumn {
+  width: 75px;
+}
+
+/* ==================================== */
+/* Table Styling */
+
+.tableWrapper { /* to do: apply to other pages */
+  flex: 1; 
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  max-height: unset; 
+}
+
+/* Custom Scrollbar Styles for WebKit (Chrome, Safari, Edge) */
+.tableWrapper::-webkit-scrollbar {
+  width: 8px; 
+  height: 8px;
+}
+
+.tableWrapper::-webkit-scrollbar-track {
+  background: var(--scrollbar-track-color);
+  border-radius: 10px;
+}
+
+.tableWrapper::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb-color);
+  border-radius: 10px;
+  border: 2px solid var(--scrollbar-track-color);
+}
+
+.tableWrapper::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover-color);
+}
+
+/* Custom Scrollbar Styles for Firefox */
+.tableWrapper {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color);
+}
+
+
+.leaveTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 6px;
+  table-layout: auto;
+  color: #404040;
+  border-collapse: collapse;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.leaveTable thead {
+  background-color: #f2f2f2;
+}
+
+.leaveTable thead th {
+  position: sticky;
+  top: 0;
+  padding: 12px 15px;
+  font-weight: 600;
+  color: black;
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+  background-color: #D8D8D8;
+  white-space: normal; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: top;
+  height: 60px;
+  z-index: 10;
+}
+.leaveTable thead.tr:hover {
+  background-color: red;
+}
+/* Flexible column sizing */
+.leaveTable thead th:nth-child(1) { width: 5%; } /* No. */
+.leaveTable thead th:nth-child(2) { width: 20%; } /* Employee Name */
+.leaveTable thead th:nth-child(3) { width: 10%; } /* Leave Type */
+.leaveTable thead th:nth-child(4) { width: 10%; } /* Start Date (adjusted to make space) */
+.leaveTable thead th:nth-child(5) { width: 10%; } /* End Date (adjusted to make space) */
+.leaveTable thead th:nth-child(6) { width: 10%; } /* Status */
+.leaveTable thead th:nth-child(7) { width: 15%; } /* Time Added */
+.leaveTable thead th:nth-child(8) { width: 15%; } /* Time Modified */
+.leaveTable thead th:nth-child(9) { width: 15%; } /* Actions */
+
+.leaveTable thead th:first-child {
+  border-top-left-radius: 6px;
+}
+
+.leaveTable thead th:last-child {
+  border-top-right-radius: 6px;
+}
+
+.leaveTable tbody tr {
+  transition: background-color 0.2s;
+  overflow: visible; 
+}
+
+.leaveTable tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.leaveTable tbody tr:hover {
+  background-color: #f1f1f1;
+    color: black;
+
+}
+
+td.truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+
+.leaveTable tbody td {
+  padding: 12px 15px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  white-space: normal; /* Allow text wrapping for body cells */
+  text-overflow: ellipsis;
+}
+
+/* Action Icons */
+.actionCell {
+  position: relative; /* center bbuttons */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible; 
+  padding: 8px 0;
+}
+
+.mainActionButton {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border: none;
+  border-radius: 6px;
+  background-color: #eee;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  position: relative;
+}
+
+.mainActionButton:hover {
+  background-color: #ddd;
+}
+
+/* actions  */
+.actionDropdown {
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  z-index: 5; 
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px;
+  min-width: 50px; 
+  white-space: nowrap;
+  top: 45px; /*dropdown below the main action button*/
+  /* right: 70px; drop down on the left side of the main action button*/
+}
+
+.actionDropdown button { 
+  display: flex; 
+  align-items: center; 
+  justify-content: flex-start; 
+  gap: 8px; 
+  width: 100%; 
+  padding: 8px 12px;
+  font-size: 14px; 
+  border: none; 
+  border-radius: 6px; 
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #fff;
+}
+
+.viewButton { background-color: #13CE66; }
+.viewButton:hover { background-color: #12B75C; }
+
+.feedbackButton { background-color: #FFCC3D; }
+.feedbackButton:hover { background-color: #FFC107; }
+
+.editButton { background-color: #2D8EFF; }
+.editButton:hover { background-color: #267BDB; }
+
+.deleteButton { background-color: #FF4949; }
+.deleteButton:hover { background-color: #DE3939; }
+
+/* Status Badges */
+.leaveStatus {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+}
+
+.status-Rejected {
+  background-color: #f2dede;
+  color: #a94442;
+}
+
+.status-Pending {
+  background-color: #d9edf7;
+  color: #31708f;
+}
+
+.status-Approved {
+  background-color: #D1F7D1;
+  color: #23915F;
+}

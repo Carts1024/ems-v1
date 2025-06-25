@@ -1,6 +1,4 @@
-/* C:\Users\clari\OneDrive\School\GitHub\ems-v1\bus-employee-management-system\client\components\modal\usermanagement\usermodal.module.css */
 
-/* Base styles adapted from CAModal.module.css */
 .modalOverlay {
   position: fixed;
   inset: 0;
@@ -16,7 +14,7 @@
   border-radius: 1rem;
   padding: 2rem;
   width: 95%;
-  max-width: 900px; /* Adjusted max-width for similar layout to CA Modal */
+  max-width: 900px; 
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
@@ -32,7 +30,7 @@
   right: 1rem;
   background: transparent;
   border: none;
-  font-size: 2.25rem; /* Larger icon */
+  font-size: 2rem; /* Larger icon */
   color: #961c1e;
   font-weight: bold;
   cursor: pointer;
@@ -85,7 +83,7 @@
 
 .formColumn {
   flex: 1;
-  min-width: 300px; /* Adjusted min-width for columns */
+  min-width: 300px; 
 }
 
 .label {

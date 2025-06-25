@@ -13,15 +13,17 @@
   height: 100%;
 }
 
+/* INEDIT KO TO RAINE */
 .candidateContainer {
-  max-width: auto;
-  height: auto;
-  max-height: none; 
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   padding: 2rem;
-  padding-top: 0.01rem; 
+  padding-top: 0.01rem;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  overflow: hidden;
 }
 
 /* Header / Title */
@@ -96,18 +98,14 @@
 }
 
 /* Table Styling */
-.tableWrapper {
-  flex: 1 1 auto;
-  min-height: 0;
-  margin-bottom: 1.5rem;
+.tableWrapper { /* RAINE EDIT */
+  flex: 1; 
+  overflow-y: auto;
+  overflow-x: hidden;
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  background-color: #fff;
-  border-color: #B7B7B7;
-  overflow-x: auto; /* Kept for responsiveness */
-  overflow-y: visible; /* This should be auto to allow scrolling */
-  position: relative;
-  z-index: 0;
+  margin-bottom: 1rem;
+  max-height: unset; 
 }
 
 /* Custom Scrollbar Styles for WebKit (Chrome, Safari, Edge) */
@@ -152,17 +150,21 @@
   background-color: #f2f2f2;
 }
 
-.candidateTable thead th {
+.candidateTable thead th { /* RAINE EDIT */
+  position: sticky;
+  top: 0;
   padding: 12px 15px;
   font-weight: 600;
   color: black;
   text-align: center;
   border-bottom: 1px solid #ccc;
   background-color: #D8D8D8;
-  white-space: normal; /* Allow text wrapping for headers */
+  white-space: normal; 
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: top;
+  height: 60px;
+  z-index: 10;
 }
 .candidateTable thead.tr:hover {
   background-color: red;
@@ -224,27 +226,28 @@ td.truncate {
 
 /* Action Icons */
 .actionCell {
-  position: relative; /* Keep this if you want the button to be centered/styled within the TD */
+  position: relative; /* center bbuttons */
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: visible; 
+  padding: 8px 0;
 }
 
 .mainActionButton {
-  min-width: 40px;
-  min-height: 40px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
-  font-size: 20px; 
+  font-size: 18px;
   border: none;
   border-radius: 6px;
-  background-color: #eee; 
-  color: #333; 
+  background-color: #eee;
+  color: #333;
   cursor: pointer;
   transition: background-color 0.2s;
+  position: relative;
 }
 
 .mainActionButton:hover {
@@ -258,14 +261,14 @@ td.truncate {
   border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  z-index: 10000; 
+  z-index: 5; 
   display: flex;
   flex-direction: column;
   gap: 5px;
   padding: 8px;
   min-width: 50px; 
   white-space: nowrap;
-  top: 60px; /*dropdown below the main action button*/
+  top: 45px; /*dropdown below the main action button*/
   /* right: 70px; drop down on the left side of the main action button*/
 }
 

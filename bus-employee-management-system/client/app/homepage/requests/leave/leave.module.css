@@ -3,7 +3,7 @@
   height: 100%;
 }
 
-.leaveContainer { /* to do: apply to other pages */
+.leaveContainer { /* RAINE to do: apply to other pages */
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -101,7 +101,7 @@
 /* ==================================== */
 /* Table Styling */
 
-.tableWrapper { /* to do: apply to other pages */
+.tableWrapper { /* RAINE to do: apply to other pages */
   flex: 1; 
   overflow-y: auto;
   overflow-x: hidden;
@@ -155,6 +155,7 @@
   background-color: #f2f2f2;
 }
 
+/* RAINE EDIT */
 .leaveTable thead th {
   position: sticky;
   top: 0;

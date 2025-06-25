@@ -1,10 +1,8 @@
-// C:\Users\clari\OneDrive\School\GitHub\ems-v1\bus-employee-management-system\client\components\modal\usermanagement\usermodallogic.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
-import { showSuccess, showError } from '@/app/utils/swal'; // Re-use existing Swal utilities
+import { showSuccess, showError } from '@/app/utils/swal'; 
 
-// Type Definitions for User Modal
 export type UserRole = 'Admin' | 'Employee' | 'HR' | 'Manager';
 
 export interface UserForm {

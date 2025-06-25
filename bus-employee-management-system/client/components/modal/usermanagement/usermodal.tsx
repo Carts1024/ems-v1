@@ -1,10 +1,9 @@
-// C:\Users\clari\OneDrive\School\GitHub\ems-v1\bus-employee-management-system\client\components\modal\usermanagement\usermodal.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import styles from './usermodal.module.css'; // Import the new usermodal.module.css
-import { useUserModalLogic, UserForm, UserRole } from './usermodallogic'; // Import the new UserModalLogic and types
-import { showConfirmation } from '@/app/utils/swal'; // Re-use existing Swal utility
+import styles from './usermodal.module.css'; 
+import { useUserModalLogic, UserForm, UserRole } from './usermodallogic'; 
+import { showConfirmation } from '@/app/utils/swal';
 
 interface UserModalProps {
   isEdit: boolean;
@@ -198,7 +197,7 @@ const UserModal: React.FC<UserModalProps> = ({
                 id="remarks"
                 className={styles.inputField}
                 value={user.remarks || ''} // remarks isn't directly in UserForm, assuming it's an optional add-on
-                onChange={(e) => handleChangeWrapper('remarks', e.target.value)} // Need to adjust logic.tsx if remarks is not in UserForm
+                onChange={(e) => handleChangeWrapper('remarks', e.target.value)}
                 placeholder="Any additional information..."
                 rows={4}
                 readOnly={isView}

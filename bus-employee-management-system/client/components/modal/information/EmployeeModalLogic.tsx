@@ -12,7 +12,8 @@ export interface Employee {
   birthdate: string;
   email: string;
   contact: string;
-  houseStreetBarangay: string;
+  houseStreet: string;
+  barangay: string;
   city: string;
   stateProvinceRegion: string;
   country: string;
@@ -63,7 +64,8 @@ export const useEmployeeModal = (
     birthdate: '',
     email: '',
     contact: '',
-    houseStreetBarangay: '',
+    houseStreet: '',
+    barangay:'',
     city: '',
     stateProvinceRegion: '',
     country: '',
@@ -106,7 +108,8 @@ export const useEmployeeModal = (
     if (!employee.birthdate || !isAtLeast18(employee.birthdate)) errors.birthdate = 'Must be at least 18 years old.';
     if (!employee.email || !isValidEmail(employee.email)) errors.email = 'Invalid email format.';
     if (!isValidContact(employee.contact) || !isValidPhilippineContact(employee.contact)) errors.contact = 'Invalid format.';
-    if (!employee.houseStreetBarangay) errors.houseStreetBarangay = 'Required';
+    if (!employee.houseStreet) errors.houseStreet = 'Required';
+    if (!employee.barangay) errors.barangay = 'Required';
     if (!employee.city) errors.city = 'Required';
     if (!employee.stateProvinceRegion) errors.stateProvinceRegion = 'Required';
     if (!employee.country) errors.country = 'Required';

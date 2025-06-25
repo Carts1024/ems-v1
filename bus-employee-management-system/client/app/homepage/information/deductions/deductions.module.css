@@ -208,7 +208,7 @@
 /* Flexible column sizing. Adjust percentages as needed. */
 .deductionsTable thead th:nth-child(1) { width: 5%; } /* No. */
 .deductionsTable thead th:nth-child(2) { width: 85%; } /* Deduction Name */
-.deductionsTable thead th:nth-child(6) { width: 10%; } /* Actions */
+.deductionsTable thead th:nth-child(3) { width: 10%; } /* Actions */
 
 .deductionsTable thead th:first-child {
   border-top-left-radius: 6px;

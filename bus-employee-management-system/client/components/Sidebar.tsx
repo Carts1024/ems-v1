@@ -65,8 +65,8 @@ const Sidebar = () => {
             ]
         },
         {
-            path: '/homepage/documents/orgfiles',
-            name: 'Documents',
+            path: '/homepage/usermanagement',
+            name: 'User Management',
             icon: 'ri-folder-line',
             key: 'documents'
         },

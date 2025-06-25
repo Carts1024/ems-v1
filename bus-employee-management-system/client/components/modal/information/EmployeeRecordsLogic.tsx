@@ -17,15 +17,38 @@ interface Education {
   completionDate: string;
 }
 
-interface GovernmentID {
+export interface GovernmentID {
   idType: string;
   idNumber: string;
+  issuedDate: string;
+  expiryDate: string;
+  status: string;
+}
+
+export interface GovIdErrors {
+  idNumber?: string;
+  issuedDate?: string;
+  expiryDate?: string;
+  status?: string;
 }
 
 interface Deduction {
-  institute: string;
+  reason: string;
+  frequency: string;
+  type: 'fixed' | 'percentage';
   amount: string;
-  deductionDate: string;
+  effectiveDate: string;
+  endDate: string;
+  status: string;
+}
+
+interface Benefit {
+  benefit: string;
+  frequency: string;
+  amount: string;
+  effectiveDate: string;
+  endDate: string;
+  status: string;
 }
 
 export const useEmployeeRecords = () => {
@@ -63,16 +86,45 @@ export const useEmployeeRecords = () => {
   // Government ID
   const [governmentIds, setGovernmentIds] = useState<GovernmentID[]>([]);
   const [editingGovIdIndex, setEditingGovIdIndex] = useState<number | null>(null);
-  const [tempGovId, setTempGovId] = useState<GovernmentID>({ idType: '', idNumber: '' });
-  const [govIdError, setGovIdError] = useState('');
+  const [tempGovId, setTempGovId] = useState<GovernmentID>({ idType: '', idNumber: '', issuedDate: '', expiryDate: '', status: '' });
+  const [govIdError, setGovIdError] = useState<{
+    idNumber?: string;
+    issuedDate?: string;
+    expiryDate?: string;
+    status?: string;
+  }>({});
+
 
   // Deduction
   const [deductionList, setDeductionList] = useState<Deduction[]>([]);
   const [editingDeductIndex, setEditingDeductIndex] = useState<number | null>(null);
   const [tempDeduct, setTempDeduct] = useState<Deduction>({
-    institute: '', amount: '', deductionDate: '',
+    reason: '', frequency:'', type: 'fixed', amount: '', effectiveDate: '', endDate: '', status: ''
   });
-  const [deductDateError, setDeductDateError] = useState('');
+  const [deductFieldError, setDeductFieldError] = useState<{
+    reason?: string;
+    frequency?: string;
+    type?: string;
+    amount?: string;
+    effectiveDate?: string;
+    endDate?: string;
+    status?: string;
+  }>({});
+
+  // Benefit
+  const [benefitList, setBenefitList] = useState<Benefit[]>([]);
+  const [editingBenefitIndex, setEditingBenefitIndex] = useState<number | null>(null);
+  const [tempBenefit, setTempBenefit] = useState<Benefit>({
+    benefit: '', frequency:'', amount: '', effectiveDate: '', endDate: '', status: ''
+  });
+  const [benefitFieldError, setBenefitFieldError] = useState<{
+    benefit?: string;
+    frequency?: string;
+    amount?: string;
+    effectiveDate?: string;
+    endDate?: string;
+    status?: string;
+  }>({});
 
   // Utility
   const isDateValid = (dateStr: string) => {
@@ -115,15 +167,6 @@ export const useEmployeeRecords = () => {
     return true;
   };
 
-  const validateDeductionDate = () => {
-    if (tempDeduct.deductionDate && !isDateValid(tempDeduct.deductionDate)) {
-      setDeductDateError('Date cannot be in the future.');
-      return false;
-    }
-    setDeductDateError('');
-    return true;
-  };
-
   const validateGovIdFormat = (type: string, number: string): string | null => {
     switch (type) {
       case 'SSS':
@@ -142,26 +185,36 @@ export const useEmployeeRecords = () => {
   };
 
   // Boolean flags for form button enabling
-  const isTempWorkValid =
+  const isTempWorkValid = Boolean(
     tempWork.company.trim() &&
     tempWork.position.trim() &&
     tempWork.from &&
     tempWork.to &&
     isDateValid(tempWork.from) &&
-    isDateValid(tempWork.to);
+    isDateValid(tempWork.to)
+  );
 
-  const isTempEducValid =
+  const isTempEducValid = Boolean(
     tempEduc.institute.trim() &&
     tempEduc.degree.trim() &&
     tempEduc.specialization.trim() &&
     tempEduc.completionDate &&
-    isDateValid(tempEduc.completionDate);
+    isDateValid(tempEduc.completionDate)
+  );
 
-  const isTempDeductValid =
-    tempDeduct.institute.trim() &&
+  const isTempDeductValid = Boolean(
+    tempDeduct.reason.trim() &&
     tempDeduct.amount.trim() &&
-    tempDeduct.deductionDate &&
-    isDateValid(tempDeduct.deductionDate);
+    tempDeduct.effectiveDate &&
+    isDateValid(tempDeduct.effectiveDate)
+  );
+
+  const isTempBenefitValid = Boolean(
+    tempBenefit.benefit.trim() &&
+    tempBenefit.amount.trim() &&
+    tempBenefit.effectiveDate &&
+    isDateValid(tempBenefit.effectiveDate)
+  );
 
   // Work logic
   const addWork = () => {
@@ -250,16 +303,56 @@ export const useEmployeeRecords = () => {
 
   const addGovernmentID = () => {
     setEditingGovIdIndex(governmentIds.length);
-    setTempGovId({ idType: '', idNumber: '' });
+    setTempGovId({ idType: '', idNumber: '', issuedDate: '', expiryDate: '', status: '' });
   };
 
   const saveGovernmentID = () => {
     const formatError = validateGovIdFormat(tempGovId.idType, tempGovId.idNumber);
+
+    const errors: {
+      idNumber?: string;
+      issuedDate?: string;
+      expiryDate?: string;
+      status?: string;
+    } = {};
+
+    if (!tempGovId.issuedDate) errors.issuedDate = 'Required';
+    if (!tempGovId.expiryDate) errors.expiryDate = 'Required';
+    if (!tempGovId.status) errors.status = 'Required';
+
+    // Date logic
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const issued = new Date(tempGovId.issuedDate);
+    const expiry = new Date(tempGovId.expiryDate);
+
+    if (tempGovId.issuedDate && issued > today) {
+      errors.issuedDate = 'Issued date cannot be in the future.';
+    }
+
+    if (tempGovId.expiryDate && expiry < today) {
+      errors.expiryDate = 'Expiration date cannot be in the past.';
+    }
+
+    if (tempGovId.issuedDate && tempGovId.expiryDate && tempGovId.issuedDate === tempGovId.expiryDate) {
+      errors.expiryDate = 'Expiration date cannot be the same as issued date.';
+    }
+
+    if (tempGovId.issuedDate && tempGovId.expiryDate && expiry < issued) {
+      errors.expiryDate = 'Expiration date cannot be earlier than issued date.';
+    }
+
     if (formatError) {
-      setGovIdError(formatError);
+      errors.idNumber = formatError;
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setGovIdError(errors); // Make sure govIdError is an object state
       return;
     }
-    setGovIdError('');
+
+    setGovIdError({}); // Clear errors
 
     const updated = [...governmentIds];
     if (editingGovIdIndex === governmentIds.length) {
@@ -288,13 +381,64 @@ export const useEmployeeRecords = () => {
   };
 
   // Deduction logic
-  const addDeduction = () => {
+    const addDeduction = () => {
     setEditingDeductIndex(deductionList.length);
-    setTempDeduct({ institute: '', amount: '', deductionDate: '' });
+    setTempDeduct({ reason: '', frequency: '', type: 'fixed', amount: '', effectiveDate: '', endDate: '', status: '' });
   };
 
   const saveDeduction = () => {
-    if (!validateDeductionDate()) return;
+    const errors: {
+      reason?: string;
+      frequency?: string;
+      type?: string;
+      amount?: string;
+      effectiveDate?: string;
+      endDate?: string;
+      status?: string;
+    } = {};
+
+    const { reason, frequency, type, amount, effectiveDate, endDate, status } = tempDeduct;
+
+    // Required fields
+    if (!reason) errors.reason = 'Required';
+    if (!frequency) errors.frequency = 'Required';
+    if (!type) errors.type = 'Required';
+
+    const amt = parseFloat(amount);
+    if (!amount) {
+      errors.amount = 'Required';
+    } else if (type === 'fixed' && (isNaN(amt) || amt < 0)) {
+      errors.amount = 'Must be a non-negative number.';
+    } else if (type === 'percentage' && (isNaN(amt) || amt < 1 || amt > 50)) {
+      errors.amount = 'Must be between 1 and 50.';
+    }
+
+    if (!effectiveDate) errors.effectiveDate = 'Required';
+    if (!endDate) errors.endDate = 'Required';
+    if (!status) errors.status = 'Required';
+
+    const effDate = new Date(effectiveDate);
+    const expDate = new Date(endDate);
+
+    // Date comparisons
+    if (effectiveDate && endDate) {
+      if (effectiveDate === endDate) {
+        errors.endDate = 'End date cannot be the same as effective date.';
+      }
+      if (expDate < effDate) {
+        errors.endDate = 'End date cannot be earlier than effective date.';
+      }
+      if (effDate > expDate) {
+        errors.effectiveDate = 'Effective date cannot be later than end date.';
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setDeductFieldError(errors);
+      return;
+    }
+
+    setDeductFieldError({});
 
     const updated = [...deductionList];
     if (editingDeductIndex === deductionList.length) {
@@ -304,6 +448,7 @@ export const useEmployeeRecords = () => {
       updated[editingDeductIndex!] = tempDeduct;
       showSuccess('Success', 'Deduction updated');
     }
+
     setDeductionList(updated);
     setEditingDeductIndex(null);
   };
@@ -320,6 +465,83 @@ export const useEmployeeRecords = () => {
     if (result.isConfirmed) {
       setDeductionList(prev => prev.filter((_, i) => i !== index));
       showSuccess('Deleted!', 'Deduction removed.');
+    }
+  };
+
+  // Benefit logic
+    const addBenefit = () => {
+    setEditingBenefitIndex(benefitList.length);
+    setTempBenefit({ benefit: '', frequency: '', amount: '', effectiveDate: '', endDate: '', status: '' });
+  };
+
+  const saveBenefit = () => {
+    const errors: {
+      benefit?: string;
+      frequency?: string;
+      amount?: string;
+      effectiveDate?: string;
+      endDate?: string;
+      status?: string;
+    } = {};
+
+    const { benefit, frequency, amount, effectiveDate, endDate, status } = tempBenefit;
+
+    // Required fields
+    if (!benefit) errors.benefit = 'Required';
+    if (!frequency) errors.frequency = 'Required';
+    if (!amount) errors.amount = 'Required';
+    if (!effectiveDate) errors.effectiveDate = 'Required';
+    if (!endDate) errors.endDate = 'Required';
+    if (!status) errors.status = 'Required';
+
+    const effDate = new Date(effectiveDate);
+    const expDate = new Date(endDate);
+
+    // Date comparisons
+    if (effectiveDate && endDate) {
+      if (effectiveDate === endDate) {
+        errors.endDate = 'End date cannot be the same as effective date.';
+      }
+      if (expDate < effDate) {
+        errors.endDate = 'End date cannot be earlier than effective date.';
+      }
+      if (effDate > expDate) {
+        errors.effectiveDate = 'Effective date cannot be later than end date.';
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setBenefitFieldError(errors);
+      return;
+    }
+
+    setBenefitFieldError({});
+
+    const updated = [...benefitList];
+    if (editingBenefitIndex === benefitList.length) {
+      updated.push(tempBenefit);
+      showSuccess('Success', 'Benefit added');
+    } else {
+      updated[editingBenefitIndex!] = tempBenefit;
+      showSuccess('Success', 'Benefit updated');
+    }
+
+    setBenefitList(updated);
+    setEditingBenefitIndex(null);
+  };
+
+  const editBenefit = (index: number) => {
+    setEditingBenefitIndex(index);
+    setTempBenefit(benefitList[index]);
+  };
+
+  const cancelBenefitEdit = () => setEditingBenefitIndex(null);
+
+  const deleteBenefit = async (index: number) => {
+    const result = await showConfirmation('Are you sure you want to delete this benefit?');
+    if (result.isConfirmed) {
+      setBenefitList(prev => prev.filter((_, i) => i !== index));
+      showSuccess('Deleted!', 'Benefit removed.');
     }
   };
 
@@ -377,7 +599,21 @@ export const useEmployeeRecords = () => {
     cancelDeductionEdit,
     deleteDeduction,
     isTempDeductValid,
-    deductDateError,
-    setDeductDateError,
+    deductFieldError,
+    setDeductFieldError,
+
+    // Benefit
+    benefitList,
+    tempBenefit,
+    editingBenefitIndex,
+    setTempBenefit,
+    addBenefit,
+    saveBenefit,
+    editBenefit,
+    cancelBenefitEdit,
+    deleteBenefit,
+    isTempBenefitValid,
+    benefitFieldError,
+    setBenefitFieldError
   };
 };

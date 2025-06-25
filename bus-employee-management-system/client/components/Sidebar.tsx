@@ -52,6 +52,7 @@ const Sidebar = () => {
             subItems: [
                 { path: '/homepage/information/employee', name: 'Employee List', key: 'employee-list' },
                 { path: '/homepage/information/department', name: 'Department List', key: 'departments' },
+                { path: '/homepage/information/positions', name: 'Positions', key: 'positions' },
                 { path: '/homepage/information/benefits', name: 'Benefits', key: 'benefits' },
                 { path: '/homepage/information/deductions', name: 'Deductions', key: 'deductions' }
             ]

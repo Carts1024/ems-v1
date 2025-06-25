@@ -182,7 +182,7 @@ export const useEmployeeModal = (
   const handleUpdateConfirm = async () => {
     const isValid = validateInput();
     if (!isValid) {
-      showError('Validation Error', 'Please correct the errors in the form.');
+      showError('Error', 'Please correct the highlighted errors.');
       return;
     }
     if (isDuplicateEmployee()) {

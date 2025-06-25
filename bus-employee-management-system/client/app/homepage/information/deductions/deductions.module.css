@@ -3,7 +3,7 @@
   height: 100%;
 }
 
-.attendanceContainer {
+.deductionsContainer {
   max-width: auto;
   height: 100%;
   padding: 2rem;
@@ -45,8 +45,8 @@
   font-size: 14px; 
 }
 
-.addAttendanceButton {
-  width: 100px; 
+.addDeductionsButton {
+  width: 160px; 
   height: 35px; 
   display: flex; 
   justify-content: center; 
@@ -62,36 +62,8 @@
   cursor: pointer;
 }
 
-.addAttendanceButton:hover {
+.addDeductionsButton:hover {
   background-color: #571415;
-}
-
-.importButton,
-.exportButton {
-  width: 100px; 
-  height: 35px; 
-  display: flex; 
-  justify-content: center; 
-  align-items: center; 
-  gap: 8px; 
-  border-radius: 8px; 
-  background-color: #961C1E; 
-  color: #FFFFFF; 
-  font-size: 14px; 
-  transition: all 0.3s ease-in-out; 
-  cursor: pointer; 
-  background-color: #961C1E;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.importButton:hover,
-.exportButton:hover {
-  background-color: #571415 !important;
-  color: white;
 }
 
 .headerSection {
@@ -101,16 +73,6 @@
   margin-bottom: 1.5rem;
   gap: 1rem;
   flex-wrap: wrap;
-}
-
-.statusfilterDropdown {
-  border: 1px solid var(--border-color); 
-  border-radius: 8px; 
-  width: 150px; 
-  height: 35px; 
-  padding-right: 0 8px; 
-  font-size: 14px; 
-  padding: 0.5rem;
 }
 
 .filterDropdown {
@@ -214,7 +176,7 @@
 }
 
 
-.attendanceTable {
+.deductionsTable {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
@@ -224,11 +186,11 @@
   border-collapse: collapse;
 }
 
-.attendanceTable thead {
+.deductionsTable thead {
   background-color: #f2f2f2;
 }
 
-.attendanceTable thead th {
+.deductionsTable thead th {
   padding: 12px 15px;
   font-weight: 600;
   color: black;
@@ -240,37 +202,32 @@
   text-overflow: ellipsis;
   vertical-align: top;
 }
-.attendanceTable thead.tr:hover {
+.deductionsTable thead.tr:hover {
   background-color: red;
 }
 /* Flexible column sizing. Adjust percentages as needed. */
-.attendanceTable thead th:nth-child(1) { width: 5%; } /* No. */
-.attendanceTable thead th:nth-child(2) { width: 10%; } /* Status */
-.attendanceTable thead th:nth-child(3) { width: 20%; } /* Name */
-.attendanceTable thead th:nth-child(4) { width: 10%; } /* Date Hired */
-.attendanceTable thead th:nth-child(5) { width: 20%; } /* Department */
-.attendanceTable thead th:nth-child(6) { width: 15%; } /* Position */
-.attendanceTable thead th:nth-child(7) { width: 15%; } /* Attendance Date */
-.attendanceTable thead th:nth-child(8) { width: 5%; } /* Actions */
+.deductionsTable thead th:nth-child(1) { width: 5%; } /* No. */
+.deductionsTable thead th:nth-child(2) { width: 85%; } /* Deduction Name */
+.deductionsTable thead th:nth-child(6) { width: 10%; } /* Actions */
 
-.attendanceTable thead th:first-child {
+.deductionsTable thead th:first-child {
   border-top-left-radius: 6px;
 }
 
-.attendanceTable thead th:last-child {
+.deductionsTable thead th:last-child {
   border-top-right-radius: 6px;
 }
 
-.attendanceTable tbody tr {
+.deductionsTable tbody tr {
   transition: background-color 0.2s;
   overflow: visible; 
 }
 
-.attendanceTable tbody tr:nth-child(even) {
+.deductionsTable tbody tr:nth-child(even) {
   background-color: #fafafa;
 }
 
-.attendanceTable tbody tr:hover {
+.deductionsTable tbody tr:hover {
   background-color: #f1f1f1;
     color: black;
 
@@ -283,7 +240,7 @@ td.truncate {
 }
 
 
-.attendanceTable tbody td {
+.deductionsTable tbody td {
   padding: 12px 15px;
   text-align: center;
   border-bottom: 1px solid #eee;
@@ -345,7 +302,7 @@ td.truncate {
   gap: 8px; 
   width: 100%; 
   padding: 8px 12px;
-  font-size: 14px; 
+  font-size: 14px;
   border: none; 
   border-radius: 6px; 
   cursor: pointer;
@@ -353,37 +310,14 @@ td.truncate {
   color: #fff;
 }
 
-.deleteButton {
-  background-color: #FF4949;
-  border-radius: 4px;
-}
+.viewButton { background-color: #13CE66; }
+.viewButton:hover { background-color: #12B75C; }
 
-.deleteButton:hover {
-  background-color: #DE3939;
-}
+.feedbackButton { background-color: #FFCC3D; }
+.feedbackButton:hover { background-color: #FFC107; }
 
-/* Status Badges */
-.empStatus {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #fff;
-  text-align: center;
-}
+.editButton { background-color: #2D8EFF; }
+.editButton:hover { background-color: #267BDB; }
 
-.status-Absent {
-  background-color: #f2dede;
-  color: #a94442;
-}
-
-.status-Late {
-  background-color: #d9edf7;
-  color: #31708f;
-}
-
-.status-Present {
-  background-color: #D1F7D1;
-  color: #23915F;
-}
+.deleteButton { background-color: #FF4949; }
+.deleteButton:hover { background-color: #DE3939; }

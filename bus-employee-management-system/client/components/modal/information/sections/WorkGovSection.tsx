@@ -47,7 +47,7 @@ const WorkGovSection: React.FC<WorkGovSectionProps> = ({
           disabled={isReadOnly}
         >
           <option value="">Select status</option>
-          <option value="Active">Active</option>
+          <option value="active">Active</option>
           <option value="On Leave">On Leave</option>
           <option value="Resigned">Resigned</option>
         </select>
@@ -71,10 +71,10 @@ const WorkGovSection: React.FC<WorkGovSectionProps> = ({
           disabled={isReadOnly}
         >
           <option value="">Select Employee Type</option>
-          <option value="Regular">Regular</option>
-          <option value="Contractual">Contractual</option>
-          <option value="Probation">Probation</option>
-          <option value="Temporary">Temporary</option>
+          <option value="regular">Regular</option>
+          <option value="contractual">Contractual</option>
+          <option value="probation">Probation</option>
+          <option value="temporary">Temporary</option>
         </select>
         {fieldErrors.employeeType && <p className={styles.errorText}>{fieldErrors.employeeType}</p>}
 
@@ -86,8 +86,8 @@ const WorkGovSection: React.FC<WorkGovSectionProps> = ({
           disabled={isReadOnly}
         >
           <option value="">Select Employee Classification</option>
-          <option value="Full-time">Full-time</option>
-          <option value="Part-time">Part-time</option>
+          <option value="full-time">Full-time</option>
+          <option value="part-time">Part-time</option>
         </select>
         {fieldErrors.employeeClassification && <p className={styles.errorText}>{fieldErrors.employeeClassification}</p>}
 

@@ -1,10 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useState } from 'react';
 import { showConfirmation, showSuccess, showError } from '@/app/utils/swal';
 
+
 export interface Employee {
+  benefitList: any[];
+  deductionList: any[];
   firstName: string;
   middleName: string;
   lastName: string;
@@ -56,40 +60,43 @@ export const useEmployeeModal = (
   onSubmit: (employee: Employee) => void,
   onClose: () => void
 ) => {
-  const [employee, setEmployee] = useState<Employee>({
-    firstName: '',
-    middleName: '',
-    lastName: '',
-    suffix: '',
-    birthdate: '',
-    email: '',
-    contact: '',
-    houseStreet: '',
-    barangay:'',
-    city: '',
-    stateProvinceRegion: '',
-    country: '',
-    zipCode: '',
-    emergencyContactName: '',
-    emergencyContactNo: '',
-    status: '',
-    dateHired: '',
-    employeeType: '',
-    employeeClassification: '',
-    department: '',
-    position: '',
-    basicPay: '',
-    govtIdType: '',
-    govtIdNo: '',
-    licenseType: 'professional',
-    licenseNo: '',
-    restrictionCodes: [],
-    expireDate: '',
-    ...defaultValue,
-  });
+const [employee, setEmployee] = useState<Employee>({
+  benefitList: [],
+  deductionList: [],
+  firstName: '',
+  middleName: '',
+  lastName: '',
+  suffix: '',
+  birthdate: '',
+  email: '',
+  contact: '',
+  houseStreet: '',
+  barangay: '',
+  city: '',
+  stateProvinceRegion: '',
+  country: '',
+  zipCode: '',
+  emergencyContactName: '',
+  emergencyContactNo: '',
+  status: '',
+  dateHired: '',
+  employeeType: '',
+  employeeClassification: '',
+  department: '',
+  position: '',
+  basicPay: '',
+  govtIdType: '',
+  govtIdNo: '',
+  licenseType: 'professional',
+  licenseNo: '',
+  restrictionCodes: [],
+  expireDate: '',
+  ...defaultValue,
+});
 
   const [fieldErrors, setFieldErrors] = useState<{ [key in keyof Employee]?: string }>({});
-
+  const [deductionList, setDeductionList] = useState<any[]>(defaultValue?.deductionList || []);
+  const [benefitList, setBenefitList] = useState<any[]>(defaultValue?.benefitList || []);
   const formatCurrency = (amount: string) => {
     const num = parseFloat(amount);
     return isNaN(num)

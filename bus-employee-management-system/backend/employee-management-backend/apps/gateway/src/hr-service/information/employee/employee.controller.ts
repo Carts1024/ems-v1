@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Controller,
   Get,
@@ -36,6 +37,11 @@ export class EmployeeController {
     return this.employeeService.fetchInventory();
   }
 
+  @Get('by-number/:employeeNumber')
+  findByEmployeeNumber(@Param('employeeNumber') employeeNumber: string) {
+    return this.employeeService.findByEmployeeNumber(employeeNumber);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.employeeService.findOne(id);
@@ -62,4 +68,5 @@ export class EmployeeController {
   remove(@Param('id') id: string) {
     return this.employeeService.remove(id);
   }
+
 }

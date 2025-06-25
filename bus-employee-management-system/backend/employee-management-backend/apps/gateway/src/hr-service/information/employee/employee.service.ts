@@ -32,7 +32,16 @@ export class EmployeeService {
         throw new InternalServerErrorException(err?.response?.data || err.message);
       });
   }
-
+  async findByEmployeeNumber(employeeNumber: string) {
+    return this.httpService
+      .get(`${this.hrServiceUrl}/employees/by-number/${employeeNumber}`)
+      .toPromise()
+      .then(res => res?.data)
+      .catch(err => {
+        if (err?.response?.status === 404) throw new NotFoundException('Employee not found');
+        throw new InternalServerErrorException(err?.response?.data || err.message);
+      });
+  }
   // Create an employee
   create(data: any) {
     return this.httpService

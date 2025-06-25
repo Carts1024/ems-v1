@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import React, { useState } from 'react';
@@ -39,6 +40,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
 
   const employeeRecords = useEmployeeRecords();
   const [hasChanges, setHasChanges] = useState(false);
+  const { deductionList, benefitList } = employeeRecords;
 
   const handleChangeWrapper = (field: keyof Employee, value: string | string[]) => {
     if (!hasChanges && value !== props.defaultValue?.[field]) {
@@ -109,13 +111,14 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
 
         <h3>Salary Information</h3>
         <SalaryBenefitsSection
+          {...employeeRecords}
           employee={employee}
           fieldErrors={fieldErrors}
           handleChangeWrapper={handleChangeWrapper}
           isReadOnly={props.isReadOnly}
-          {...employeeRecords}
+          deductionList={employee.deductionList ?? []}
+          benefitList={employee.benefitList ?? []}
         />
-
         <h3>Related Forms/ Requests</h3>
         <ExitLeaveSection />
 

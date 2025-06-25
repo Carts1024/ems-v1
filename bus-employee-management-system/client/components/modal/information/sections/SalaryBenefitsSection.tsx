@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import styles from '../InformationModal.module.css';
 import { Employee } from '../EmployeeModalLogic';
@@ -62,6 +64,9 @@ const SalaryBenefitsSection: React.FC<Props> = ({
   benefitFieldError,
   setBenefitFieldError
 }) => {
+
+    console.log("deductionList", deductionList);
+    console.log("benefitList", benefitList);
   return (
     <div className={styles.sectionGroup}>
         <label className={styles.label}>Basic Rate</label>

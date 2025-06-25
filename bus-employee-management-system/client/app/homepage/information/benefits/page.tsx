@@ -2,49 +2,50 @@
 'use client';
 
 import React from 'react';
-import styles from './department.module.css';
+import styles from './benefits.module.css';
 import "@/styles/filters.css"
 import "@/styles/pagination.css"
-import DepartmentModal from '@/components/modal/information/DepartmentModalLogic';
-import { DepartmentLogic } from './departmentLogic';
+import BenefitsModal from '@/components/modal/information/BenefitsModalLogic';
+import { BenefitsLogic } from './benefitsLogic';
 import PaginationComponent from '@/components/ui/pagination';
 
-const DepartmentPage = () => {
+const BenefitsPage = () => {
   const {
+    filteredBenefits,
     searchTerm,
     setSearchTerm,
-    showAddModal,
-    setShowAddModal,
-    showEditModal,
-    setShowEditModal,
-    selectedDept,
-    setSelectedDept,
-    departments,
-    filteredDepartments,
-    paginatedDepartments,
+    paginatedBenefits,
     currentPage,
     setCurrentPage,
     pageSize,
     setPageSize,
     totalPages,
+    showAddModal,
+    setShowAddModal,
+    showEditModal,
+    setShowEditModal,
+    selectedBenefit,
+    setSelectedBenefit,
+    benefits,
     handleAdd,
     handleEdit,
     handleDeleteRequest,
-    handleApplyFilters,
     openActionDropdownIndex,
     toggleActionDropdown,
-  } = DepartmentLogic();
+  } = BenefitsLogic();
+
+  const [isViewMode, setIsViewMode] = React.useState(false);
 
   return (
     <div className={styles.base}>
-      <div className={styles.departmentContainer}>
-        <h1 className={styles.title}>Department List</h1>
+      <div className={styles.benefitsContainer}>
+        <h1 className={styles.title}>Benefits List</h1>
 
         <div className={styles.headerSection}>
 
           {/* Search */}
           <div className={styles.search}>
-            <i className='ri-search-line' />
+            <i className='ri-search-line'/>
             <input
               type="text"
               placeholder="Search here..."
@@ -53,69 +54,63 @@ const DepartmentPage = () => {
             />
           </div>
 
-          {/* Sort by No. of Employees */}
-          <label>Sort by</label>
-          <select
-            className={styles.filterDropdown}
-            onChange={(e) =>
-              handleApplyFilters({ sortBy: 'employees', order: e.target.value })
-            }
-          >
-            <option value="">No. of Employees</option>
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-          </select>
-
-          <button onClick={() => setShowAddModal(true)} className={styles.addDepartmentButton}>
-            <i className='ri-add-line' />
-            Add Department
+          <button onClick={() => setShowAddModal(true)} className={styles.addBenefitsButton}>
+            <i className='ri-add-line'/>
+            Add Benefit
           </button>
         </div>
 
         <div className={styles.tableWrapper}>
-          <table className={styles.departmentTable}>
+          <table className={styles.benefitsTable}>
             <thead>
               <tr>
                 <th className={styles.firstColumn}>No.</th>
-                <th>Department Name</th>
-                <th>No. of Employees</th>
-                <th>Time Added</th>
-                <th>Time Modified</th>
+                <th>Name</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {paginatedDepartments.map((dept, index) => (
-                <tr key={dept.name}>
+              {paginatedBenefits.map((bnfts, index) => (
+                <tr key={bnfts.name}>
                   <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
-                  <td>{dept.name}</td>
-                  <td>{dept.employees}</td>
-                  <td>mm-dd-yyyy hh:mm</td>
-                  <td>mm-dd-yyyy hh:mm</td>
+                  <td>{bnfts.name}</td>
                   <td className={styles.actionCell}>
+                    {/* The main action button */}
                     <button
-                      className={styles.mainActionButton}
+                      className={styles.mainActionButton} // You might need to define this style
                       onClick={() => toggleActionDropdown(index)}
                     >
                       <i className="ri-more-2-fill" />
                     </button>
 
+                    {/* Action dropdown container, conditionally rendered */}
                     {openActionDropdownIndex === index && (
                       <div className={styles.actionDropdown}>
                         <button
-                          className={styles.editButton}
-                          onClick={() => {
-                            setSelectedDept(dept.name);
+                          className={styles.viewButton}
+                            onClick={() => {
+                            setSelectedBenefit(bnfts);
+                            setIsViewMode(true);
                             setShowEditModal(true);
                             toggleActionDropdown(null);
-                          }}
-                        > <i className='ri-edit-2-line' /> Edit
+                        }}
+                        > <i className='ri-eye-line'/> View
+                        </button>
+                        <button
+                          className={styles.editButton}
+                            onClick={() => {
+                            setSelectedBenefit(bnfts);
+                            setIsViewMode(false);
+                            setShowEditModal(true);
+                            toggleActionDropdown(null);
+                        }}
+                        > <i className='ri-edit-2-line'/> Edit
                         </button>
                         <button
                           className={styles.deleteButton}
                           onClick={() => {
-                            handleDeleteRequest(dept.name);
-                            toggleActionDropdown(null);
+                            handleDeleteRequest(bnfts.name);
+                            toggleActionDropdown(null); // Close dropdown after action
                           }}
                         > <i className='ri-delete-bin-line' /> Delete
                         </button>
@@ -136,31 +131,33 @@ const DepartmentPage = () => {
           onPageChange={(page) => setCurrentPage(page)}
           onPageSizeChange={(size) => {
             setPageSize(size);
-            setCurrentPage(1);
+            setCurrentPage(1); // reset to page 1 when size changes
           }}
         />
 
         {showAddModal && (
-          <DepartmentModal
+        <BenefitsModal
             isEdit={false}
-            existingDepartments={departments.map((d) => d.name)}
+            existingBenefits={benefits.map((b) => b.name)}
             onClose={() => setShowAddModal(false)}
             onSubmit={handleAdd}
-          />
+        />
         )}
 
-        {showEditModal && (
-          <DepartmentModal
-            isEdit={true}
-            defaultValue={selectedDept}
-            existingDepartments={departments.map((d) => d.name)}
+        {showEditModal && selectedBenefit && (
+        <BenefitsModal
+            isEdit={!isViewMode} // Only true if not in view mode
+            isView={isViewMode}  // Pass view flag separately
+            defaultValue={selectedBenefit.name}
+            defaultDescription={selectedBenefit.description}
+            existingBenefits={benefits.map((b) => b.name)}
             onClose={() => setShowEditModal(false)}
             onSubmit={handleEdit}
-          />
+        />
         )}
       </div>
     </div>
   );
 };
 
-export default DepartmentPage;
+export default BenefitsPage;

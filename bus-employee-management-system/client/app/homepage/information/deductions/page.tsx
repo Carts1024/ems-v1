@@ -2,49 +2,50 @@
 'use client';
 
 import React from 'react';
-import styles from './department.module.css';
+import styles from './deductions.module.css';
 import "@/styles/filters.css"
 import "@/styles/pagination.css"
-import DepartmentModal from '@/components/modal/information/DepartmentModalLogic';
-import { DepartmentLogic } from './departmentLogic';
+import DeductionsModal from '@/components/modal/information/DeductionsModalLogic';
+import { DeductionsLogic } from './deductionsLogic';
 import PaginationComponent from '@/components/ui/pagination';
 
-const DepartmentPage = () => {
+const DeductionsPage = () => {
   const {
+    filteredDeductions,
     searchTerm,
     setSearchTerm,
-    showAddModal,
-    setShowAddModal,
-    showEditModal,
-    setShowEditModal,
-    selectedDept,
-    setSelectedDept,
-    departments,
-    filteredDepartments,
-    paginatedDepartments,
+    paginatedDeductions,
     currentPage,
     setCurrentPage,
     pageSize,
     setPageSize,
     totalPages,
+    showAddModal,
+    setShowAddModal,
+    showEditModal,
+    setShowEditModal,
+    selectedDeduction,
+    setSelectedDeduction,
+    deductions,
     handleAdd,
     handleEdit,
     handleDeleteRequest,
-    handleApplyFilters,
     openActionDropdownIndex,
     toggleActionDropdown,
-  } = DepartmentLogic();
+  } = DeductionsLogic();
+
+  const [isViewMode, setIsViewMode] = React.useState(false);
 
   return (
     <div className={styles.base}>
-      <div className={styles.departmentContainer}>
-        <h1 className={styles.title}>Department List</h1>
+      <div className={styles.deductionsContainer}>
+        <h1 className={styles.title}>Deduction List</h1>
 
         <div className={styles.headerSection}>
 
           {/* Search */}
           <div className={styles.search}>
-            <i className='ri-search-line' />
+            <i className='ri-search-line'/>
             <input
               type="text"
               placeholder="Search here..."
@@ -53,69 +54,63 @@ const DepartmentPage = () => {
             />
           </div>
 
-          {/* Sort by No. of Employees */}
-          <label>Sort by</label>
-          <select
-            className={styles.filterDropdown}
-            onChange={(e) =>
-              handleApplyFilters({ sortBy: 'employees', order: e.target.value })
-            }
-          >
-            <option value="">No. of Employees</option>
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-          </select>
-
-          <button onClick={() => setShowAddModal(true)} className={styles.addDepartmentButton}>
-            <i className='ri-add-line' />
-            Add Department
+          <button onClick={() => setShowAddModal(true)} className={styles.addDeductionsButton}>
+            <i className='ri-add-line'/>
+            Add Deduction
           </button>
         </div>
 
         <div className={styles.tableWrapper}>
-          <table className={styles.departmentTable}>
+          <table className={styles.deductionsTable}>
             <thead>
               <tr>
                 <th className={styles.firstColumn}>No.</th>
-                <th>Department Name</th>
-                <th>No. of Employees</th>
-                <th>Time Added</th>
-                <th>Time Modified</th>
+                <th>Name</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {paginatedDepartments.map((dept, index) => (
-                <tr key={dept.name}>
+              {paginatedDeductions.map((deduct, index) => (
+                <tr key={deduct.name}>
                   <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
-                  <td>{dept.name}</td>
-                  <td>{dept.employees}</td>
-                  <td>mm-dd-yyyy hh:mm</td>
-                  <td>mm-dd-yyyy hh:mm</td>
+                  <td>{deduct.name}</td>
                   <td className={styles.actionCell}>
+                    {/* The main action button */}
                     <button
-                      className={styles.mainActionButton}
+                      className={styles.mainActionButton} // You might need to define this style
                       onClick={() => toggleActionDropdown(index)}
                     >
                       <i className="ri-more-2-fill" />
                     </button>
 
+                    {/* Action dropdown container, conditionally rendered */}
                     {openActionDropdownIndex === index && (
                       <div className={styles.actionDropdown}>
                         <button
-                          className={styles.editButton}
-                          onClick={() => {
-                            setSelectedDept(dept.name);
+                          className={styles.viewButton}
+                            onClick={() => {
+                            setSelectedDeduction(deduct);
+                            setIsViewMode(true);
                             setShowEditModal(true);
                             toggleActionDropdown(null);
-                          }}
-                        > <i className='ri-edit-2-line' /> Edit
+                        }}
+                        > <i className='ri-eye-line'/> View
+                        </button>
+                        <button
+                          className={styles.editButton}
+                            onClick={() => {
+                            setSelectedDeduction(deduct);
+                            setIsViewMode(false);
+                            setShowEditModal(true);
+                            toggleActionDropdown(null);
+                        }}
+                        > <i className='ri-edit-2-line'/> Edit
                         </button>
                         <button
                           className={styles.deleteButton}
                           onClick={() => {
-                            handleDeleteRequest(dept.name);
-                            toggleActionDropdown(null);
+                            handleDeleteRequest(deduct.name);
+                            toggleActionDropdown(null); // Close dropdown after action
                           }}
                         > <i className='ri-delete-bin-line' /> Delete
                         </button>
@@ -136,31 +131,33 @@ const DepartmentPage = () => {
           onPageChange={(page) => setCurrentPage(page)}
           onPageSizeChange={(size) => {
             setPageSize(size);
-            setCurrentPage(1);
+            setCurrentPage(1); // reset to page 1 when size changes
           }}
         />
 
         {showAddModal && (
-          <DepartmentModal
+        <DeductionsModal
             isEdit={false}
-            existingDepartments={departments.map((d) => d.name)}
+            existingDeductions={deductions.map((b) => b.name)}
             onClose={() => setShowAddModal(false)}
             onSubmit={handleAdd}
-          />
+        />
         )}
 
-        {showEditModal && (
-          <DepartmentModal
-            isEdit={true}
-            defaultValue={selectedDept}
-            existingDepartments={departments.map((d) => d.name)}
+        {showEditModal && selectedDeduction && (
+        <DeductionsModal
+            isEdit={!isViewMode} // Only true if not in view mode
+            isView={isViewMode}  // Pass view flag separately
+            defaultValue={selectedDeduction.name}
+            defaultDescription={selectedDeduction.description}
+            existingDeductions={deductions.map((b) => b.name)}
             onClose={() => setShowEditModal(false)}
             onSubmit={handleEdit}
-          />
+        />
         )}
       </div>
     </div>
   );
 };
 
-export default DepartmentPage;
+export default DeductionsPage;

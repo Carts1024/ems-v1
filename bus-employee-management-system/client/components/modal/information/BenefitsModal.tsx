@@ -32,7 +32,7 @@ const BenefitsModal: React.FC<BenefitsModalProps> = ({
         <button className={styles.closeButton} onClick={onClose}>
           <i className="ri-close-line" />
         </button>
-        <h1>{isEdit ? 'Edit Benefit' : 'Add Benefit'}</h1>
+        <h1>{isEdit ? 'Edit Benefit' : isView ? 'Benefit Details' : 'Add Benefit'}</h1>
 
         <div className={styles.inputGroup}>
           <label className={styles.label}>Benefit</label>

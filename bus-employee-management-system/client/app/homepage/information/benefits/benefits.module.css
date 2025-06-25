@@ -208,7 +208,7 @@
 /* Flexible column sizing. Adjust percentages as needed. */
 .benefitsTable thead th:nth-child(1) { width: 5%; } /* No. */
 .benefitsTable thead th:nth-child(2) { width: 85%; } /* Benefit Name */
-.benefitsTable thead th:nth-child(6) { width: 10%; } /* Actions */
+.benefitsTable thead th:nth-child(3) { width: 10%; } /* Actions */
 
 .benefitsTable thead th:first-child {
   border-top-left-radius: 6px;

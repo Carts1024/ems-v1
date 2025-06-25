@@ -116,12 +116,22 @@ const PersonalSection: React.FC<Props> = ({ employee, fieldErrors, handleChangeW
             />
             {fieldErrors.contact && <p className={styles.errorText}>{fieldErrors.contact}</p>}
 
-            <label className={styles.label}>House No./Street/Barangay</label>
+            <label className={styles.label}>House No./Street</label>
             <input
-            className={`${styles.inputField} ${fieldErrors.houseStreetBarangay ? styles.inputError : ''}`}
-            value={employee.houseStreetBarangay}
-            onChange={(e) => handleChangeWrapper('houseStreetBarangay', e.target.value)}
-            placeholder="Enter house no./ street/ barangay"
+            className={`${styles.inputField} ${fieldErrors.houseStreet ? styles.inputError : ''}`}
+            value={employee.houseStreet}
+            onChange={(e) => handleChangeWrapper('houseStreet', e.target.value)}
+            placeholder="Enter house no./ street"
+            disabled={isReadOnly}
+            />
+            {fieldErrors.houseStreetBarangay && <p className={styles.errorText}>{fieldErrors.houseStreetBarangay}</p>}
+
+            <label className={styles.label}>Barangay</label>
+            <input
+            className={`${styles.inputField} ${fieldErrors.barangay ? styles.inputError : ''}`}
+            value={employee.barangay}
+            onChange={(e) => handleChangeWrapper('barangay', e.target.value)}
+            placeholder="Enter barangay"
             disabled={isReadOnly}
             />
             {fieldErrors.houseStreetBarangay && <p className={styles.errorText}>{fieldErrors.houseStreetBarangay}</p>}

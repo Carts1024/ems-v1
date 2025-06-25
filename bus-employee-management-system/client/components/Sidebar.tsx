@@ -21,12 +21,12 @@ const Sidebar = () => {
 
     // Menu structure data
     const menuItems = [
-        {
-            path: '/homepage',
-            name: 'Dashboard',
-            icon: 'ri-dashboard-line',
-            key: 'dashboard'
-        },
+        // {
+        //     path: '/homepage',
+        //     name: 'Dashboard',
+        //     icon: 'ri-dashboard-line',
+        //     key: 'dashboard'
+        // },
         {
             name: 'Recruitment',
             icon: 'ri-user-add-line',
@@ -41,7 +41,7 @@ const Sidebar = () => {
             icon: 'ri-time-line',
             key: 'attendance',
             subItems: [
-                { path: '/homepage/attendance/time-in-out', name: 'Time-in/Time-out', key: 'time-in-out' },
+                // { path: '/homepage/attendance/time-in-out', name: 'Time-in/Time-out', key: 'time-in-out' },
                 { path: '/homepage/attendance/daily-report', name: 'Daily Attendance Report', key: 'daily-report' }
             ]
         },
@@ -51,7 +51,9 @@ const Sidebar = () => {
             key: 'employee',
             subItems: [
                 { path: '/homepage/information/employee', name: 'Employee List', key: 'employee-list' },
-                { path: '/homepage/information/department', name: 'Department List', key: 'departments' }
+                { path: '/homepage/information/department', name: 'Department List', key: 'departments' },
+                { path: '/homepage/information/benefits', name: 'Benefits', key: 'benefits' },
+                { path: '/homepage/information/deductions', name: 'Deductions', key: 'deductions' }
             ]
         },
         {

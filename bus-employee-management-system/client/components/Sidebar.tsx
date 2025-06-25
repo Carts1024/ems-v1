@@ -70,7 +70,7 @@ const Sidebar = () => {
                 {
             path: '/homepage/user-management',
             name: 'User Management',
-            icon: 'ri-folder-line',
+            icon: 'ri-shield-user-line',
             key: 'documents'
         },
         // {

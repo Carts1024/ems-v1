@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo } from 'react'; // Import useMemo
-import { showSuccess, showConfirmation } from '@/app/utils/swal';
+import { showSuccess, showConfirmation, showWarning } from '@/app/utils/swal';
 import { FilterSection } from '@/components/ui/filterDropdown';
 
 export interface InterviewSchedule {
@@ -121,23 +121,78 @@ export const InterviewLogic = () => {
 
 
   const handleAdd = (newSchedule: InterviewSchedule) => {
+    // Check for same date and time conflict
+    const dateTimeConflict = interviewSchedules.some(
+      (s) =>
+        s.interviewDate === newSchedule.interviewDate &&
+        s.interviewTime === newSchedule.interviewTime
+    );
+
+    if (dateTimeConflict) {
+      showWarning('Oops!', 'An interview is already scheduled at that same date and time.');
+      return;
+    }
+
+    // Check for duplicate candidate unless previous status is 'Cancelled'
+    const existingActive = interviewSchedules.find(
+      (s) =>
+        s.candidateName.toLowerCase() === newSchedule.candidateName.toLowerCase() &&
+        s.interviewStatus !== 'Cancelled'
+    );
+
+    if (existingActive) {
+      showWarning('Oops!', 'This candidate already scheduled or completed an interview.');
+      return;
+    }
+
     const updatedList = [...interviewSchedules, newSchedule];
     setInterviewSchedules(updatedList);
-    setFilteredSchedulesAfterAdvancedFilters(updatedList); // Update the base for filtering
+    setFilteredSchedulesAfterAdvancedFilters(updatedList);
     showSuccess('Success', 'Interview scheduled successfully.');
   };
 
   const handleEdit = (updatedSchedule: InterviewSchedule) => {
     if (!selectedInterview) return;
+
+    const isSameSchedule = (
+      a: InterviewSchedule,
+      b: InterviewSchedule
+    ) =>
+      a.candidateName === b.candidateName &&
+      a.interviewDate === b.interviewDate &&
+      a.interviewTime === b.interviewTime;
+
+    // Check for date/time conflict with others
+    const dateTimeConflict = interviewSchedules.some(
+      (s) =>
+        !isSameSchedule(s, selectedInterview) &&
+        s.interviewDate === updatedSchedule.interviewDate &&
+        s.interviewTime === updatedSchedule.interviewTime
+    );
+
+    if (dateTimeConflict) {
+      showWarning('Oops!', 'Another interview is already scheduled at that time.');
+      return;
+    }
+
+    // Prevent duplicate interview for same candidate unless previous is cancelled
+    const existingActive = interviewSchedules.find(
+      (s) =>
+        !isSameSchedule(s, selectedInterview) &&
+        s.candidateName.toLowerCase() === updatedSchedule.candidateName.toLowerCase() &&
+        s.interviewStatus !== 'Cancelled'
+    );
+
+    if (existingActive) {
+      showWarning('Oops!', 'This candidate already scheduled or completed an interview.');
+      return;
+    }
+
     const updatedList = interviewSchedules.map((schedule) =>
-      schedule.candidateName === selectedInterview.candidateName &&
-      schedule.interviewDate === selectedInterview.interviewDate &&
-      schedule.interviewTime === selectedInterview.interviewTime
-        ? updatedSchedule
-        : schedule
+      isSameSchedule(schedule, selectedInterview) ? updatedSchedule : schedule
     );
     setInterviewSchedules(updatedList);
-    setFilteredSchedulesAfterAdvancedFilters(updatedList); // Update the base for filtering
+    setFilteredSchedulesAfterAdvancedFilters(updatedList);
     showSuccess('Success', 'Interview updated successfully.');
   };
 

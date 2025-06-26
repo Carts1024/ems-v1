@@ -4,13 +4,15 @@
 }
 
 .positionsContainer {
-  max-width: auto;
+  display: flex;
+  flex-direction: column;
   height: 100%;
   padding: 2rem;
   padding-top: 0.01rem;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  overflow: hidden;
 }
 
 .title {
@@ -89,63 +91,16 @@
   width: 75px;
 }
 
-/* ================================= */
-
-/* .tableWrapper {
-  width: 100%;
-  max-height: 100%;
-  overflow-x: auto;
-}
-
-.departmentTable {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-  text-align: center;
-}
-
-.departmentTable thead th {
-  position: sticky;
-  top: 0;
-  background: #fff;
-  z-index: 2;
-  border-bottom: 2px solid #ddd;
-  padding: 10px;
-}
-
-.departmentTable tbody {
-  display: block;
-  max-height: 300px; /* scroll height
-  overflow-y: auto;
-  width: 100%;
-}
-
-.departmentTable thead,
-.departmentTable tbody tr {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
-}
-
-.departmentTable tbody td {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-} */
-
 /* ==================================== */
 /* Table Styling */
 .tableWrapper {
-  flex: 1 1 auto;
-  min-height: 0;
-  margin-bottom: 1.5rem;
+  flex: 1; 
+  overflow-y: auto;
+  overflow-x: hidden;
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  background-color: #fff;
-  border-color: #B7B7B7;
-  overflow-x: auto; /* Kept for responsiveness */
-  overflow-y: visible; /* This should be auto to allow scrolling */
-  position: relative;
-  z-index: 0;
+  margin-bottom: 1rem;
+  max-height: unset; 
 }
 
 /* Custom Scrollbar Styles for WebKit (Chrome, Safari, Edge) */
@@ -191,16 +146,20 @@
 }
 
 .positionsTable thead th {
+  position: sticky;
+  top: 0;
   padding: 12px 15px;
   font-weight: 600;
   color: black;
   text-align: center;
   border-bottom: 1px solid #ccc;
   background-color: #D8D8D8;
-  white-space: normal; /* Allow text wrapping for headers */
+  white-space: normal; 
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: top;
+  height: 60px;
+  z-index: 10;
 }
 .positionsTable thead.tr:hover {
   background-color: red;

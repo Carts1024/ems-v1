@@ -7,6 +7,9 @@ import { showConfirmation, showSuccess, showError } from '@/app/utils/swal';
 
 
 export interface Employee {
+  workExperiences: any[];
+  educationList: any[];
+  governmentIdList: any[];
   benefitList: any[];
   deductionList: any[];
   firstName: string;
@@ -61,6 +64,9 @@ export const useEmployeeModal = (
   onClose: () => void
 ) => {
 const [employee, setEmployee] = useState<Employee>({
+  workExperiences: [],
+  educationList: [],
+  governmentIdList: [],
   benefitList: [],
   deductionList: [],
   firstName: '',

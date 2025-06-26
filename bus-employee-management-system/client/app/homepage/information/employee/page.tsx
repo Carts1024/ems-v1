@@ -57,55 +57,94 @@ export default function EmployeePage() {
   };
   
   function mapEmployeeApiToUI(apiEmp: any) {
-  const formatDate = (dateStr: string | undefined) => {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return '';
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${d.getFullYear()}-${month}-${day}`;
-  };
+    const formatDate = (dateStr: string | undefined) => {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return '';
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${d.getFullYear()}-${month}-${day}`;
+    };
 
-  // Transform Deductions
-  const deductionList = (apiEmp.deductions || []).map((d: any) => ({
-    reason: d.deductionType?.name || '',         // map to table
-    frequency: d.frequency || '',
-    type: d.type || '',
-    amount: d.value || '',
-    effectiveDate: d.effectiveDate ? formatDate(d.effectiveDate) : '',
-    endDate: d.endDate ? formatDate(d.endDate) : '',
-    status: d.isActive ? "Active" : "Inactive",  // convert boolean to string
+    // Transform Deductions
+    const deductionList = (apiEmp.deductions || []).map((d: any) => ({
+      reason: d.deductionType?.name || '',
+      frequency: d.frequency || '',
+      type: d.type || '',
+      amount: d.value || '',
+      effectiveDate: d.effectiveDate ? formatDate(d.effectiveDate) : '',
+      endDate: d.endDate ? formatDate(d.endDate) : '',
+      status: d.isActive ? "Active" : "Inactive",
+    }));
+
+    // Transform Benefits
+    const benefitList = (apiEmp.benefits || []).map((b: any) => ({
+      benefit: b.benefitType?.name || '',
+      frequency: b.frequency || '',
+      amount: b.value || '',
+      effectiveDate: b.effectiveDate ? formatDate(b.effectiveDate) : '',
+      endDate: b.endDate ? formatDate(b.endDate) : '',
+      status: b.isActive ? "Active" : "Inactive",
+    }));
+
+  // Work Experience
+  const workExperiences = (apiEmp.workExperiences || []).map((w: any) => ({
+    company: w.companyName || '',
+    position: w.position || '',
+    from: w.startDate ? formatDate(w.startDate) : '',
+    to: w.endDate ? formatDate(w.endDate) : '',
+    description: w.description || '',
   }));
 
-  // Transform Benefits
-  const benefitList = (apiEmp.benefits || []).map((b: any) => ({
-    benefit: b.benefitType?.name || '',          // map to table
-    frequency: b.frequency || '',
-    amount: b.value || '',
-    effectiveDate: b.effectiveDate ? formatDate(b.effectiveDate) : '',
-    endDate: b.endDate ? formatDate(b.endDate) : '',
-    status: b.isActive ? "Active" : "Inactive",  // convert boolean to string
+  // Education
+  const educationList = (apiEmp.educations || []).map((e: any) => ({
+    institute: e.institution || '',
+    degree: e.degree || '',
+    specialization: e.fieldOfStudy || '',
+    completionDate: e.endDate ? formatDate(e.endDate) : '', // Using endDate as completion
+    // you can also include honors/description if needed
   }));
 
-  return {
-    ...apiEmp,
-    houseStreet: apiEmp.streetAddress ?? '',
-    contact: apiEmp.phone ?? '',
-    stateProvinceRegion: apiEmp.province ?? '',
-    birthdate: formatDate(apiEmp.birthdate),
-    dateHired: formatDate(apiEmp.hiredate),
-    status: apiEmp.employeeStatus ?? '',
-    employeeType: apiEmp.employeeType ?? '',
-    employeeClassification: apiEmp.employeeClassification ?? '',
-    middleName: apiEmp.middleName ?? '',
-    suffix: apiEmp.suffix ?? '',
-    department: apiEmp.position?.department?.departmentName ?? '',
-    position: apiEmp.position?.positionName ?? '',
-    basicPay: apiEmp.basicRate ?? '',
-    deductionList,  
-    benefitList,     
+    // Transform Government IDs
+    // const governmentIdList = (apiEmp.governmentIDs || []).map((g: any) => ({
+    //   type: g.type?.name || '',
+    //   idNumber: g.idNumber || '',
+    //   issuedDate: g.issuedDate ? formatDate(g.issuedDate) : '',
+    //   expiryDate: g.expiryDate ? formatDate(g.expiryDate) : '',
+    //   status: g.isActive ? "Active" : "Inactive",
+    // }));
+
+    return {
+      ...apiEmp,
+      houseStreet: apiEmp.streetAddress ?? '',
+      contact: apiEmp.phone ?? '',
+      stateProvinceRegion: apiEmp.province ?? '',
+      birthdate: formatDate(apiEmp.birthdate),
+      dateHired: formatDate(apiEmp.hiredate),
+      status: apiEmp.employeeStatus ?? '',
+      employeeType: apiEmp.employeeType ?? '',
+      employeeClassification: apiEmp.employeeClassification ?? '',
+      middleName: apiEmp.middleName ?? '',
+      suffix: apiEmp.suffix ?? '',
+      department: apiEmp.position?.department?.departmentName ?? '',
+      position: apiEmp.position?.positionName ?? '',
+      basicPay: apiEmp.basicRate ?? '',
+      deductionList,
+      benefitList,
+      educationList,
+      workExperiences,
+      // governmentIdList,
+      governmentIdList: (apiEmp.governmentIDs || []).map((g: any) => ({
+        idType: g.type?.name || '',
+        idNumber: g.idNumber || '',
+        issuedDate: g.issuedDate ? formatDate(g.issuedDate) : '',
+        expiryDate: g.expiryDate ? formatDate(g.expiryDate) : '',
+        status: g.isActive ? "Active" : "Inactive",
+      })),
+
+    };
   }
-  }
+
   function capitalizeWords(str: string) {
   if (!str) return '';
   return str

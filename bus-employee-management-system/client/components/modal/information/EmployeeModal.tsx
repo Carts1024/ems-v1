@@ -97,16 +97,20 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
 
         <WorkEducationSection
           {...employeeRecords}
+          workExperiences={employee.workExperiences}
+          educationList={employee.educationList}
           isReadOnly={props.isReadOnly}
         />
 
         <h3>Employment Information</h3>
         <WorkGovSection
+          {...employeeRecords}
           employee={employee}
           fieldErrors={fieldErrors}
           handleChangeWrapper={handleChangeWrapper}
           isReadOnly={!!props.isReadOnly}
-          {...employeeRecords}
+          governmentIdList={employee.governmentIdList ?? []}
+          
         />
 
         <h3>Salary Information</h3>

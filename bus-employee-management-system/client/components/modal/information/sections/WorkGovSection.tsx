@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import styles from '../InformationModal.module.css';
 import { Employee } from '../EmployeeModalLogic';
@@ -5,6 +6,7 @@ import { GovernmentID, GovIdErrors } from '../EmployeeRecordsLogic';
 
 interface WorkGovSectionProps {
   employee: Employee;
+  governmentIdList: any[];
   fieldErrors: Record<string, string>;
   handleChangeWrapper: (field: keyof Employee, value: string | string[]) => void;
   governmentIds: GovernmentID[];
@@ -24,6 +26,7 @@ const WorkGovSection: React.FC<WorkGovSectionProps> = ({
   employee,
   fieldErrors,
   handleChangeWrapper,
+  governmentIdList,
   governmentIds,
   tempGovId,
   setTempGovId,
@@ -135,101 +138,101 @@ const WorkGovSection: React.FC<WorkGovSectionProps> = ({
               {!isReadOnly && <th>Actions</th>}
             </tr>
           </thead>
-          <tbody>
-            {[...governmentIds, ...(editingGovIdIndex === governmentIds.length ? [{
-              idType: '', idNumber: '', issuedDate: '', expiryDate: '', status: ''
-            }] : [])].map((id, index) => (
-              <tr key={index}>
-                {editingGovIdIndex === index ? (
-                  <>
-                    <td>
-                      <select
-                        className={styles.tableInput}
-                        value={tempGovId.idType}
-                        onChange={(e) => setTempGovId({ ...tempGovId, idType: e.target.value })}
-                      >
-                        <option value="">Select ID Type</option>
-                        {['SSS', 'Pag-IBIG', 'PhilHealth', 'TIN', 'UMID'].map((type) => {
-                          const isDisabled = governmentIds.some((id, idx) =>
-                            id.idType === type && editingGovIdIndex !== idx
-                          );
-                          return (
-                            <option key={type} value={type} disabled={isDisabled}>
-                              {type}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </td>
-                    <td>
-                      <input
-                        className={styles.tableInput}
-                        value={tempGovId.idNumber}
-                        onChange={(e) => setTempGovId({ ...tempGovId, idNumber: e.target.value })}
-                      />
-                      {govIdError.idNumber && <p className={styles.errorText}>{govIdError.idNumber}</p>}
-                    </td>
-                    <td>
-                      <input
-                        type="date"
-                        className={styles.tableInput}
-                        value={tempGovId.issuedDate}
-                        onChange={(e) => setTempGovId({ ...tempGovId, issuedDate: e.target.value })}
-                      />
-                      {govIdError.issuedDate && <p className={styles.errorText}>{govIdError.issuedDate}</p>}
-                    </td>
-                    <td>
-                      <input
-                        type="date"
-                        className={styles.tableInput}
-                        value={tempGovId.expiryDate}
-                        onChange={(e) => setTempGovId({ ...tempGovId, expiryDate: e.target.value })}
-                      />
-                      {govIdError.expiryDate && <p className={styles.errorText}>{govIdError.expiryDate}</p>}
-                    </td>
-                    <td>
-                      <select
-                        className={styles.tableInput}
-                        value={tempGovId.status}
-                        onChange={(e) => setTempGovId({ ...tempGovId, status: e.target.value })}
-                      >
-                        <option value="">Select ID status</option>
-                        {['Active', 'Expired', 'Pending', 'For Renewal', 'Missing'].map((status) => {
-                          const isDisabled = governmentIds.some((id, idx) =>
-                            id.status === status && editingGovIdIndex !== idx
-                          );
-                          return (
-                            <option key={status} value={status} disabled={isDisabled}>
-                              {status}
-                            </option>
-                          );
-                        })}
-                      </select>
-                      {govIdError.status && <p className={styles.errorText}>{govIdError.status}</p>}
-                    </td>
-                    <td className={styles.actionCell}>
-                      <button className={styles.xButton} onClick={cancelGovernmentIDEdit}><i className="ri-close-line" /></button>
-                      <button className={styles.saveButton} onClick={saveGovernmentID}><i className="ri-save-line" /></button>
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td>{id.idType}</td>
-                    <td>{id.idNumber.replace(/.(?=.{4})/g, '*')}</td>
-                    <td>{id.issuedDate}</td>
-                    <td>{id.expiryDate}</td>
-                    <td>{id.status}</td>
-                    {!isReadOnly && (
-                      <td className={styles.actionCell}>
-                        <button className={styles.editButton} onClick={() => editGovernmentID(index)}><i className="ri-edit-2-line" /></button>
-                        <button className={styles.deleteButton} onClick={() => deleteGovernmentID(index)}><i className="ri-delete-bin-line" /></button>
+            <tbody>
+              {(isReadOnly ? governmentIdList : [...governmentIds, ...(editingGovIdIndex === governmentIds.length ? [{
+                idType: '', idNumber: '', issuedDate: '', expiryDate: '', status: ''
+              }] : [])]).map((id: GovernmentID, index: number) => (
+                <tr key={index}>
+                  {(!isReadOnly && editingGovIdIndex === index) ? (
+                    <>
+                      <td>
+                        <select
+                          className={styles.tableInput}
+                          value={tempGovId.idType}
+                          onChange={(e) => setTempGovId({ ...tempGovId, idType: e.target.value })}
+                        >
+                          <option value="">Select ID Type</option>
+                          {['SSS', 'Pag-IBIG', 'PhilHealth', 'TIN', 'UMID'].map((type) => {
+                            const isDisabled = governmentIds.some((id, idx) =>
+                              id.idType === type && editingGovIdIndex !== idx
+                            );
+                            return (
+                              <option key={type} value={type} disabled={isDisabled}>
+                                {type}
+                              </option>
+                            );
+                          })}
+                        </select>
                       </td>
-                    )}
-                  </>
-                )}
-              </tr>
-            ))}
-          </tbody>
+                      <td>
+                        <input
+                          className={styles.tableInput}
+                          value={tempGovId.idNumber}
+                          onChange={(e) => setTempGovId({ ...tempGovId, idNumber: e.target.value })}
+                        />
+                        {govIdError.idNumber && <p className={styles.errorText}>{govIdError.idNumber}</p>}
+                      </td>
+                      <td>
+                        <input
+                          type="date"
+                          className={styles.tableInput}
+                          value={tempGovId.issuedDate}
+                          onChange={(e) => setTempGovId({ ...tempGovId, issuedDate: e.target.value })}
+                        />
+                        {govIdError.issuedDate && <p className={styles.errorText}>{govIdError.issuedDate}</p>}
+                      </td>
+                      <td>
+                        <input
+                          type="date"
+                          className={styles.tableInput}
+                          value={tempGovId.expiryDate}
+                          onChange={(e) => setTempGovId({ ...tempGovId, expiryDate: e.target.value })}
+                        />
+                        {govIdError.expiryDate && <p className={styles.errorText}>{govIdError.expiryDate}</p>}
+                      </td>
+                      <td>
+                        <select
+                          className={styles.tableInput}
+                          value={tempGovId.status}
+                          onChange={(e) => setTempGovId({ ...tempGovId, status: e.target.value })}
+                        >
+                          <option value="">Select ID status</option>
+                          {['Active', 'Expired', 'Pending', 'For Renewal', 'Missing'].map((status) => {
+                            const isDisabled = governmentIds.some((id, idx) =>
+                              id.status === status && editingGovIdIndex !== idx
+                            );
+                            return (
+                              <option key={status} value={status} disabled={isDisabled}>
+                                {status}
+                              </option>
+                            );
+                          })}
+                        </select>
+                        {govIdError.status && <p className={styles.errorText}>{govIdError.status}</p>}
+                      </td>
+                      <td className={styles.actionCell}>
+                        <button className={styles.xButton} onClick={cancelGovernmentIDEdit}><i className="ri-close-line" /></button>
+                        <button className={styles.saveButton} onClick={saveGovernmentID}><i className="ri-save-line" /></button>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td>{id.idType}</td>
+                      <td>{id.idNumber ? id.idNumber.replace(/.(?=.{4})/g, '*') : ''}</td>
+                      <td>{id.issuedDate}</td>
+                      <td>{id.expiryDate}</td>
+                      <td>{id.status}</td>
+                      {!isReadOnly && (
+                        <td className={styles.actionCell}>
+                          <button className={styles.editButton} onClick={() => editGovernmentID(index)}><i className="ri-edit-2-line" /></button>
+                          <button className={styles.deleteButton} onClick={() => deleteGovernmentID(index)}><i className="ri-delete-bin-line" /></button>
+                        </td>
+                      )}
+                    </>
+                  )}
+                </tr>
+              ))}
+            </tbody>
         </table>
       </div>
     </div>

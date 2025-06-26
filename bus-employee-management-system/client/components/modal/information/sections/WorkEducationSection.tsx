@@ -2,9 +2,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import styles from '../InformationModal.module.css';
+import { Employee } from '../EmployeeModalLogic';
 
 interface Props {
   workExperiences: any[];
+  educationList: any[];
   tempWork: any;
   editingWorkIndex: number | null;
   setTempWork: (val: any) => void;
@@ -18,7 +20,7 @@ interface Props {
   setWorkDateError: (val: any) => void;
   validateWorkDates: (from: string, to: string) => void;
 
-  educationList: any[];
+
   tempEduc: any;
   editingEducIndex: number | null;
   setTempEduc: (val: any) => void;

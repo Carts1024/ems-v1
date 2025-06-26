@@ -53,7 +53,7 @@ export default function CandidatePage() {
         {/* Application Status Filter */}
         <div className={styles.headerSection}>
           <select className={styles.statusfilterDropdown} value={applicationStatusFilter} onChange={(e) => setApplicationStatusFilter(e.target.value)}>
-            <option value="">Application Status</option>
+            <option value="">All Applications</option>
             <option value="Pending">Pending</option>
             <option value="Processing">Processing</option>
             <option value="Hired">Hired</option>
@@ -61,7 +61,7 @@ export default function CandidatePage() {
 
         {/* Interview Status Filter */}
           <select className={styles.statusfilterDropdown} value={interviewStatusFilter} onChange={(e) => setInterviewStatusFilter(e.target.value)}>
-            <option value="">Interview Status</option>
+            <option value="">All Interviews</option>
             <option value="Not Scheduled">Not Scheduled</option>
             <option value="Scheduled">Scheduled</option>
             <option value="Completed">Completed</option> {/* Corrected duplicated value */}

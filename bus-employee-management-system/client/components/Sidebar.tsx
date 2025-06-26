@@ -67,7 +67,7 @@ const Sidebar = () => {
                 { path: '/homepage/requests/cash-advance', name: 'Cash Advance', key: 'cash-advance' }
             ]
         },
-                {
+        {
             path: '/homepage/user-management',
             name: 'User Management',
             icon: 'ri-shield-user-line',

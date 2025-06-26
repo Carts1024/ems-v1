@@ -36,7 +36,11 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
         </button>
 
         <div className={styles.sectionHeader}>
-            <h1 className={styles.heading}>Record Attendance</h1>
+            <h1 className={styles.heading}>
+              {isView
+                ? "Attendance Details"
+                : "Record Attendance"}
+            </h1>
             <h4 className={styles.date}>
                 {fullDateText} <br />
                 {numericDateTime}

@@ -114,7 +114,7 @@ const CashAdvancePage = () => {
               {paginatedCashAdvances.map((cashAdvance, index) => (
                 <tr key={cashAdvance.id}>
                   <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
-                  <td>{cashAdvance.employeeName}</td>
+                  <td>{cashAdvance.employee}</td>
                   <td>{cashAdvance.advanceType}</td>
                   <td>PHP {cashAdvance.amount.toFixed(2)}</td>
                   <td>{formatDate(cashAdvance.dueDate)}</td>

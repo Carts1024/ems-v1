@@ -68,7 +68,7 @@ const LeavePage = () => {
 
 
   const defaultAddLeaveForm: LeaveForm = {
-    employeeName: '',
+    employee: '',
     department: '',
     dateHired: '',
     jobPosition: '',
@@ -79,7 +79,7 @@ const LeavePage = () => {
     durationType: 'Full Days', // Default to Full Days
     numberOfHours: undefined, // Default to undefined for number input
     specificPartialDate: '',
-    reasonForLeave: '',
+    reason: '',
     contactInformation: '',
     supportingDocuments: '',
     approver: '',
@@ -141,7 +141,7 @@ const LeavePage = () => {
               {paginatedLeaves.map((leave, index) => (
                 <tr key={leave.id}>
                   <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
-                  <td>{leave.employeeName}</td>
+                  <td>{leave.employee}</td>
                   <td>{leave.leaveType}</td>
                   <td>{formatDate(leave.startDate)}</td>
                   <td>{formatDate(leave.endDate)}</td>
@@ -155,8 +155,8 @@ const LeavePage = () => {
                       {leave.status}
                     </span>
                   </td>
-                  <td>{formatDateTime(leave.timeAdded)}</td>
-                  <td>{formatDateTime(leave.timeModified)}</td>
+                  <td>{formatDateTime(leave.createdAt)}</td>
+                  <td>{formatDateTime(leave.updatedAt)}</td>
 
                   <td className={styles.actionCell}>
                     <button
@@ -223,7 +223,7 @@ const LeavePage = () => {
             defaultValue={defaultAddLeaveForm}
             onClose={() => setShowAddModal(false)}
             onSubmit={handleAdd}
-            existingEmployees={leaves.map(l => l.employeeName)}
+            existingEmployees={leaves.map(l => l.employee)}
           />
         )}
 
@@ -239,7 +239,7 @@ const LeavePage = () => {
             } as LeaveForm}
             onClose={() => setShowEditModal(false)}
             onSubmit={handleEdit}
-            existingEmployees={leaves.map(l => l.employeeName)}
+            existingEmployees={leaves.map(l => l.employee)}
           />
         )}
 
@@ -253,7 +253,7 @@ const LeavePage = () => {
             } as LeaveForm}
             onClose={() => setShowViewModal(false)}
             onSubmit={() => { /* No submission in view mode */ }}
-            existingEmployees={leaves.map(l => l.employeeName)}
+            existingEmployees={leaves.map(l => l.employee)}
           />
         )}
       </div>

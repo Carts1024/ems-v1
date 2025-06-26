@@ -5,7 +5,7 @@ import { FilterSection } from '@/components/ui/filterDropdown';
 export type ResignationStatus = 'Pending' | 'Accepted' | 'Rejected' | 'Withdrawn';
 
 export interface ResignationForm {
-  employeeName: string;
+  employee: string;
 
   employeeJobPosition: string;
   department: string; 
@@ -36,7 +36,7 @@ export const ResignationLogic = () => {
   const [resignations, setResignations] = useState<Resignation[]>([
     {
       id: 'res1',
-      employeeName: 'Alice Johnson',
+      employee: 'Alice Johnson',
       employeeJobPosition: 'Software Engineer',
       department: 'Engineering',
       lastDayOfEmployment: '2024-07-30',
@@ -48,7 +48,7 @@ export const ResignationLogic = () => {
     },
     {
       id: 'res2',
-      employeeName: 'Bob Williams',
+      employee: 'Bob Williams',
       employeeJobPosition: 'Marketing Specialist',
       department: 'Marketing', 
       lastDayOfEmployment: '2024-08-15',
@@ -60,7 +60,7 @@ export const ResignationLogic = () => {
     },
     {
       id: 'res3',
-      employeeName: 'Charlie Brown',
+      employee: 'Charlie Brown',
       employeeJobPosition: 'HR Assistant',
       department: 'Human Resources', 
       lastDayOfEmployment: '2024-07-10',
@@ -72,7 +72,7 @@ export const ResignationLogic = () => {
     },
     {
       id: 'res4',
-      employeeName: 'Diana Prince',
+      employee: 'Diana Prince',
       employeeJobPosition: 'Sales Manager',
       department: 'Sales', 
       lastDayOfEmployment: '2024-09-01',
@@ -84,7 +84,7 @@ export const ResignationLogic = () => {
     },
     {
       id: 'res5',
-      employeeName: 'Eve Adams',
+      employee: 'Eve Adams',
       employeeJobPosition: 'Accountant',
       department: 'Finance', 
       lastDayOfEmployment: '2024-07-20',
@@ -145,13 +145,13 @@ export const ResignationLogic = () => {
       title: "Sort By",
       type: "radio",
       options: [
-        { id: "employeeName", label: "Employee Name" },
+        { id: "employee", label: "Employee Name" },
         { id: "lastDayOfEmployment", label: "Last Day of Employment" },
         { id: "noticePeriod", label: "Notice Period" },
         { id: "status", label: "Status" },
         { id: "department", label: "Department" }, 
       ],
-      defaultValue: "employeeName"
+      defaultValue: "employee"
     },
     {
       id: "order",
@@ -172,7 +172,7 @@ export const ResignationLogic = () => {
 
     // Apply search term filtering
     const filteredBySearch = newData.filter(res =>
-      res.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      res.employee.toLowerCase().includes(searchTerm.toLowerCase()) ||
       res.employeeJobPosition.toLowerCase().includes(searchTerm.toLowerCase()) ||
       res.department.toLowerCase().includes(searchTerm.toLowerCase()) || 
       res.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -219,8 +219,8 @@ export const ResignationLogic = () => {
     // Sorting
     const sortBy = filterValues.sortBy;
     const sortOrder = filterValues.order === 'desc' ? -1 : 1;
-    if (sortBy === 'employeeName') {
-      newData.sort((a, b) => a.employeeName.localeCompare(b.employeeName) * sortOrder);
+    if (sortBy === 'employee') {
+      newData.sort((a, b) => a.employee.localeCompare(b.employee) * sortOrder);
     } else if (sortBy === 'lastDayOfEmployment') {
       newData.sort((a, b) => {
         const dateA = new Date(a.lastDayOfEmployment).getTime();
@@ -243,7 +243,7 @@ export const ResignationLogic = () => {
 
     return currentFilteredResignations.filter((res) => {
       const matchesSearch =
-        res.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        res.employee.toLowerCase().includes(searchTerm.toLowerCase()) ||
         res.employeeJobPosition.toLowerCase().includes(searchTerm.toLowerCase()) ||
         res.department.toLowerCase().includes(searchTerm.toLowerCase()) || 
         res.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -333,7 +333,7 @@ export const ResignationLogic = () => {
       return showError('Error', 'Accepted or Withdrawn resignation requests cannot be deleted.');
     }
 
-    const result = await showConfirmation(`Are you sure you want to delete the resignation request for ${resignationToDelete.employeeName}?`);
+    const result = await showConfirmation(`Are you sure you want to delete the resignation request for ${resignationToDelete.employee}?`);
     if (result.isConfirmed) {
       try {
         await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call

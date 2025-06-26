@@ -1,10 +1,8 @@
-// src/components/modal/leave/leaveFormModalLogic.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
-import { showSuccess, showError } from '@/app/utils/swal'; // Re-using swal utilities
+import { showSuccess, showError } from '@/app/utils/swal'; 
 
-// Define DurationType for radio button selection
 export type DurationType = 'Full Days' | 'Partial Day (Hours)';
 export type LeaveStatus = 'Pending' | 'Approved' | 'Rejected';
 export type SpecificLeaveType =
@@ -16,33 +14,31 @@ export type SpecificLeaveType =
   | 'Bereavement Leave'
   | 'Leave Without Pay'
   | 'Custom Leave'
-  | ''; // Allow empty for initial state
+  | '';
 
-// This will represent the data state of the form
 export interface LeaveForm {
-  id?: string; // Optional ID for existing leaves (when editing)
-  employeeName: string;
-  department: string; // New field
-  dateHired: string; // New field (YYYY-MM-DD format)
-  jobPosition: string; // New field
+  id?: string; 
+  employee: string;
+  department: string; 
+  dateHired: string; 
+  jobPosition: string; 
   leaveType: SpecificLeaveType;
-  customLeaveType?: string; // New field for custom leave
+  customLeaveType?: string; 
   startDate: string; // YYYY-MM-DD format
   endDate: string; // YYYY-MM-DD format
-  durationType: DurationType; // New field
-  numberOfHours?: number; // New field, optional
-  specificPartialDate?: string; // New field, optional (YYYY-MM-DD format)
-  reasonForLeave: string; // New field
-  contactInformation: string; // New field, optional
-  supportingDocuments: string; // New field, optional (just filename for now)
-  approver: string; // New field
-  remarks: string; // New field, optional
-  status: LeaveStatus; // Status will be managed here
-  // timeAdded and timeModified are handled by the main LeaveLogic when adding/editing
+  durationType: DurationType; 
+  numberOfHours?: number; 
+  specificPartialDate?: string; 
+  reason: string; 
+  contactInformation: string; 
+  supportingDocuments: string; 
+  approver: string; 
+  remarks: string;
+  status: LeaveStatus; 
+  // createdAt and updatedAt are handled by the main LeaveLogic when adding/editing
   // so they are not part of the form's direct input.
 }
 
-// Helper function to check if a date is in the past
 const isDateInPast = (dateString: string) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Normalize today to start of day
@@ -72,7 +68,7 @@ export const useLeaveFormModal = (
 
   // Define a base default state for all fields
   const getBaseDefaultLeave = (todayDate: string): LeaveForm => ({
-    employeeName: '',
+    employee: '',
     department: '',
     dateHired: '',
     jobPosition: '',
@@ -83,7 +79,7 @@ export const useLeaveFormModal = (
     durationType: 'Full Days',
     numberOfHours: undefined,
     specificPartialDate: '',
-    reasonForLeave: '',
+    reason: '',
     contactInformation: '',
     supportingDocuments: '',
     approver: '',
@@ -96,11 +92,10 @@ export const useLeaveFormModal = (
     const today = new Date().toISOString().split('T')[0];
     const baseDefault = getBaseDefaultLeave(today);
 
-    // If it's a view mode, or edit mode with a defaultValue, use it directly for initial state
     if ((isEdit || isView) && defaultValue) {
       return {
         id: defaultValue.id,
-        employeeName: defaultValue.employeeName || '',
+        employee: defaultValue.employee || '',
         department: defaultValue.department || '',
         dateHired: defaultValue.dateHired || '',
         jobPosition: defaultValue.jobPosition || '',
@@ -111,7 +106,7 @@ export const useLeaveFormModal = (
         durationType: defaultValue.durationType || 'Full Days',
         numberOfHours: defaultValue.numberOfHours || undefined,
         specificPartialDate: defaultValue.specificPartialDate || '',
-        reasonForLeave: defaultValue.reasonForLeave || '',
+        reason: defaultValue.reason || '',
         contactInformation: defaultValue.contactInformation || '',
         supportingDocuments: defaultValue.supportingDocuments || '',
         approver: defaultValue.approver || '',
@@ -125,18 +120,14 @@ export const useLeaveFormModal = (
 
   const [fieldErrors, setFieldErrors] = useState<{ [key in keyof LeaveForm]?: string }>({});
 
-  // UseEffect to update leave state when defaultValue changes for edit/view modes
-  // This effect should NOT have 'leave' as a dependency to avoid circular updates.
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
     if ((isEdit || isView) && defaultValue) {
-      // Check if the incoming defaultValue is different from the current leave state
-      // This prevents unnecessary updates when the defaultValue object reference changes
-      // but the actual data (based on ID) is the same.
-      if (leave.id !== defaultValue.id) { // Use ID for stable comparison
+
+      if (leave.id !== defaultValue.id) { 
         setLeave({
           id: defaultValue.id,
-          employeeName: defaultValue.employeeName || '',
+          employee: defaultValue.employee || '',
           department: defaultValue.department || '',
           dateHired: defaultValue.dateHired || '',
           jobPosition: defaultValue.jobPosition || '',
@@ -147,7 +138,7 @@ export const useLeaveFormModal = (
           durationType: defaultValue.durationType || 'Full Days',
           numberOfHours: defaultValue.numberOfHours || undefined,
           specificPartialDate: defaultValue.specificPartialDate || '',
-          reasonForLeave: defaultValue.reasonForLeave || '',
+          reason: defaultValue.reason || '',
           contactInformation: defaultValue.contactInformation || '',
           supportingDocuments: defaultValue.supportingDocuments || '',
           approver: defaultValue.approver || '',
@@ -155,23 +146,21 @@ export const useLeaveFormModal = (
           status: defaultValue.status || 'Pending',
         });
       }
-    } else if (!isEdit && !isView) { // Logic for when the modal is in Add mode
+    } else if (!isEdit && !isView) { 
       const baseDefault = getBaseDefaultLeave(today);
-      // Only reset to base default if the current leave state is not already the default one.
-      // This prevents infinite loops when opening the Add modal repeatedly.
-      // A more robust comparison is used here.
+
       if (JSON.stringify(leave) !== JSON.stringify(baseDefault)) {
          setLeave(baseDefault);
       }
     }
-    setFieldErrors({}); // Always clear errors when default value changes or modal mode changes
-  }, [isEdit, isView, defaultValue]); // 'leave' is explicitly removed from dependencies here.
+    setFieldErrors({}); 
+  }, [isEdit, isView, defaultValue]);
 
 
   // Handle input changes
   const handleChange = (field: keyof LeaveForm, value: string | DurationType | number) => {
     setLeave(prev => ({ ...prev, [field]: value }));
-    setFieldErrors(prev => ({ ...prev, [field]: undefined })); // Clear error on change
+    setFieldErrors(prev => ({ ...prev, [field]: undefined })); 
   };
 
   // Calculate duration in days
@@ -181,7 +170,7 @@ export const useLeaveFormModal = (
     const end = new Date(leave.endDate);
     const diffTime = Math.abs(end.getTime() - start.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays + 1; // Include both start and end day
+    return diffDays + 1; 
   };
 
   // Validate form inputs
@@ -194,8 +183,8 @@ export const useLeaveFormModal = (
     }
 
     // Employee Details Validation
-    if (!leave.employeeName.trim()) {
-      errors.employeeName = 'Employee Name is required.';
+    if (!leave.employee.trim()) {
+      errors.employee = 'Employee Name is required.';
     }
     if (!leave.department.trim()) {
       errors.department = 'Department is required.';
@@ -241,7 +230,6 @@ export const useLeaveFormModal = (
       if (!leave.specificPartialDate) {
         errors.specificPartialDate = 'Specific Date for Partial Leave is required.';
       } else if (new Date(leave.specificPartialDate).toDateString() !== new Date(leave.startDate).toDateString() && new Date(leave.specificPartialDate).toDateString() !== new Date(leave.endDate).toDateString()) {
-          // Validate if specificPartialDate is within the start and end date range for partial leave
           const partialDate = new Date(leave.specificPartialDate);
           const startDate = new Date(leave.startDate);
           const endDate = new Date(leave.endDate);
@@ -254,11 +242,10 @@ export const useLeaveFormModal = (
 
 
     // Other Info Validation
-    if (!leave.reasonForLeave.trim()) {
-      errors.reasonForLeave = 'Reason for Leave is required.';
+    if (!leave.reason.trim()) {
+      errors.reason = 'Reason for Leave is required.';
     }
 
-    // Additional validation for status if in edit mode (as it's user-editable)
     if (isEdit && !leave.status) {
       errors.status = 'Status is required.';
     }
@@ -274,11 +261,8 @@ export const useLeaveFormModal = (
       return;
     }
 
-    // Call the onSubmit prop from the parent (LeavePage)
-    // The parent will handle adding the new leave to its state/database
     onSubmit(leave);
-    // Success message is handled by the parent's handleAdd/handleEdit
-    // onClose(); // Parent will close the modal
+
   };
 
   // Handle form update (for editing existing leave)
@@ -288,20 +272,18 @@ export const useLeaveFormModal = (
       return;
     }
 
-    // Call the onSubmit prop from the parent (LeavePage)
-    // The parent will handle updating the existing leave
+
     onSubmit(leave);
-    // Success message is handled by the parent's handleAdd/handleEdit
-    // onClose(); // Parent will close the modal
+
   };
 
   return {
     leave,
-    setLeave, // Expose setLeave for parent to reset if needed
+    setLeave, 
     fieldErrors,
     handleChange,
     handleSubmit,
     handleUpdateConfirm,
-    calculateDuration, // Expose calculateDuration for component to use
+    calculateDuration,
   };
 };

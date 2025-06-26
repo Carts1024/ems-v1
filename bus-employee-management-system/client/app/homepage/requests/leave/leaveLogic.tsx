@@ -5,7 +5,7 @@ import { LeaveForm, SpecificLeaveType, DurationType, LeaveStatus } from '@/compo
 
 export interface Leave {
     id: string;
-    employeeName: string;
+    employee: string;
     department: string; 
     dateHired: string; 
     jobPosition: string; 
@@ -16,14 +16,14 @@ export interface Leave {
     durationType: DurationType; 
     numberOfHours?: number; 
     specificPartialDate?: string; 
-    reasonForLeave: string; 
+    reason: string; 
     contactInformation: string; 
     supportingDocuments: string;
     approver: string; 
     remarks: string; 
     status: LeaveStatus; 
-    timeAdded: string;
-    timeModified: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export const LeaveLogic = () => {
@@ -41,7 +41,7 @@ export const LeaveLogic = () => {
     const [leaves, setLeaves] = useState<Leave[]>([
         {
             id: 'l1',
-            employeeName: 'Alice Johnson',
+            employee: 'Alice Johnson',
             department: 'Engineering',
             dateHired: '2023-01-15',
             jobPosition: 'Software Engineer',
@@ -52,18 +52,18 @@ export const LeaveLogic = () => {
             durationType: 'Full Days',
             numberOfHours: undefined,
             specificPartialDate: '',
-            reasonForLeave: 'Fever and cold symptoms.',
+            reason: 'Fever and cold symptoms.',
             contactInformation: 'alice.j@example.com',
             supportingDocuments: '',
             approver: 'John Doe (Manager)',
             remarks: 'Will check emails periodically.',
             status: 'Pending',
-            timeAdded: '2024-06-20T10:00:00Z',
-            timeModified: '2024-06-20T10:00:00Z'
+            createdAt: '2024-06-20T10:00:00Z',
+            updatedAt: '2024-06-20T10:00:00Z'
         },
         {
             id: 'l2',
-            employeeName: 'Bob Williams',
+            employee: 'Bob Williams',
             department: 'Marketing',
             dateHired: '2022-05-20',
             jobPosition: 'Marketing Specialist',
@@ -74,18 +74,18 @@ export const LeaveLogic = () => {
             durationType: 'Full Days',
             numberOfHours: undefined,
             specificPartialDate: '',
-            reasonForLeave: 'Family trip to the beach.',
+            reason: 'Family trip to the beach.',
             contactInformation: 'bob.w@example.com',
             supportingDocuments: 'flight_details.pdf',
             approver: 'Jane Smith (HR)',
             remarks: 'Will have limited access to email.',
             status: 'Approved',
-            timeAdded: '2024-06-15T11:30:00Z',
-            timeModified: '2024-06-16T09:00:00Z'
+            createdAt: '2024-06-15T11:30:00Z',
+            updatedAt: '2024-06-16T09:00:00Z'
         },
         {
             id: 'l3',
-            employeeName: 'Charlie Brown',
+            employee: 'Charlie Brown',
             department: 'Human Resources',
             dateHired: '2023-10-01',
             jobPosition: 'HR Assistant',
@@ -96,18 +96,18 @@ export const LeaveLogic = () => {
             durationType: 'Partial Day (Hours)',
             numberOfHours: 4,
             specificPartialDate: '2024-06-25',
-            reasonForLeave: 'Urgent family matter.',
+            reason: 'Urgent family matter.',
             contactInformation: 'charlie.b@example.com',
             supportingDocuments: '',
             approver: 'John Doe (Manager)',
             remarks: 'Will be back in the afternoon.',
             status: 'Rejected',
-            timeAdded: '2024-06-24T14:00:00Z',
-            timeModified: '2024-06-24T15:00:00Z'
+            createdAt: '2024-06-24T14:00:00Z',
+            updatedAt: '2024-06-24T15:00:00Z'
         },
         {
             id: 'l4',
-            employeeName: 'Diana Prince',
+            employee: 'Diana Prince',
             department: 'Sales',
             dateHired: '2021-11-01',
             jobPosition: 'Sales Manager',
@@ -118,18 +118,18 @@ export const LeaveLogic = () => {
             durationType: 'Full Days',
             numberOfHours: undefined,
             specificPartialDate: '',
-            reasonForLeave: 'Summer vacation.',
+            reason: 'Summer vacation.',
             contactInformation: 'diana.p@example.com',
             supportingDocuments: 'hotel_booking.png',
             approver: 'Jane Smith (HR)',
             remarks: 'Please contact my assistant for urgent matters.',
             status: 'Pending',
-            timeAdded: '2024-06-10T09:00:00Z',
-            timeModified: '2024-06-10T09:00:00Z'
+            createdAt: '2024-06-10T09:00:00Z',
+            updatedAt: '2024-06-10T09:00:00Z'
         },
         {
             id: 'l5',
-            employeeName: 'Eve Adams',
+            employee: 'Eve Adams',
             department: 'Finance',
             dateHired: '2020-03-10',
             jobPosition: 'Accountant',
@@ -140,14 +140,14 @@ export const LeaveLogic = () => {
             durationType: 'Full Days',
             numberOfHours: undefined,
             specificPartialDate: '',
-            reasonForLeave: 'Maternity leave.',
+            reason: 'Maternity leave.',
             contactInformation: 'eve.a@example.com',
             supportingDocuments: 'medical_certificate.pdf',
             approver: 'John Doe (Manager)',
             remarks: 'Will be out of office.',
             status: 'Approved',
-            timeAdded: '2024-05-01T13:00:00Z',
-            timeModified: '2024-05-02T08:00:00Z'
+            createdAt: '2024-05-01T13:00:00Z',
+            updatedAt: '2024-05-02T08:00:00Z'
         },
     ]);
 
@@ -197,12 +197,12 @@ export const LeaveLogic = () => {
             title: "Sort By",
             type: "radio",
             options: [
-                { id: "employeeName", label: "Employee Name" },
+                { id: "employee", label: "Employee Name" },
                 { id: "startDate", label: "Start Date" },
                 { id: "status", label: "Status" },
-                { id: "timeAdded", label: "Time Added" },
+                { id: "createdAt", label: "Time Added" },
             ],
-            defaultValue: "timeAdded"
+            defaultValue: "createdAt"
         },
         {
             id: "order",
@@ -223,7 +223,7 @@ export const LeaveLogic = () => {
 
         // Apply search term first (from the input field)
         const filteredBySearch = newData.filter(leave =>
-            leave.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            leave.employee.toLowerCase().includes(searchTerm.toLowerCase()) ||
             leave.leaveType.toLowerCase().includes(searchTerm.toLowerCase()) ||
             leave.department.toLowerCase().includes(searchTerm.toLowerCase()) || // Added department to search
             leave.jobPosition.toLowerCase().includes(searchTerm.toLowerCase()) // Added jobPosition to search
@@ -258,14 +258,14 @@ export const LeaveLogic = () => {
         // Sorting
         const sortBy = filterValues.sortBy;
         const sortOrder = filterValues.order === 'desc' ? -1 : 1;
-        if (sortBy === 'employeeName') {
-            newData.sort((a, b) => a.employeeName.localeCompare(b.employeeName) * sortOrder);
+        if (sortBy === 'employee') {
+            newData.sort((a, b) => a.employee.localeCompare(b.employee) * sortOrder);
         } else if (sortBy === 'startDate') {
             newData.sort((a, b) => (new Date(a.startDate).getTime() - new Date(b.startDate).getTime()) * sortOrder);
         } else if (sortBy === 'status') {
             newData.sort((a, b) => a.status.localeCompare(b.status) * sortOrder);
-        } else if (sortBy === 'timeAdded') {
-            newData.sort((a, b) => (new Date(a.timeAdded).getTime() - new Date(b.timeAdded).getTime()) * sortOrder);
+        } else if (sortBy === 'createdAt') {
+            newData.sort((a, b) => (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) * sortOrder);
         }
 
         setCurrentFilteredLeaves(newData);
@@ -275,7 +275,7 @@ export const LeaveLogic = () => {
     const finalFilteredLeaves = useMemo(() => {
         return currentFilteredLeaves.filter((leave) => {
             const matchesSearch =
-                leave.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                leave.employee.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 leave.leaveType.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 leave.department.toLowerCase().includes(searchTerm.toLowerCase()) || 
                 leave.jobPosition.toLowerCase().includes(searchTerm.toLowerCase()); 
@@ -306,7 +306,7 @@ export const LeaveLogic = () => {
             // Create a full Leave object from newLeaveData
             const fullLeave: Leave = {
                 id: id,
-                employeeName: newLeaveData.employeeName,
+                employee: newLeaveData.employee,
                 department: newLeaveData.department,
                 dateHired: newLeaveData.dateHired,
                 jobPosition: newLeaveData.jobPosition,
@@ -317,14 +317,14 @@ export const LeaveLogic = () => {
                 durationType: newLeaveData.durationType,
                 numberOfHours: newLeaveData.numberOfHours,
                 specificPartialDate: newLeaveData.specificPartialDate,
-                reasonForLeave: newLeaveData.reasonForLeave,
+                reason: newLeaveData.reason,
                 contactInformation: newLeaveData.contactInformation,
                 supportingDocuments: newLeaveData.supportingDocuments,
                 approver: newLeaveData.approver,
                 remarks: newLeaveData.remarks,
                 status: newLeaveData.status, 
-                timeAdded: now,
-                timeModified: now,
+                createdAt: now,
+                updatedAt: now,
             };
 
             const updatedList = [...leaves, fullLeave];
@@ -348,13 +348,13 @@ export const LeaveLogic = () => {
 
             const now = new Date().toISOString();
             
-            // Merge updated form data into the existing selected leave, preserving ID and original timeAdded
+            // Merge updated form data into the existing selected leave, preserving ID and original createdAt
             const updatedFullLeave: Leave = {
                 ...selectedLeave, // Keep existing properties not directly in form
                 ...updatedLeaveFormData, // Apply form updates
                 id: selectedLeave.id, // Ensure ID is preserved
-                timeAdded: selectedLeave.timeAdded, // Ensure original timeAdded is preserved
-                timeModified: now, // Update timeModified
+                createdAt: selectedLeave.createdAt, // Ensure original createdAt is preserved
+                updatedAt: now, // Update updatedAt
                 leaveType: updatedLeaveFormData.leaveType, // No cast needed
                 status: updatedLeaveFormData.status, // No cast needed
             };
@@ -384,7 +384,7 @@ export const LeaveLogic = () => {
             return showError('Error', 'Approved leave requests cannot be deleted.');
         }
 
-        const result = await showConfirmation(`Are you sure you want to delete the leave request for ${leaveToDelete.employeeName}?`);
+        const result = await showConfirmation(`Are you sure you want to delete the leave request for ${leaveToDelete.employee}?`);
         if (result.isConfirmed) {
             try {
                 await new Promise(resolve => setTimeout(resolve, 500));

@@ -11,13 +11,13 @@ export type AdvanceStatus = 'Pending' | 'Approved' | 'Rejected' | 'Reimbursed' |
 
 export interface CashAdvanceForm {
   id?: string;
-  employeeName: string;
+  employee: string;
   department: string;
   dateHired: string; // YYYY-MM-DD format
   jobPosition: string;
   advanceType: AdvanceType;
   amount: number;
-  purpose: string;
+  reason: string;
   repaymentMethod: PaymentMethod;
   numberOfRepaymentPeriods?: number;
   fullRepaymentDate?: string; // YYYY-MM-DD format
@@ -48,13 +48,13 @@ export const useCAModalLogic = (
 ) => {
 
   const getBaseDefaultCashAdvance = (todayDate: string): CashAdvanceForm => ({
-    employeeName: '',
+    employee: '',
     department: '',
     dateHired: '',
     jobPosition: '',
     advanceType: 'General Cash Advance',
     amount: 0,
-    purpose: '',
+    reason: '',
     repaymentMethod: 'Deduction from next payroll',
     numberOfRepaymentPeriods: undefined,
     fullRepaymentDate: undefined,
@@ -74,13 +74,13 @@ export const useCAModalLogic = (
     if ((isEdit || isView) && defaultValue) {
       return {
         id: defaultValue.id,
-        employeeName: defaultValue.employeeName || '',
+        employee: defaultValue.employee || '',
         department: defaultValue.department || '',
         dateHired: defaultValue.dateHired || '',
         jobPosition: defaultValue.jobPosition || '',
         advanceType: defaultValue.advanceType || 'General Cash Advance',
         amount: defaultValue.amount || 0,
-        purpose: defaultValue.purpose || '',
+        reason: defaultValue.reason || '',
         repaymentMethod: defaultValue.repaymentMethod || 'Deduction from next payroll',
         numberOfRepaymentPeriods: defaultValue.numberOfRepaymentPeriods || undefined,
         fullRepaymentDate: defaultValue.fullRepaymentDate || undefined,
@@ -106,13 +106,13 @@ export const useCAModalLogic = (
       if (cashAdvance.id !== defaultValue.id) {
         setCashAdvance({
           id: defaultValue.id,
-          employeeName: defaultValue.employeeName || '',
+          employee: defaultValue.employee || '',
           department: defaultValue.department || '',
           dateHired: defaultValue.dateHired || '',
           jobPosition: defaultValue.jobPosition || '',
           advanceType: defaultValue.advanceType || 'General Cash Advance',
           amount: defaultValue.amount || 0,
-          purpose: defaultValue.purpose || '',
+          reason: defaultValue.reason || '',
           repaymentMethod: defaultValue.repaymentMethod || 'Deduction from next payroll',
           numberOfRepaymentPeriods: defaultValue.numberOfRepaymentPeriods || undefined,
           fullRepaymentDate: defaultValue.fullRepaymentDate || undefined,
@@ -147,8 +147,8 @@ export const useCAModalLogic = (
     }
 
     // Employee Details Validation
-    if (!cashAdvance.employeeName.trim()) {
-      errors.employeeName = 'Employee Name is required.';
+    if (!cashAdvance.employee.trim()) {
+      errors.employee = 'Employee Name is required.';
     }
     if (!cashAdvance.department.trim()) {
       errors.department = 'Department is required.';
@@ -170,8 +170,8 @@ export const useCAModalLogic = (
     if (typeof cashAdvance.amount === 'undefined' || cashAdvance.amount <= 0) {
       errors.amount = 'Amount must be a positive number.';
     }
-    if (!cashAdvance.purpose.trim()) {
-      errors.purpose = 'Purpose is required.';
+    if (!cashAdvance.reason.trim()) {
+      errors.reason = 'reason is required.';
     }
     if (!cashAdvance.repaymentMethod) {
       errors.repaymentMethod = 'Repayment Method is required.';

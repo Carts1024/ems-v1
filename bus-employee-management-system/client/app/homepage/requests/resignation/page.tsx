@@ -93,7 +93,7 @@ const ResignationPage = () => {
               {paginatedResignations.map((resignation, index) => (
                 <tr key={resignation.id}>
                   <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
-                  <td>{resignation.employeeName}</td>
+                  <td>{resignation.employee}</td>
                   <td>{resignation.employeeJobPosition}</td>
                   <td>{resignation.department}</td>
                   <td>{formatDate(resignation.lastDayOfEmployment)}</td>

@@ -7,13 +7,13 @@ export type PaymentMethod = 'Deduction from next payroll' | 'Deduction over peri
 export type AdvanceStatus = 'Pending' | 'Approved' | 'Rejected' | 'Reimbursed' | 'Cancelled';
 
 export interface CashAdvanceForm {
-    employeeName: string;
+    employee: string;
     department: string;
     dateHired: string; // YYYY-MM-DD format
     jobPosition: string;
     advanceType: AdvanceType;
     amount: number;
-    purpose: string;
+    reason: string;
     repaymentMethod: PaymentMethod;
     numberOfRepaymentPeriods?: number;
     fullRepaymentDate?: string; // YYYY-MM-DD
@@ -44,13 +44,13 @@ export const CashAdvanceLogic = () => {
     const [cashAdvances, setCashAdvances] = useState<CashAdvance[]>([
         {
             id: 'ca1',
-            employeeName: 'Alice Johnson',
+            employee: 'Alice Johnson',
             department: 'Engineering',
             dateHired: '2023-01-15',
             jobPosition: 'Software Engineer',
             advanceType: 'Travel Advance',
             amount: 500.00,
-            purpose: 'Business trip to New York for client meeting.',
+            reason: 'Business trip to New York for client meeting.',
             repaymentMethod: 'Deduction from next payroll',
             numberOfRepaymentPeriods: undefined,
             fullRepaymentDate: undefined,
@@ -66,13 +66,13 @@ export const CashAdvanceLogic = () => {
         },
         {
             id: 'ca2',
-            employeeName: 'Bob Williams',
+            employee: 'Bob Williams',
             department: 'Marketing',
             dateHired: '2022-05-20',
             jobPosition: 'Marketing Specialist',
             advanceType: 'General Cash Advance',
             amount: 150.00,
-            purpose: 'Office supplies purchase for team event.',
+            reason: 'Office supplies purchase for team event.',
             repaymentMethod: 'Deduction over periods',
             numberOfRepaymentPeriods: 3,
             fullRepaymentDate: undefined,
@@ -88,13 +88,13 @@ export const CashAdvanceLogic = () => {
         },
         {
             id: 'ca3',
-            employeeName: 'Charlie Brown',
+            employee: 'Charlie Brown',
             department: 'Human Resources',
             dateHired: '2023-10-01',
             jobPosition: 'HR Assistant',
             advanceType: 'Emergency Advance',
             amount: 300.00,
-            purpose: 'Urgent medical expenses for family member.',
+            reason: 'Urgent medical expenses for family member.',
             repaymentMethod: 'Full repayment on specific date',
             numberOfRepaymentPeriods: undefined,
             fullRepaymentDate: '2024-08-10',
@@ -110,13 +110,13 @@ export const CashAdvanceLogic = () => {
         },
         {
             id: 'ca4',
-            employeeName: 'Diana Prince',
+            employee: 'Diana Prince',
             department: 'Sales',
             dateHired: '2021-11-01',
             jobPosition: 'Sales Manager',
             advanceType: 'Project Advance',
             amount: 1200.00,
-            purpose: 'Funding for "Q3 Sales Boost" project.',
+            reason: 'Funding for "Q3 Sales Boost" project.',
             repaymentMethod: 'Deduction from next payroll',
             numberOfRepaymentPeriods: undefined,
             fullRepaymentDate: undefined,
@@ -132,13 +132,13 @@ export const CashAdvanceLogic = () => {
         },
         {
             id: 'ca5',
-            employeeName: 'Eve Adams',
+            employee: 'Eve Adams',
             department: 'Finance',
             dateHired: '2020-03-10',
             jobPosition: 'Accountant',
             advanceType: 'General Cash Advance',
             amount: 75.00,
-            purpose: 'Reimbursement for office snack purchases.',
+            reason: 'Reimbursement for office snack purchases.',
             repaymentMethod: 'Deduction from next payroll',
             numberOfRepaymentPeriods: undefined,
             fullRepaymentDate: undefined,
@@ -209,12 +209,12 @@ export const CashAdvanceLogic = () => {
             title: "Sort By",
             type: "radio",
             options: [
-                { id: "employeeName", label: "Employee Name" },
+                { id: "employee", label: "Employee Name" },
                 { id: "amount", label: "Amount" },
                 { id: "dueDate", label: "Due Date" },
                 { id: "status", label: "Status" },
             ],
-            defaultValue: "employeeName"
+            defaultValue: "employee"
         },
         {
             id: "order",
@@ -234,10 +234,10 @@ export const CashAdvanceLogic = () => {
         let newData = [...cashAdvances];
 
         const filteredBySearch = newData.filter(ca =>
-            ca.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            ca.employee.toLowerCase().includes(searchTerm.toLowerCase()) ||
             ca.jobPosition.toLowerCase().includes(searchTerm.toLowerCase()) ||
             ca.advanceType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            ca.purpose.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            ca.reason.toLowerCase().includes(searchTerm.toLowerCase()) ||
             ca.department.toLowerCase().includes(searchTerm.toLowerCase())
         );
         newData = filteredBySearch;
@@ -276,8 +276,8 @@ export const CashAdvanceLogic = () => {
 
         const sortBy = filterValues.sortBy;
         const sortOrder = filterValues.order === 'desc' ? -1 : 1;
-        if (sortBy === 'employeeName') {
-            newData.sort((a, b) => a.employeeName.localeCompare(b.employeeName) * sortOrder);
+        if (sortBy === 'employee') {
+            newData.sort((a, b) => a.employee.localeCompare(b.employee) * sortOrder);
         }
         else if (sortBy === 'amount') {
             newData.sort((a, b) => (a.amount - b.amount) * sortOrder);
@@ -302,10 +302,10 @@ export const CashAdvanceLogic = () => {
     const finalFilteredCashAdvances = useMemo(() => {
         return currentFilteredCashAdvances.filter((ca) => {
             const matchesSearch =
-                ca.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                ca.employee.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 ca.jobPosition.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 ca.advanceType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                ca.purpose.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                ca.reason.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 ca.department.toLowerCase().includes(searchTerm.toLowerCase());
             return matchesSearch;
         });
@@ -391,7 +391,7 @@ export const CashAdvanceLogic = () => {
             return showError('Error', 'Approved or Reimbursed cash advance requests cannot be deleted.');
         }
 
-        const result = await showConfirmation(`Are you sure you want to delete the cash advance request for ${cashAdvanceToDelete.employeeName} (Amount: PHP ${cashAdvanceToDelete.amount.toFixed(2)})?`);
+        const result = await showConfirmation(`Are you sure you want to delete the cash advance request for ${cashAdvanceToDelete.employee} (Amount: PHP ${cashAdvanceToDelete.amount.toFixed(2)})?`);
         if (result.isConfirmed) {
             try {
                 await new Promise(resolve => setTimeout(resolve, 500));

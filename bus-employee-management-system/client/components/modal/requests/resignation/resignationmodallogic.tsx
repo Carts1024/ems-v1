@@ -8,25 +8,23 @@ export type ResignationStatus = 'Pending' | 'Accepted' | 'Rejected' | 'Withdrawn
 
 export interface ResignationForm {
   id?: string;
-  employeeName: string;
+  employee: string;
   employeeJobPosition: string;
   department: string; 
   lastDayOfEmployment: string;
   noticePeriod: number; 
   status: ResignationStatus;
-  reason?: string; // Optional field for reason of resignation
-  remarks?: string; // Optional remarks
+  reason?: string; 
+  remarks?: string;
 }
 
-// Company policy: minimum notice period in days
 const MIN_NOTICE_DAYS = 30;
 
-// Helper function to check if a date is in the past
 const isDateInPast = (dateString: string) => {
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Normalize today to start of day
+  today.setHours(0, 0, 0, 0); 
   const date = new Date(dateString);
-  date.setHours(0, 0, 0, 0); // Normalize input date to start of day
+  date.setHours(0, 0, 0, 0); 
   return date < today;
 };
 
@@ -56,11 +54,11 @@ export const useResignationModalLogic = (
 ) => {
 
   const getBaseDefaultResignation = (): ResignationForm => ({
-    employeeName: '',
+    employee: '',
     employeeJobPosition: '',
     department: '', 
-    lastDayOfEmployment: '', // Will be validated to be in future with notice
-    noticePeriod: MIN_NOTICE_DAYS, // Default to company policy
+    lastDayOfEmployment: '', 
+    noticePeriod: MIN_NOTICE_DAYS, 
     status: 'Pending',
     reason: '',
     remarks: '',
@@ -70,7 +68,7 @@ export const useResignationModalLogic = (
     if ((isEdit || isView) && defaultValue) {
       return {
         id: defaultValue.id,
-        employeeName: defaultValue.employeeName || '',
+        employee: defaultValue.employee || '',
         employeeJobPosition: defaultValue.employeeJobPosition || '',
         department: defaultValue.department || '',
         lastDayOfEmployment: defaultValue.lastDayOfEmployment || '',
@@ -92,7 +90,7 @@ export const useResignationModalLogic = (
       const currentDefaultValue = JSON.stringify(resignation);
       const incomingDefaultValue = JSON.stringify({
         id: defaultValue.id,
-        employeeName: defaultValue.employeeName || '',
+        employee: defaultValue.employee || '',
         employeeJobPosition: defaultValue.employeeJobPosition || '',
         department: defaultValue.department || '', 
         lastDayOfEmployment: defaultValue.lastDayOfEmployment || '',
@@ -111,12 +109,12 @@ export const useResignationModalLogic = (
         setResignation(baseDefault);
       }
     }
-    setFieldErrors({}); // Clear errors on modal open/type change
+    setFieldErrors({}); 
   }, [isEdit, isView, defaultValue]);
 
   const handleChange = (field: keyof ResignationForm, value: string | number | undefined) => {
     setResignation(prev => ({ ...prev, [field]: value }));
-    setFieldErrors(prev => ({ ...prev, [field]: undefined })); // Clear error for the changed field
+    setFieldErrors(prev => ({ ...prev, [field]: undefined })); 
   };
 
   const validateInput = () => {
@@ -126,8 +124,8 @@ export const useResignationModalLogic = (
       return true; 
     }
 
-    if (!resignation.employeeName.trim()) {
-      errors.employeeName = 'Employee Name is required.';
+    if (!resignation.employee.trim()) {
+      errors.employee = 'Employee Name is required.';
     }
 
     if (!resignation.employeeJobPosition.trim()) {

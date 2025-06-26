@@ -99,7 +99,7 @@ export default function AttendancePage() {
               {paginatedEmployees.length === 0 ? (
                 <tr>
                   <td colSpan={8} style={{ textAlign: 'center' }}>
-                    No attendance records found.
+                    No records found.
                   </td>
                 </tr>
               ) : (

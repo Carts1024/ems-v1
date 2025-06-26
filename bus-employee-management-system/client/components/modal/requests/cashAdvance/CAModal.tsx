@@ -73,12 +73,12 @@ const CAModal: React.FC<CAModalProps> = ({
       dateHired: formatDateForComparison(defaultValue.dateHired),
       dueDate: formatDateForComparison(defaultValue.dueDate),
       fullRepaymentDate: formatDateForComparison(defaultValue.fullRepaymentDate),
-      employeeName: defaultValue.employeeName || '',
+      employee: defaultValue.employee || '',
       department: defaultValue.department || '',
       jobPosition: defaultValue.jobPosition || '',
       advanceType: defaultValue.advanceType || 'General Cash Advance',
       amount: defaultValue.amount || 0,
-      purpose: defaultValue.purpose || '',
+      reason: defaultValue.reason || '',
       repaymentMethod: defaultValue.repaymentMethod || 'Deduction from next payroll',
       numberOfRepaymentPeriods: defaultValue.numberOfRepaymentPeriods || undefined,
       receiptsAttached: defaultValue.receiptsAttached || false,
@@ -94,12 +94,12 @@ const CAModal: React.FC<CAModalProps> = ({
       dateHired: formatDateForComparison(cashAdvance.dateHired),
       dueDate: formatDateForComparison(cashAdvance.dueDate),
       fullRepaymentDate: formatDateForComparison(cashAdvance.fullRepaymentDate),
-      employeeName: cashAdvance.employeeName || '',
+      employee: cashAdvance.employee || '',
       department: cashAdvance.department || '',
       jobPosition: cashAdvance.jobPosition || '',
       advanceType: cashAdvance.advanceType || 'General Cash Advance',
       amount: cashAdvance.amount || 0,
-      purpose: cashAdvance.purpose || '',
+      reason: cashAdvance.reason || '',
       repaymentMethod: cashAdvance.repaymentMethod || 'Deduction from next payroll',
       numberOfRepaymentPeriods: cashAdvance.numberOfRepaymentPeriods || undefined,
       receiptsAttached: cashAdvance.receiptsAttached || false,
@@ -145,16 +145,16 @@ const CAModal: React.FC<CAModalProps> = ({
           <div className={styles.formSections}>
             <div className={styles.formColumn}>
               <h4>Employee Details</h4>
-              <label htmlFor="employeeName" className={styles.label}>Employee Name</label>
+              <label htmlFor="employee" className={styles.label}>Employee Name</label>
               <input
-                id="employeeName"
-                className={`${styles.inputField} ${fieldErrors.employeeName ? styles.inputError : ''}`}
-                value={cashAdvance.employeeName}
-                onChange={(e) => handleChangeWrapper('employeeName', e.target.value)}
+                id="employee"
+                className={`${styles.inputField} ${fieldErrors.employee ? styles.inputError : ''}`}
+                value={cashAdvance.employee}
+                onChange={(e) => handleChangeWrapper('employee', e.target.value)}
                 placeholder="Enter employee name"
                 readOnly={isView}
               />
-              {fieldErrors.employeeName && !isView && <p className={styles.errorText}>{fieldErrors.employeeName}</p>}
+              {fieldErrors.employee && !isView && <p className={styles.errorText}>{fieldErrors.employee}</p>}
 
               <label htmlFor="department" className={styles.label}>Department</label>
               <input
@@ -236,17 +236,17 @@ const CAModal: React.FC<CAModalProps> = ({
               />
               {fieldErrors.amount && !isView && <p className={styles.errorText}>{fieldErrors.amount}</p>}
 
-              <label htmlFor="purpose" className={styles.label}>Purpose</label>
+              <label htmlFor="reason" className={styles.label}>reason</label>
               <textarea
-                id="purpose"
-                className={`${styles.inputField} ${fieldErrors.purpose ? styles.inputError : ''}`}
-                value={cashAdvance.purpose}
-                onChange={(e) => handleChangeWrapper('purpose', e.target.value)}
-                placeholder="Briefly explain the purpose of the cash advance..."
+                id="reason"
+                className={`${styles.inputField} ${fieldErrors.reason ? styles.inputError : ''}`}
+                value={cashAdvance.reason}
+                onChange={(e) => handleChangeWrapper('reason', e.target.value)}
+                placeholder="Briefly explain the reason of the cash advance..."
                 rows={4}
                 readOnly={isView}
               ></textarea>
-              {fieldErrors.purpose && !isView && <p className={styles.errorText}>{fieldErrors.purpose}</p>}
+              {fieldErrors.reason && !isView && <p className={styles.errorText}>{fieldErrors.reason}</p>}
 
               <label htmlFor="repaymentMethod" className={styles.label}>Repayment Method</label>
               <select

@@ -66,7 +66,7 @@ const ResignationModal: React.FC<ResignationModalProps> = ({
     }
 
     const defaultComparable = defaultValue ? {
-      employeeName: defaultValue.employeeName || '',
+      employee: defaultValue.employee || '',
       employeeJobPosition: defaultValue.employeeJobPosition || '',
       department: defaultValue.department || '', 
       lastDayOfEmployment: formatDateForComparison(defaultValue.lastDayOfEmployment),
@@ -77,7 +77,7 @@ const ResignationModal: React.FC<ResignationModalProps> = ({
     } : null;
 
     const currentComparable = {
-      employeeName: resignation.employeeName || '',
+      employee: resignation.employee || '',
       employeeJobPosition: resignation.employeeJobPosition || '',
       department: resignation.department || '', 
       lastDayOfEmployment: formatDateForComparison(resignation.lastDayOfEmployment),
@@ -124,16 +124,16 @@ const ResignationModal: React.FC<ResignationModalProps> = ({
           <div className={styles.formSections}>
             <div className={styles.formColumn}>
               <h4>Employee Information</h4>
-              <label htmlFor="employeeName" className={styles.label}>Employee Name</label>
+              <label htmlFor="employee" className={styles.label}>Employee Name</label>
               <input
-                id="employeeName"
-                className={`${styles.inputField} ${fieldErrors.employeeName ? styles.inputError : ''}`}
-                value={resignation.employeeName}
-                onChange={(e) => handleChangeWrapper('employeeName', e.target.value)}
+                id="employee"
+                className={`${styles.inputField} ${fieldErrors.employee ? styles.inputError : ''}`}
+                value={resignation.employee}
+                onChange={(e) => handleChangeWrapper('employee', e.target.value)}
                 placeholder="Enter employee name"
                 readOnly={isView}
               />
-              {fieldErrors.employeeName && !isView && <p className={styles.errorText}>{fieldErrors.employeeName}</p>}
+              {fieldErrors.employee && !isView && <p className={styles.errorText}>{fieldErrors.employee}</p>}
 
               <label htmlFor="employeeJobPosition" className={styles.label}>Job Position</label>
               <input

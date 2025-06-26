@@ -1,10 +1,12 @@
+/* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { showSuccess, showConfirmation } from '@/app/utils/swal';
+import { showSuccess, showConfirmation, showError } from '@/app/utils/swal';
 import { Employee } from '@/components/modal/information/EmployeeModalLogic';
 import { FilterSection } from '@/components/ui/filterDropdown';
 
+// --------- EmployeeLogic.tsx ---------
 export const EmployeeLogic = () => {
   const [employees, setEmployees] = useState<any[]>([]);
   const [filteredEmployees, setFilteredEmployees] = useState<any[]>([]);
@@ -19,18 +21,89 @@ export const EmployeeLogic = () => {
   const [positionFilter, setPositionFilter] = useState('');
   const [isReadOnlyView, setIsReadOnlyView] = useState(false);
   const [openActionDropdownIndex, setOpenActionDropdownIndex] = useState<number | null>(null);
-
   const actionDropdownRef = useRef<HTMLDivElement>(null);
+  
 
-  // --- New: Departments & Positions state ---
+  // ---- Work Experience States ----
+  const [workExperiences, setWorkExperiences] = useState<any[]>([]);
+  const [editingWorkIndex, setEditingWorkIndex] = useState<number | null>(null);
+  const [tempWork, setTempWork] = useState<any>({
+    company: '', position: '', from: '', to: '', description: ''
+  });
+  const [isTempWorkValid, setIsTempWorkValid] = useState(true);
+  const [workDateError, setWorkDateError] = useState<{ from?: string; to?: string }>({ from: '', to: '' });
+
+  const validateWorkDates = (from: string, to: string) => {
+    if (!from || !to) {
+      setWorkDateError({ from: !from ? 'Required' : '', to: !to ? 'Required' : '' });
+      setIsTempWorkValid(false);
+      return false;
+    }
+    if (new Date(from) > new Date(to)) {
+      setWorkDateError({ from: 'From date is after To date', to: '' });
+      setIsTempWorkValid(false);
+      return false;
+    }
+    setWorkDateError({ from: '', to: '' });
+    setIsTempWorkValid(true);
+    return true;
+  };
+
+  // ---- Education States ----
+  const [educationList, setEducationList] = useState<any[]>([]);
+  const [editingEducIndex, setEditingEducIndex] = useState<number | null>(null);
+  const [tempEduc, setTempEduc] = useState<any>({
+    institute: '', degree: '', specialization: '', completionDate: ''
+  });
+  const [isTempEducValid, setIsTempEducValid] = useState(true);
+  const [educDateError, setEducDateError] = useState<string>('');
+
+  const validateEducDates = (completionDate: string) => {
+    if (!completionDate) {
+      setEducDateError('Completion date is required');
+      setIsTempEducValid(false);
+      return false;
+    }
+    setEducDateError('');
+    setIsTempEducValid(true);
+    return true;
+  };
+
+  const addEducation = () => {
+    setEditingEducIndex(educationList.length);
+    setTempEduc({ institute: '', degree: '', specialization: '', completionDate: '' });
+  };
+
+  const editEducation = (index: number) => {
+    setEditingEducIndex(index);
+    setTempEduc(educationList[index]);
+  };
+
+  const cancelEducationEdit = () => setEditingEducIndex(null);
+
+  const saveEducation = () => {
+    if (!validateEducDates(tempEduc.completionDate)) return;
+    if (editingEducIndex === educationList.length) {
+      setEducationList([...educationList, tempEduc]);
+    } else if (editingEducIndex !== null) {
+      const updated = [...educationList];
+      updated[editingEducIndex] = tempEduc;
+      setEducationList(updated);
+    }
+    setEditingEducIndex(null);
+  };
+
+  const deleteEducation = (index: number) => {
+    setEducationList(educationList.filter((_, i) => i !== index));
+  };
+  // ---- Departments & Positions ----
   const [departments, setDepartments] = useState<{ id: number, departmentName: string }[]>([]);
   const [positions, setPositions] = useState<{ id: number, positionName: string, departmentId: number }[]>([]);
 
-  // --- API URL ---
+  // ---- API URL ----
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-  // --- Fetch Employees on Mount ---
-  // Fetch employees and normalize
+  // ---- Fetch Employees ----
   useEffect(() => {
     setLoading(true);
     fetch(`${API_URL}/employees`)
@@ -39,7 +112,6 @@ export const EmployeeLogic = () => {
         return res.json();
       })
       .then(data => {
-        // Normalize so we always have strings for positionName and departmentName
         const mapped = data.map((emp: any) => ({
           ...emp,
           positionName: emp.position?.positionName || '',
@@ -55,32 +127,28 @@ export const EmployeeLogic = () => {
       });
   }, [API_URL]);
 
-  // --- Fetch Departments and Positions on Mount ---
+  // ---- Fetch Departments & Positions ----
   useEffect(() => {
-    // Departments
     fetch(`${API_URL}/departments`)
       .then(res => res.json())
       .then(data => setDepartments(data))
       .catch(() => setDepartments([]));
-    // Positions
     fetch(`${API_URL}/positions`)
       .then(res => res.json())
       .then(data => setPositions(data))
       .catch(() => setPositions([]));
   }, [API_URL]);
 
-  // --- Build Filter Options from Fetched Data ---
+  // ---- Filter logic ----
   const departmentOptions = departments.map(dept => ({
-    id: String(dept.id), // or dept.departmentName.toLowerCase() if you want by name
+    id: String(dept.id),
     label: dept.departmentName,
   }));
-
   const positionOptions = positions.map(pos => ({
-    id: String(pos.id), // or pos.positionName.toLowerCase() if you want by name
+    id: String(pos.id),
     label: pos.positionName,
   }));
 
-  // Filters
   const uniqueDepartments = Array.from(
     new Set(employees.map(emp => emp.departmentName).filter((d): d is string => d && d.trim() !== ''))
   );
@@ -131,18 +199,12 @@ export const EmployeeLogic = () => {
 
   const handleApplyFilters = (filterValues: Record<string, any>) => {
     let newData = [...employees];
-
-    // Department
     if (filterValues.department && filterValues.department.length > 0) {
       newData = newData.filter(item => filterValues.department.includes(item.departmentName.toLowerCase()));
     }
-
-    // Position
     if (filterValues.position && filterValues.position.length > 0) {
       newData = newData.filter(item => filterValues.position.includes(item.positionName.toLowerCase()));
     }
-
-    // Date Hired Range
     const fromDate = filterValues.dateHiredRange?.from ? new Date(filterValues.dateHiredRange.from) : null;
     const toDate = filterValues.dateHiredRange?.to ? new Date(filterValues.dateHiredRange.to) : null;
     if (fromDate || toDate) {
@@ -151,8 +213,6 @@ export const EmployeeLogic = () => {
         return (!fromDate || hiredDate >= fromDate) && (!toDate || hiredDate <= toDate);
       });
     }
-
-    // Sorting
     const sortBy = filterValues.sortBy;
     const sortOrder = filterValues.order === 'desc' ? -1 : 1;
     if (sortBy === 'name') {
@@ -160,7 +220,6 @@ export const EmployeeLogic = () => {
     } else if (sortBy === 'date') {
       newData.sort((a, b) => (new Date(a.dateHired).getTime() - new Date(b.dateHired).getTime()) * sortOrder);
     }
-
     setFilteredEmployees(newData);
   };
 
@@ -174,7 +233,7 @@ export const EmployeeLogic = () => {
     );
   });
 
-  // Pagination Implementation
+  // ---- Pagination ----
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -185,7 +244,100 @@ export const EmployeeLogic = () => {
 
   const totalPages = Math.ceil(filteredEmployees.length / pageSize);
 
-  // Add/Edit/Delete (same as your original)
+  // ---- WORK EXPERIENCE: Backend CRUD ----
+
+  // Fetch all work experiences for the selected employee
+  const fetchWorkExperiences = async (employeeId: string) => {
+    try {
+      const res = await fetch(`${API_URL}/work-experience?employeeId=${employeeId}`);
+      if (!res.ok) throw new Error('Failed to fetch work experiences');
+      const data = await res.json();
+      setWorkExperiences(data || []);
+    } catch (err) {
+      showError('Error', (err as Error).message || 'Could not load work experiences');
+      setWorkExperiences([]);
+    }
+  };
+
+  // Add work experience row (UI only, for new record)
+  const addWork = () => {
+    setEditingWorkIndex(workExperiences.length);
+    setTempWork({ company: '', position: '', from: '', to: '', description: '' });
+  };
+
+  // Edit work experience row (UI)
+  const editWork = (index: number) => {
+    setEditingWorkIndex(index);
+    setTempWork(workExperiences[index]);
+  };
+
+  // Cancel add/edit (UI)
+  const cancelWorkEdit = () => setEditingWorkIndex(null);
+
+  const saveWork = async () => {
+    // For new employees (no id yet), just update local state
+    if (!selectedEmployee || !selectedEmployee.id) {
+      // Add or update in local array only
+      let newWorkArr = [...workExperiences];
+      if (editingWorkIndex === workExperiences.length) {
+        newWorkArr.push(tempWork);
+      } else if (editingWorkIndex !== null) {
+        newWorkArr[editingWorkIndex] = tempWork;
+      }
+      setWorkExperiences(newWorkArr);
+      setEditingWorkIndex(null);
+      showSuccess('Success', 'Work Experience saved locally.');
+      return;
+    }
+
+    try {
+      let newWorkExp: any;
+      if (editingWorkIndex === workExperiences.length) {
+        // ADD
+        const res = await fetch(`${API_URL}/work-experience`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...tempWork, employeeId: selectedEmployee.id }),
+        });
+        if (!res.ok) throw new Error('Failed to add');
+        newWorkExp = await res.json();
+        setWorkExperiences([...workExperiences, newWorkExp]);
+        showSuccess('Success', 'Work Experience added.');
+      } else {
+        // UPDATE
+        const id = workExperiences[editingWorkIndex!].id;
+        const res = await fetch(`${API_URL}/work-experience/${id}`, {
+          method: 'PATCH', // FIXED: PATCH (not Patch)
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(tempWork),
+        });
+        if (!res.ok) throw new Error('Failed to update');
+        newWorkExp = await res.json();
+        const updated = workExperiences.map((exp, idx) =>
+          idx === editingWorkIndex ? newWorkExp : exp
+        );
+        setWorkExperiences(updated);
+        showSuccess('Success', 'Work Experience updated.');
+      }
+      setEditingWorkIndex(null);
+    } catch (err: any) {
+      showError('Error', err.message || 'Failed to save');
+    }
+  };
+  // Delete a work experience row in backend
+  const deleteWork = async (index: number) => {
+    try {
+      const id = workExperiences[index].id;
+      const res = await fetch(`${API_URL}/work-experience/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete');
+      setWorkExperiences(workExperiences.filter((_, i) => i !== index));
+      showSuccess('Success', 'Work Experience deleted.');
+    } catch (err: any) {
+      showError('Error', err.message || 'Failed to delete');
+    }
+  };
+
+  // ---- Add/Edit/Delete Employee ----
   const handleAdd = (newEmployee: Employee) => {
     const updatedList = [...employees, newEmployee];
     setEmployees(updatedList);
@@ -193,18 +345,41 @@ export const EmployeeLogic = () => {
     showSuccess('Success', 'Employee added successfully.');
   };
 
-  const handleEdit = (updatedEmployee: Employee) => {
-    if (!selectedEmployee) return;
-    const updatedList = employees.map(emp =>
-      emp.firstName === selectedEmployee.firstName &&
-      emp.middleName === selectedEmployee.middleName &&
-      emp.lastName === selectedEmployee.lastName
-        ? updatedEmployee
-        : emp
-    );
-    setEmployees(updatedList);
-    setFilteredEmployees(updatedList);
-    showSuccess('Success', 'Employee updated successfully.');
+  const handleEdit = async (updatedEmployee: Employee) => {
+    try {
+      if (!updatedEmployee.id) {
+        showError('Error', 'No employee ID found!');
+        return;
+      }
+      // PATCH to backend (update employee)
+      const res = await fetch(`${API_URL}/employees/${updatedEmployee.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedEmployee),
+      });
+      if (!res.ok) {
+        const error = await res.json();
+        showError('Error', error.message || 'Failed to update employee');
+        return;
+      }
+      const updated = await res.json();
+
+      // (OPTIONAL: If you want to update work experience after employee update, not needed if done in modal)
+      // await fetchWorkExperiences(updatedEmployee.id);
+
+      // Update UI
+      const updatedList = employees.map(emp =>
+        emp.id === updated.id ? updated : emp
+      );
+      setEmployees(updatedList);
+      setFilteredEmployees(updatedList);
+      setShowEditModal(false);
+
+      showSuccess('Success', 'Employee updated successfully!');
+
+    } catch (err: any) {
+      showError('Error', err.message || 'Something went wrong');
+    }
   };
 
   const handleDeleteRequest = async (employee: Employee) => {
@@ -221,15 +396,40 @@ export const EmployeeLogic = () => {
     }
   };
 
+  // ---- Edit Button: Use this in your "Edit" action ----
+  const handleEditButtonClick = async (emp: any) => {
+    setSelectedEmployee(emp);
+    setIsReadOnlyView(false);
+    setShowEditModal(true);
+    // Synchronize work experience and education state with employee
+    setWorkExperiences(emp.workExperiences ?? []);
+    setEducationList(emp.educationList ?? []);
+    setCurrentPage(1);
+    setPageSize(10);
+    setError(null);
+    setOpenActionDropdownIndex(null);
+  };
+
+  const handleViewButtonClick = async (emp: any) => {
+  setSelectedEmployee(emp);
+  setIsReadOnlyView(true);
+  setShowEditModal(true);
+  setWorkExperiences(emp.workExperiences ?? []);
+  setEducationList(emp.educationList ?? []);
+  setCurrentPage(1);
+  setPageSize(10);
+  setError(null);
+  setOpenActionDropdownIndex(null);
+  };
+
+  // ---- Dropdown logic ----
   const toggleActionDropdown = (index: number | null) => {
     setOpenActionDropdownIndex(openActionDropdownIndex === index ? null : index);
   };
-
-  // Effect to handle clicks outside the dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (actionDropdownRef.current && !actionDropdownRef.current.contains(event.target as Node)) {
-        setOpenActionDropdownIndex(null); // Close the dropdown
+        setOpenActionDropdownIndex(null);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -238,6 +438,7 @@ export const EmployeeLogic = () => {
     };
   }, [openActionDropdownIndex]);
 
+  // ---- Return everything for use in modal and section ----
   return {
     showAddModal,
     setShowAddModal,
@@ -257,6 +458,8 @@ export const EmployeeLogic = () => {
     setPositionFilter,
     handleAdd,
     handleEdit,
+    handleEditButtonClick,
+    handleViewButtonClick, // <--- Use for "Edit" action
     handleDeleteRequest,
     isReadOnlyView,
     setIsReadOnlyView,
@@ -273,5 +476,40 @@ export const EmployeeLogic = () => {
     totalPages,
     loading,
     error,
+
+  workExperiences,
+  setWorkExperiences,
+  editingWorkIndex,
+  setEditingWorkIndex,
+  tempWork,
+  setTempWork,
+  isTempWorkValid,
+  setIsTempWorkValid,
+  workDateError,
+  setWorkDateError,
+  validateWorkDates,
+
+  educationList,
+  setEducationList,
+  tempEduc,
+  setTempEduc,
+  editingEducIndex,
+  setEditingEducIndex,
+  addEducation,
+  saveEducation,
+  editEducation,
+  cancelEducationEdit,
+  deleteEducation,
+  isTempEducValid,
+  setIsTempEducValid,
+  educDateError,
+  setEducDateError,
+  addWork,
+  saveWork,
+  editWork,
+  cancelWorkEdit,
+  deleteWork,
+
+  // ...rest...
   };
 };

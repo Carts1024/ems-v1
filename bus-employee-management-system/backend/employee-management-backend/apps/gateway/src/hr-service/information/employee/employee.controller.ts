@@ -5,7 +5,6 @@ import {
   Post,
   Body,
   Param,
-  Put,
   Delete,
   NotFoundException,
   UsePipes,
@@ -13,6 +12,7 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  Patch,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -54,7 +54,7 @@ export class EmployeeController {
     return this.employeeService.create(createEmployeeDto);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @UsePipes(new ValidationPipe({ whitelist: true }))
   update(
     @Param('id') id: string,

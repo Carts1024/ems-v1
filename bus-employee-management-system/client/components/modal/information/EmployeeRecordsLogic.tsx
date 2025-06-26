@@ -3,7 +3,7 @@ import { showConfirmation, showSuccess, showError } from '@/app/utils/swal';
 
 // Types
 interface WorkExperience {
-  company: string;
+  companyName: string;
   position: string;
   from: string;
   to: string;
@@ -51,11 +51,11 @@ interface Benefit {
   status: string;
 }
 
-export const useEmployeeRecords = () => {
+export const useEmployeeRecords = (initialGovernmentIds: GovernmentID[] = []) => {
   // Work Experience
   const [workExperiences, setWorkExperiences] = useState<WorkExperience[]>([
     {
-      company: "DLTB Co.",
+      companyName: "DLTB Co.",
       position: "Driver",
       from: "2024-04-15",
       to: "2024-05-15",
@@ -64,7 +64,7 @@ export const useEmployeeRecords = () => {
   ]);
   const [editingWorkIndex, setEditingWorkIndex] = useState<number | null>(null);
   const [tempWork, setTempWork] = useState<WorkExperience>({
-    company: '', position: '', from: '', to: '', description: '',
+    companyName: '', position: '', from: '', to: '', description: '',
   });
   const [workDateError, setWorkDateError] = useState<{ from?: string; to?: string }>({});
 
@@ -83,8 +83,9 @@ export const useEmployeeRecords = () => {
   });
   const [educDateError, setEducDateError] = useState('');
 
+
   // Government ID
-  const [governmentIds, setGovernmentIds] = useState<GovernmentID[]>([]);
+  const [governmentIds, setGovernmentIds] = useState<GovernmentID[]>(initialGovernmentIds);
   const [editingGovIdIndex, setEditingGovIdIndex] = useState<number | null>(null);
   const [tempGovId, setTempGovId] = useState<GovernmentID>({ idType: '', idNumber: '', issuedDate: '', expiryDate: '', status: '' });
   const [govIdError, setGovIdError] = useState<{
@@ -186,7 +187,7 @@ export const useEmployeeRecords = () => {
 
   // Boolean flags for form button enabling
   const isTempWorkValid = Boolean(
-    tempWork.company.trim() &&
+    tempWork.companyName.trim() &&
     tempWork.position.trim() &&
     tempWork.from &&
     tempWork.to &&
@@ -219,7 +220,7 @@ export const useEmployeeRecords = () => {
   // Work logic
   const addWork = () => {
     setEditingWorkIndex(workExperiences.length);
-    setTempWork({ company: '', position: '', from: '', to: '', description: '' });
+    setTempWork({ companyName: '', position: '', from: '', to: '', description: '' });
   };
 
   const saveWork = () => {

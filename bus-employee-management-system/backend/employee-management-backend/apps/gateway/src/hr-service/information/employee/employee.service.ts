@@ -1,9 +1,24 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable prettier/prettier */
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 
+function fixEmployeeUpdateDates(data: any) {
+  const toISO = (val: any) =>
+    typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val)
+      ? new Date(val).toISOString()
+      : val;
+  return {
+    ...data,
+    birthdate: toISO(data.birthdate),
+    hiredate: toISO(data.hiredate),
+    expireDate: toISO(data.expireDate),
+    terminationDate: toISO(data.terminationDate),
+    // Add more date fields if you have them
+  };
+}
 @Injectable()
 export class EmployeeService {
   private readonly hrServiceUrl = process.env.HR_SERVICE_BASE_URL;
@@ -55,8 +70,9 @@ export class EmployeeService {
 
   // Update an employee
   update(id: string, data: any) {
+    const fixedData = fixEmployeeUpdateDates(data);
     return this.httpService
-      .put(`${this.hrServiceUrl}/employees/${id}`, data)
+      .patch(`${this.hrServiceUrl}/employees/${id}`, fixedData)
       .toPromise()
       .then(res => res?.data)
       .catch(err => {
@@ -102,4 +118,5 @@ export class EmployeeService {
       });
   }
 
+  
 }

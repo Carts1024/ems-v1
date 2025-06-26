@@ -7,6 +7,7 @@ import { showConfirmation, showSuccess, showError } from '@/app/utils/swal';
 
 
 export interface Employee {
+  id: any;
   workExperiences: any[];
   educationList: any[];
   governmentIdList: any[];
@@ -33,7 +34,7 @@ export interface Employee {
   employeeClassification: string,
   department: string;
   position: string;
-  basicPay: string;
+  basicRate: string;
   govtIdType: string;
   govtIdNo: string;
   licenseType: string;
@@ -69,6 +70,7 @@ const [employee, setEmployee] = useState<Employee>({
   governmentIdList: [],
   benefitList: [],
   deductionList: [],
+  id: '',
   firstName: '',
   middleName: '',
   lastName: '',
@@ -90,7 +92,7 @@ const [employee, setEmployee] = useState<Employee>({
   employeeClassification: '',
   department: '',
   position: '',
-  basicPay: '',
+  basicRate: '',
   govtIdType: '',
   govtIdNo: '',
   licenseType: 'professional',
@@ -119,7 +121,7 @@ const [employee, setEmployee] = useState<Employee>({
     if (!employee.firstName.trim()) errors.firstName = 'Required';
     if (!employee.lastName.trim()) errors.lastName = 'Required';
     if (!employee.birthdate || !isAtLeast18(employee.birthdate)) errors.birthdate = 'Must be at least 18 years old.';
-    if (!employee.email || !isValidEmail(employee.email)) errors.email = 'Invalid email format.';
+    if (employee.email && !isValidEmail(employee.email)) errors.email = 'Invalid email format.';
     if (!isValidContact(employee.contact) || !isValidPhilippineContact(employee.contact)) errors.contact = 'Invalid format.';
     if (!employee.houseStreet) errors.houseStreet = 'Required';
     if (!employee.barangay) errors.barangay = 'Required';
@@ -136,11 +138,11 @@ const [employee, setEmployee] = useState<Employee>({
     if (!employee.department) errors.department = 'Required';
     if (!employee.position.trim()) errors.position = 'Required';
 
-    const pay = parseFloat(employee.basicPay);
-    if (!employee.basicPay || isNaN(pay) || pay < 0) {
-      errors.basicPay = 'Required and must be a non-negative number.';
+    const pay = parseFloat(employee.basicRate);
+    if (!employee.basicRate || isNaN(pay) || pay < 0) {
+      errors.basicRate = 'Required and must be a non-negative number.';
     } else {
-      employee.basicPay = pay.toFixed(2); // always store formatted decimal string
+      employee.basicRate = pay.toFixed(2); // always store formatted decimal string
     }
 
     if (!employee.licenseNo && employee.position.toLowerCase() === 'driver') errors.licenseNo = 'Required';

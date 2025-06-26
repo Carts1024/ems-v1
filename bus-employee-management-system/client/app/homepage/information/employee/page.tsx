@@ -32,8 +32,9 @@ export default function EmployeePage() {
     employees,
     filterSections,
     handleApplyFilters,
-    // Import the new state and function for the action dropdown
     openActionDropdownIndex,
+    handleEditButtonClick,
+    handleViewButtonClick,
     toggleActionDropdown,
     paginatedEmployees,
     currentPage,
@@ -41,7 +42,38 @@ export default function EmployeePage() {
     pageSize,
     setPageSize,
     totalPages,
+    // --- work experience ---
+    workExperiences,
+    setWorkExperiences,
+    tempWork,
+    setTempWork,
+    editingWorkIndex,
+    setEditingWorkIndex,
+    addWork,
+    saveWork,
+    editWork,
+    cancelWorkEdit,
+    deleteWork,
+    isTempWorkValid,
+    workDateError,
+    validateWorkDates,
+    // --- education ---
+    educationList,
+    setEducationList,
+    tempEduc,
+    setTempEduc,
+    editingEducIndex,
+    setEditingEducIndex,
+    addEducation,
+    saveEducation,
+    editEducation,
+    cancelEducationEdit,
+    deleteEducation,
+    isTempEducValid,
+    educDateError,
+    setEducDateError
   } = EmployeeLogic();
+
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -89,6 +121,7 @@ export default function EmployeePage() {
 
   // Work Experience
   const workExperiences = (apiEmp.workExperiences || []).map((w: any) => ({
+    id: w.id || w._id, // Ensure we have a unique identifier
     company: w.companyName || '',
     position: w.position || '',
     from: w.startDate ? formatDate(w.startDate) : '',
@@ -115,6 +148,7 @@ export default function EmployeePage() {
     // }));
 
     return {
+      id: apiEmp.id || apiEmp._id,
       ...apiEmp,
       houseStreet: apiEmp.streetAddress ?? '',
       contact: apiEmp.phone ?? '',
@@ -254,44 +288,34 @@ export default function EmployeePage() {
                     {/* Action dropdown container, conditionally rendered */}
                     {openActionDropdownIndex === index && (
                       <div className={styles.actionDropdown}>
-                        <button className={styles.viewButton}
-                          onClick={async () => {
-                            const fullDetails = await fetchEmployeeDetails(emp.id);
-                            if (fullDetails) {
-                              const mappedEmployee = mapEmployeeApiToUI(fullDetails);
-                              setSelectedEmployee(mappedEmployee);
-                              setIsReadOnlyView(true);
-                              setShowEditModal(true);
-                              toggleActionDropdown(null);
-                            } else {
-                              Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Failed to fetch employee details'
-                              });
-                            }
-                          }}>
-                          <i className="ri-eye-line"/> View
-                        </button>
-                        <button className={styles.editButton}
-                          onClick={async () => {
-                            const fullDetails = await fetchEmployeeDetails(emp.id);
-                            if (fullDetails) {
-                              const mappedEmployee = mapEmployeeApiToUI(fullDetails);
-                              setSelectedEmployee(mappedEmployee);
-                              setIsReadOnlyView(false);
-                              setShowEditModal(true);
-                              toggleActionDropdown(null); // Close dropdown
-                              } else {
-                                Swal.fire({
-                                  icon: 'error',
-                                  title: 'Error',
-                                  text: 'Failed to fetch employee details'
-                                });
-                              }
-                            }}>
-                          <i className="ri-edit-2-line"/> Edit
-                        </button>
+                      <button className={styles.viewButton}
+                        onClick={async () => {
+                          const fullDetails = await fetchEmployeeDetails(emp.id);
+                          if (fullDetails) {
+                            const mappedEmployee = mapEmployeeApiToUI(fullDetails);
+                            console.log("Selected Employee:", mappedEmployee);
+                            handleViewButtonClick(mappedEmployee); // <<<< use this!
+                            toggleActionDropdown(null);
+                          } else {
+                            Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to fetch employee details' });
+                          }
+                        }}>
+                        <i className="ri-eye-line"/> View
+                      </button>
+                      <button className={styles.editButton}
+                        onClick={async () => {
+                          const fullDetails = await fetchEmployeeDetails(emp.id);
+                          if (fullDetails) {
+                            const mappedEmployee = mapEmployeeApiToUI(fullDetails);
+                            console.log("Selected Employee:", mappedEmployee);
+                            handleEditButtonClick(mappedEmployee); // <<<< use this!
+                            toggleActionDropdown(null);
+                          } else {
+                            Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to fetch employee details' });
+                          }
+                        }}>
+                        <i className="ri-edit-2-line"/> Edit
+                      </button>
                         <button className={styles.deleteButton}
                           onClick={() => {
                             handleDeleteRequest(emp);
@@ -319,7 +343,6 @@ export default function EmployeePage() {
             setCurrentPage(1); // reset to page 1 when size changes
           }}
         />
-
         {/* Modals */}
         {showAddModal && (
           <EmployeeModal
@@ -327,6 +350,34 @@ export default function EmployeePage() {
             existingEmployees={employees}
             onClose={() => setShowAddModal(false)}
             onSubmit={handleAdd}
+            workExperiences={workExperiences}
+            setWorkExperiences={setWorkExperiences}
+            tempWork={tempWork}
+            setTempWork={setTempWork}
+            editingWorkIndex={editingWorkIndex}
+            setEditingWorkIndex={setEditingWorkIndex}
+            addWork={addWork}
+            saveWork={saveWork}
+            editWork={editWork}
+            cancelWorkEdit={cancelWorkEdit}
+            deleteWork={deleteWork}
+            isTempWorkValid={isTempWorkValid}
+            workDateError={workDateError}
+            validateWorkDates={validateWorkDates}
+            educationList={educationList}
+            setEducationList={setEducationList}
+            tempEduc={tempEduc}
+            setTempEduc={setTempEduc}
+            editingEducIndex={editingEducIndex}
+            setEditingEducIndex={setEditingEducIndex}
+            addEducation={addEducation}
+            saveEducation={saveEducation}
+            editEducation={editEducation}
+            cancelEducationEdit={cancelEducationEdit}
+            deleteEducation={deleteEducation}
+            isTempEducValid={isTempEducValid}
+            educDateError={educDateError}
+            setEducDateError={setEducDateError}
           />
         )}
 
@@ -339,6 +390,34 @@ export default function EmployeePage() {
             existingEmployees={employees}
             onClose={() => setShowEditModal(false)}
             onSubmit={handleEdit}
+            workExperiences={workExperiences}
+            setWorkExperiences={setWorkExperiences}
+            tempWork={tempWork}
+            setTempWork={setTempWork}
+            editingWorkIndex={editingWorkIndex}
+            setEditingWorkIndex={setEditingWorkIndex}
+            addWork={addWork}
+            saveWork={saveWork}
+            editWork={editWork}
+            cancelWorkEdit={cancelWorkEdit}
+            deleteWork={deleteWork}
+            isTempWorkValid={isTempWorkValid}
+            workDateError={workDateError}
+            validateWorkDates={validateWorkDates}
+            educationList={educationList}
+            setEducationList={setEducationList}
+            tempEduc={tempEduc}
+            setTempEduc={setTempEduc}
+            editingEducIndex={editingEducIndex}
+            setEditingEducIndex={setEditingEducIndex}
+            addEducation={addEducation}
+            saveEducation={saveEducation}
+            editEducation={editEducation}
+            cancelEducationEdit={cancelEducationEdit}
+            deleteEducation={deleteEducation}
+            isTempEducValid={isTempEducValid}
+            educDateError={educDateError}
+            setEducDateError={setEducDateError}
           />
         )}
       </div>

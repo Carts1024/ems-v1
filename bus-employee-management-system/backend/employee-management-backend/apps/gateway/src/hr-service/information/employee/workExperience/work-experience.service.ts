@@ -61,7 +61,7 @@ export class WorkExperienceService {
   async update(id: number, dto: UpdateWorkExperienceDto) {
     try {
       const response = await firstValueFrom(
-        this.httpService.put(
+        this.httpService.patch(
           `${this.HR_SERVICE_URL}/work-experience/${id}`,
           dto,
         ),

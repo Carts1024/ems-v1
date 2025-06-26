@@ -6,6 +6,7 @@ import styles from './InformationModal.module.css';
 import { useEmployeeModal, Employee } from './EmployeeModalLogic';
 import { useEmployeeRecords } from './EmployeeRecordsLogic';
 import { showConfirmation } from '@/app/utils/swal';
+import { WorkExperience, Education } from '@/types/employee';
 
 import PersonalSection from './sections/PersonalSection';
 import WorkEducationSection from './sections/WorkEducationSection';
@@ -13,6 +14,7 @@ import WorkGovSection from './sections/WorkGovSection';
 import SalaryBenefitsSection from './sections/SalaryBenefitsSection';
 import ExitLeaveSection from './sections/ExitLeaveSection';
 
+// ---- Fixed, fully typed props interface ----
 interface EmployeeModalProps {
   isEdit: boolean;
   isReadOnly?: boolean;
@@ -20,6 +22,38 @@ interface EmployeeModalProps {
   existingEmployees: Employee[];
   onClose: () => void;
   onSubmit: (employee: Employee) => void;
+
+  // Work Experience
+  workExperiences: WorkExperience[];
+  setWorkExperiences: (val: WorkExperience[]) => void;
+  tempWork: WorkExperience;
+  setTempWork: (val: WorkExperience) => void;
+  editingWorkIndex: number | null;
+  setEditingWorkIndex: (val: number | null) => void;
+  addWork: () => void;
+  saveWork: () => void;
+  editWork: (index: number) => void;
+  cancelWorkEdit: () => void;
+  deleteWork: (index: number) => void;
+  isTempWorkValid: boolean;
+  workDateError: { from?: string; to?: string };
+  validateWorkDates: (from: string, to: string) => void;
+
+  // Education
+  educationList: Education[];
+  setEducationList: (val: Education[]) => void;
+  tempEduc: Education;
+  setTempEduc: (val: Education) => void;
+  editingEducIndex: number | null;
+  setEditingEducIndex: (val: number | null) => void;
+  addEducation: () => void;
+  saveEducation: () => void;
+  editEducation: (index: number) => void;
+  cancelEducationEdit: () => void;
+  deleteEducation: (index: number) => void;
+  isTempEducValid: boolean;
+  educDateError?: string;
+  setEducDateError?: (val: string) => void;
 }
 
 const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
@@ -38,9 +72,8 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
     props.onClose
   );
 
-  const employeeRecords = useEmployeeRecords();
+  const employeeRecords = useEmployeeRecords(props.isEdit ? (props.defaultValue?.governmentIdList || []) : []);
   const [hasChanges, setHasChanges] = useState(false);
-  const { deductionList, benefitList } = employeeRecords;
 
   const handleChangeWrapper = (field: keyof Employee, value: string | string[]) => {
     if (!hasChanges && value !== props.defaultValue?.[field]) {
@@ -96,9 +129,35 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
         />
 
         <WorkEducationSection
-          {...employeeRecords}
-          workExperiences={employee.workExperiences}
-          educationList={employee.educationList}
+          workExperiences={props.workExperiences}
+          setWorkExperiences={props.setWorkExperiences}
+          tempWork={props.tempWork}
+          setTempWork={props.setTempWork}
+          editingWorkIndex={props.editingWorkIndex}
+          setEditingWorkIndex={props.setEditingWorkIndex}
+          addWork={props.addWork}
+          saveWork={props.saveWork}
+          editWork={props.editWork}
+          cancelWorkEdit={props.cancelWorkEdit}
+          deleteWork={props.deleteWork}
+          isTempWorkValid={props.isTempWorkValid}
+          workDateError={props.workDateError}
+          validateWorkDates={props.validateWorkDates}
+
+          educationList={props.educationList}
+          setEducationList={props.setEducationList}
+          tempEduc={props.tempEduc}
+          setTempEduc={props.setTempEduc}
+          editingEducIndex={props.editingEducIndex}
+          setEditingEducIndex={props.setEditingEducIndex}
+          addEducation={props.addEducation}
+          saveEducation={props.saveEducation}
+          editEducation={props.editEducation}
+          cancelEducationEdit={props.cancelEducationEdit}
+          deleteEducation={props.deleteEducation}
+          isTempEducValid={props.isTempEducValid}
+          educDateError={props.educDateError}
+          setEducDateError={props.setEducDateError}
           isReadOnly={props.isReadOnly}
         />
 
@@ -110,7 +169,6 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
           handleChangeWrapper={handleChangeWrapper}
           isReadOnly={!!props.isReadOnly}
           governmentIdList={employee.governmentIdList ?? []}
-          
         />
 
         <h3>Salary Information</h3>

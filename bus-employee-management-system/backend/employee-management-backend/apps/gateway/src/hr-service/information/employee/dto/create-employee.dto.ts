@@ -12,7 +12,7 @@ import {
 export class CreateEmployeeDto {
   @IsString()
   @IsNotEmpty()
-  employeeNumber: string;
+  Id: string;
 
   @IsString()
   @IsNotEmpty()
@@ -80,7 +80,7 @@ export class CreateEmployeeDto {
 
   @IsDecimal()
   @IsOptional()
-  basicPay?: number | string;
+  basicRate?: number | string;
 
   @IsString()
   @IsOptional()

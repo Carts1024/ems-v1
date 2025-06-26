@@ -2,7 +2,7 @@ import {
   Controller,
   Post,
   Get,
-  Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -31,7 +31,7 @@ export class WorkExperienceController {
     return this.service.findOne(Number(id));
   }
 
-  @Put(':id')
+  @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateWorkExperienceDto) {
     return this.service.update(Number(id), dto);
   }

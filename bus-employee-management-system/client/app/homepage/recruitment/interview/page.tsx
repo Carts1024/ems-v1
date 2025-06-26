@@ -52,7 +52,7 @@ export default function InterviewScheduling() {
             value={interviewStatusFilter}
             onChange={(e) => setInterviewStatusFilter(e.target.value)}
           >
-            <option value="">Interview Status</option>
+            <option value="">All Interviews</option>
             <option value="Scheduled">Scheduled</option>
             <option value="Completed">Completed</option>
             <option value="Cancelled">Cancelled</option>

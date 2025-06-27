@@ -41,7 +41,6 @@ const DepartmentPage = () => {
         <h1 className={styles.title}>Department List</h1>
 
         <div className={styles.headerSection}>
-
           {/* Search */}
           <div className={styles.search}>
             <i className='ri-search-line' />
@@ -54,22 +53,27 @@ const DepartmentPage = () => {
           </div>
 
           {/* Sort by No. of Employees */}
-          <label>Sort by</label>
-          <select
-            className={styles.filterDropdown}
-            onChange={(e) =>
-              handleApplyFilters({ sortBy: 'employees', order: e.target.value })
-            }
-          >
-            <option value="">No. of Employees</option>
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-          </select>
+          <div className={styles.sortWrapper}>
+            <label htmlFor="sortOrder">Sort by</label>
+            <select
+              id="sortOrder"
+              className={styles.filterDropdown}
+              onChange={(e) =>
+                handleApplyFilters({ sortBy: 'employees', order: e.target.value })
+              }
+            >
+              <option value="">No. of Employees</option>
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </div>
 
-          <button onClick={() => setShowAddModal(true)} className={styles.addDepartmentButton}>
-            <i className='ri-add-line' />
-            Add Department
-          </button>
+          <div className={styles.buttonWrapper}>
+            <button onClick={() => setShowAddModal(true)} className={styles.addDepartmentButton}>
+              <i className='ri-add-line' />
+              Add Department
+            </button>
+          </div>
         </div>
 
         <div className={styles.tableWrapper}>

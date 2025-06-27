@@ -66,9 +66,9 @@ const PositionsPage = () => {
             </thead>
             <tbody>
               {paginatedPositions.map((pos, index) => (
-                <tr key={pos.name}>
+                <tr key={pos.positionName}>
                   <td>{(currentPage - 1) * pageSize + index + 1}</td>
-                  <td>{pos.name}</td>
+                  <td>{pos.positionName}</td>
                   <td>{pos.department}</td>
                   <td className={styles.actionCell}>
                     <button
@@ -92,7 +92,7 @@ const PositionsPage = () => {
                         <button
                           className={styles.deleteButton}
                           onClick={() => {
-                            handleDeleteRequest(pos.name);
+                            handleDeleteRequest(pos.positionName);
                             toggleActionDropdown(null);
                           }}
                         >
@@ -121,7 +121,7 @@ const PositionsPage = () => {
         {showAddModal && (
           <PositionsModal
             isEdit={false}
-            existingPositions={positions.map(p => p.name)}
+            existingPositions={positions.map(p => p.positionName)}
             onClose={() => setShowAddModal(false)}
             onSubmit={handleAdd}
           />
@@ -130,9 +130,9 @@ const PositionsPage = () => {
         {showEditModal && selectedPosition && (
           <PositionsModal
             isEdit={true}
-            defaultValue={selectedPosition.name}
+            defaultValue={selectedPosition.positionName}
             defaultDepartment={selectedPosition.department}
-            existingPositions={positions.map(p => p.name)}
+            existingPositions={positions.map(p => p.positionName)}
             onClose={() => setShowEditModal(false)}
             onSubmit={handleEdit}
           />

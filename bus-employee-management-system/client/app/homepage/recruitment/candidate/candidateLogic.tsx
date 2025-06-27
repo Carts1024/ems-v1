@@ -9,16 +9,22 @@ export interface Candidate {
   firstName: string;
   middleName: string;
   lastName: string;
+  suffix: string;
   birthdate: string;
   email: string;
   contact: string;
-  address: string;
-  position: string;
-  department: string;
-  applicationDate: string;
+  streetAddress: string;
+  barangay: string;
+  city: string;
+  province: string;
+  country: string;
   applicationStatus: string;
-  interviewStatus: string;
+  applicationDate: string;
   sourceOfHire: string;
+  department: string;
+  position: string;
+  interviewStatus: string;
+  interviewDate: string;
 }
 
 export const useCandidateLogic = () => {
@@ -43,46 +49,22 @@ export const useCandidateLogic = () => {
       firstName: 'Juan',
       middleName: '',
       lastName: 'Dela Cruz',
+      suffix: '',
       birthdate: '22-11-1988',
       email: 'juan.delacruz@example.com',
       contact: '09171234567',
-      address: '123 Main St, Manila',
+      streetAddress: '',
+      barangay: '',
+      city: '',
+      province: '',
+      country: '',
       position: 'Driver',
       department: 'Operations',
       applicationDate: '2023-01-15',
       applicationStatus: 'Processing',
       interviewStatus: 'Scheduled',
+      interviewDate: '',
       sourceOfHire: 'Referral',
-    },
-    {
-      firstName: 'Mark',
-      middleName: '',
-      lastName: 'Reyes',
-      birthdate: '15-04-1995',
-      email: 'mark.reyes@example.com',
-      contact: '09181234567',
-      address: '456 Second St, Quezon City',
-      position: 'Supervisor',
-      department: 'Human Resource',
-      applicationDate: '2023-03-10',
-      applicationStatus: 'Pending',
-      interviewStatus: 'Not Scheduled',
-      sourceOfHire: 'Direct sourcing',
-    },
-    {
-      firstName: 'Ana',
-      middleName: '',
-      lastName: 'Santos',
-      birthdate: '03-07-2000',
-      email: 'ana.santos@example.com',
-      contact: '09221234567',
-      address: '789 Third St, Makati',
-      position: 'Warehouse Staff',
-      department: 'Inventory',
-      applicationDate: '2022-11-05',
-      applicationStatus: 'Processing',
-      interviewStatus: 'Not Scheduled',
-      sourceOfHire: 'Job boards',
     }
   ]);
 

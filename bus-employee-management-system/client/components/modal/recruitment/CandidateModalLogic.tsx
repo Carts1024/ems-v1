@@ -7,16 +7,22 @@ export interface Candidate {
   firstName: string;
   middleName: string;
   lastName: string;
+  suffix: string;
   birthdate: string;
   email: string;
   contact: string;
-  address: string;
+  streetAddress: string;
+  barangay: string;
+  city: string;
+  province: string;
+  country: string;
+  applicationStatus: string;
   applicationDate: string;
   sourceOfHire: string;
   department: string;
   position: string;
-  applicationStatus: string;
   interviewStatus: string;
+  interviewDate: string;
   feedback?: string;
 }
 
@@ -41,9 +47,10 @@ export const useCandidateModal = (
   onClose: () => void
 ) => {
   const [candidate, setCandidate] = useState<Candidate>({
-    firstName: '', middleName: '', lastName: '', birthdate: '',
-    email: '', contact: '', address: '', applicationStatus: '', applicationDate: '',
-    interviewStatus: '', sourceOfHire: '',department: '', position: '', ...defaultValue,
+    firstName: '', middleName: '', lastName: '', suffix:'', birthdate: '',
+    email: '', contact: '', streetAddress: '', barangay: '', city: '', province: '', country:'',
+    applicationStatus: '', applicationDate: '', sourceOfHire: '',department: '', position: '',
+    interviewStatus: '', interviewDate: '', ...defaultValue,
   });
 
   const [fieldErrors, setFieldErrors] = useState<{ [key in keyof Candidate]?: string }>({});
@@ -55,7 +62,13 @@ export const useCandidateModal = (
     if (!candidate.birthdate || !isAtLeast18(candidate.birthdate)) errors.birthdate = 'Must be atleast 18 years old.';
     if (!candidate.email || !isValidEmail(candidate.email)) errors.email = 'Invalid email format.';
     if (!isValidContact(candidate.contact) || !isValidPhilippineContact(candidate.contact)) errors.contact = 'Invalid format.';
-    if (!candidate.address) errors.address = 'Required';
+    if (!candidate.streetAddress) errors.streetAddress = 'Required';
+    if (!candidate.barangay) errors.barangay = 'Required';
+    if (!candidate.city) errors.city = 'Required';
+    if (!candidate.province) errors.province = 'Required';
+    if (!candidate.country) errors.country = 'Required';
+    if (!candidate.interviewStatus) errors.interviewStatus = 'Required';
+    if (!candidate.interviewDate) errors.interviewDate = 'Required';
     if (!candidate.applicationStatus) errors.applicationStatus = 'Required';
     if (!candidate.applicationDate || !isValidapplicationDate(candidate.applicationDate)) errors.applicationDate = 'Application Date cannot be a future date.';
     if (!candidate.sourceOfHire) errors.sourceOfHire = 'Required';

@@ -3,7 +3,7 @@
   height: 100%;
 }
 
-.benefitsContainer {
+.leaveContainer { /* RAINE to do: apply to other pages */
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -45,9 +45,10 @@
   height: 35px; 
   padding-right: 0 8px; 
   font-size: 14px; 
+  padding-left: 10px;
 }
 
-.addBenefitsButton {
+.addLeaveButton {
   width: 160px; 
   height: 35px; 
   display: flex; 
@@ -64,7 +65,7 @@
   cursor: pointer;
 }
 
-.addBenefitsButton:hover {
+.addDepartmentButton:hover {
   background-color: #571415;
 }
 
@@ -87,13 +88,20 @@
   padding: 0.5rem;
 }
 
+.searchAndFilterContainer {
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+}
+
 .firstColumn {
   width: 75px;
 }
 
 /* ==================================== */
 /* Table Styling */
-.tableWrapper {
+
+.tableWrapper { /* RAINE to do: apply to other pages */
   flex: 1; 
   overflow-y: auto;
   overflow-x: hidden;
@@ -105,8 +113,8 @@
 
 /* Custom Scrollbar Styles for WebKit (Chrome, Safari, Edge) */
 .tableWrapper::-webkit-scrollbar {
-  width: 8px; /* Vertical scrollbar width */
-  height: 8px; /* Horizontal scrollbar height */
+  width: 8px; 
+  height: 8px;
 }
 
 .tableWrapper::-webkit-scrollbar-track {
@@ -131,7 +139,7 @@
 }
 
 
-.benefitsTable {
+.leaveTable {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
@@ -139,13 +147,16 @@
   table-layout: auto;
   color: #404040;
   border-collapse: collapse;
+  overflow-y: auto;
+  overflow-x: auto;
 }
 
-.benefitsTable thead {
+.leaveTable thead {
   background-color: #f2f2f2;
 }
 
-.benefitsTable thead th {
+/* RAINE EDIT */
+.leaveTable thead th {
   position: sticky;
   top: 0;
   padding: 12px 15px;
@@ -161,32 +172,38 @@
   height: 60px;
   z-index: 10;
 }
-.benefitsTable thead.tr:hover {
+.leaveTable thead.tr:hover {
   background-color: red;
 }
-/* Flexible column sizing. Adjust percentages as needed. */
-.benefitsTable thead th:nth-child(1) { width: 5%; } /* No. */
-.benefitsTable thead th:nth-child(2) { width: 85%; } /* Benefit Name */
-.benefitsTable thead th:nth-child(3) { width: 10%; } /* Actions */
+/* Flexible column sizing */
+.leaveTable thead th:nth-child(1) { width: 5%; } /* No. */
+.leaveTable thead th:nth-child(2) { width: 20%; } /* Employee Name */
+.leaveTable thead th:nth-child(3) { width: 10%; } /* Leave Type */
+.leaveTable thead th:nth-child(4) { width: 10%; } /* Start Date (adjusted to make space) */
+.leaveTable thead th:nth-child(5) { width: 10%; } /* End Date (adjusted to make space) */
+.leaveTable thead th:nth-child(6) { width: 10%; } /* Status */
+.leaveTable thead th:nth-child(7) { width: 15%; } /* Time Added */
+.leaveTable thead th:nth-child(8) { width: 15%; } /* Time Modified */
+.leaveTable thead th:nth-child(9) { width: 15%; } /* Actions */
 
-.benefitsTable thead th:first-child {
+.leaveTable thead th:first-child {
   border-top-left-radius: 6px;
 }
 
-.benefitsTable thead th:last-child {
+.leaveTable thead th:last-child {
   border-top-right-radius: 6px;
 }
 
-.benefitsTable tbody tr {
+.leaveTable tbody tr {
   transition: background-color 0.2s;
   overflow: visible; 
 }
 
-.benefitsTable tbody tr:nth-child(even) {
+.leaveTable tbody tr:nth-child(even) {
   background-color: #fafafa;
 }
 
-.benefitsTable tbody tr:hover {
+.leaveTable tbody tr:hover {
   background-color: #f1f1f1;
     color: black;
 
@@ -199,37 +216,38 @@ td.truncate {
 }
 
 
-.benefitsTable tbody td {
+.leaveTable tbody td {
   padding: 12px 15px;
   text-align: center;
   border-bottom: 1px solid #eee;
-  white-space: normal; /* Allow text wrapping for body cells */
+  white-space: normal; 
   text-overflow: ellipsis;
 }
 
 /* Action Icons */
 .actionCell {
-  position: relative; /* Keep this if you want the button to be centered/styled within the TD */
+  position: relative; /* center bbuttons */
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: visible; 
+  padding: 8px 0;
 }
 
 .mainActionButton {
-  min-width: 40px;
-  min-height: 40px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
-  font-size: 20px; 
+  font-size: 18px;
   border: none;
   border-radius: 6px;
-  background-color: #eee; 
-  color: #333; 
+  background-color: #eee;
+  color: #333;
   cursor: pointer;
   transition: background-color 0.2s;
+  position: relative;
 }
 
 .mainActionButton:hover {
@@ -243,14 +261,14 @@ td.truncate {
   border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  z-index: 10000; 
+  z-index: 5; 
   display: flex;
   flex-direction: column;
   gap: 5px;
   padding: 8px;
   min-width: 50px; 
   white-space: nowrap;
-  top: 60px; /*dropdown below the main action button*/
+  top: 45px; /*dropdown below the main action button*/
   /* right: 70px; drop down on the left side of the main action button*/
 }
 
@@ -272,11 +290,34 @@ td.truncate {
 .viewButton { background-color: #13CE66; }
 .viewButton:hover { background-color: #12B75C; }
 
-.feedbackButton { background-color: #FFCC3D; }
-.feedbackButton:hover { background-color: #FFC107; }
-
 .editButton { background-color: #2D8EFF; }
 .editButton:hover { background-color: #267BDB; }
 
 .deleteButton { background-color: #FF4949; }
 .deleteButton:hover { background-color: #DE3939; }
+
+/* Status Badges */
+.leaveStatus {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+}
+
+.status-Rejected {
+  background-color: #f2dede;
+  color: #a94442;
+}
+
+.status-Pending {
+  background-color: #d9edf7;
+  color: #31708f;
+}
+
+.status-Approved {
+  background-color: #D1F7D1;
+  color: #23915F;
+}

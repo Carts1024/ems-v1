@@ -1,17 +1,27 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useState } from 'react';
 import { showConfirmation, showSuccess, showError } from '@/app/utils/swal';
 
+
 export interface Employee {
+  id: any;
+  workExperiences: any[];
+  educationList: any[];
+  governmentIdList: any[];
+  benefitList: any[];
+  deductionList: any[];
   firstName: string;
   middleName: string;
   lastName: string;
+  suffix: string;
   birthdate: string;
   email: string;
   contact: string;
-  houseStreetBarangay: string;
+  houseStreet: string;
+  barangay: string;
   city: string;
   stateProvinceRegion: string;
   country: string;
@@ -20,9 +30,12 @@ export interface Employee {
   emergencyContactNo: string;
   status: string;
   dateHired: string;
-  department: string;
-  position: string;
-  basicPay: string;
+  employeeType: string;
+  employeeClassification: string,
+  department: string; // For display purposes
+  position: string; // For display purposes
+  positionId?: number; // For backend API
+  basicRate: string;
   govtIdType: string;
   govtIdNo: string;
   licenseType: string;
@@ -52,44 +65,68 @@ export const useEmployeeModal = (
   onSubmit: (employee: Employee) => void,
   onClose: () => void
 ) => {
-  const [employee, setEmployee] = useState<Employee>({
-    firstName: '',
-    middleName: '',
-    lastName: '',
-    birthdate: '',
-    email: '',
-    contact: '',
-    houseStreetBarangay: '',
-    city: '',
-    stateProvinceRegion: '',
-    country: '',
-    zipCode: '',
-    emergencyContactName: '',
-    emergencyContactNo: '',
-    status: '',
-    dateHired: '',
-    department: '',
-    position: '',
-    basicPay: '',
-    govtIdType: '',
-    govtIdNo: '',
-    licenseType: 'professional',
-    licenseNo: '',
-    restrictionCodes: [],
-    expireDate: '',
-    ...defaultValue,
-  });
+const [employee, setEmployee] = useState<Employee>({
+  workExperiences: [],
+  educationList: [],
+  governmentIdList: [],
+  benefitList: [],
+  deductionList: [],
+  id: '',
+  firstName: '',
+  middleName: '',
+  lastName: '',
+  suffix: '',
+  birthdate: '',
+  email: '',
+  contact: '',
+  houseStreet: '',
+  barangay: '',
+  city: '',
+  stateProvinceRegion: '',
+  country: '',
+  zipCode: '',
+  emergencyContactName: '',
+  emergencyContactNo: '',
+  status: '',
+  dateHired: '',
+  employeeType: '',
+  employeeClassification: '',
+  department: '',
+  position: '',
+  positionId: undefined, // Initialize positionId for backend
+  basicRate: '',
+  govtIdType: '',
+  govtIdNo: '',
+  licenseType: 'professional',
+  licenseNo: '',
+  restrictionCodes: [],
+  expireDate: '',
+  ...defaultValue,
+});
 
   const [fieldErrors, setFieldErrors] = useState<{ [key in keyof Employee]?: string }>({});
+  const [deductionList, setDeductionList] = useState<any[]>(defaultValue?.deductionList || []);
+  const [benefitList, setBenefitList] = useState<any[]>(defaultValue?.benefitList || []);
+  const formatCurrency = (amount: string) => {
+    const num = parseFloat(amount);
+    return isNaN(num)
+      ? ''
+      : num.toLocaleString('en-PH', {
+          style: 'currency',
+          currency: 'PHP',
+          minimumFractionDigits: 2,
+        });
+  };
 
   const validateInput = () => {
     const errors: typeof fieldErrors = {};
     if (!employee.firstName.trim()) errors.firstName = 'Required';
     if (!employee.lastName.trim()) errors.lastName = 'Required';
     if (!employee.birthdate || !isAtLeast18(employee.birthdate)) errors.birthdate = 'Must be at least 18 years old.';
-    if (!employee.email || !isValidEmail(employee.email)) errors.email = 'Invalid email format.';
+    if (employee.email && !isValidEmail(employee.email)) errors.email = 'Invalid email format.';
     if (!isValidContact(employee.contact) || !isValidPhilippineContact(employee.contact)) errors.contact = 'Invalid format.';
-    if (!employee.houseStreetBarangay) errors.houseStreetBarangay = 'Required';
+    if (!employee.houseStreet) errors.houseStreet = 'Required';
+    if (!employee.barangay) errors.barangay = 'Required';
     if (!employee.city) errors.city = 'Required';
     if (!employee.stateProvinceRegion) errors.stateProvinceRegion = 'Required';
     if (!employee.country) errors.country = 'Required';
@@ -98,10 +135,19 @@ export const useEmployeeModal = (
     if (!employee.emergencyContactNo || !/^(09)\d{9}$/.test(employee.emergencyContactNo)) errors.emergencyContactNo = 'Invalid format.';
     if (!employee.status) errors.status = 'Required';
     if (!employee.dateHired || !isValidDateHired(employee.dateHired)) errors.dateHired = 'Date Hired cannot be a future date.';
+    if (!employee.employeeType) errors.employeeType = 'Required';
+    if (!employee.employeeClassification) errors.employeeClassification = 'Required';
     if (!employee.department) errors.department = 'Required';
     if (!employee.position.trim()) errors.position = 'Required';
-    if (!employee.basicPay || isNaN(Number(employee.basicPay))) errors.basicPay = 'Required and must be numeric';
-    if (employee.expireDate && isPastDate(employee.expireDate)) errors.expireDate = 'Expiry date cannot be in the past.';
+    if (!employee.positionId) errors.position = 'Please select a valid position';
+
+    const pay = parseFloat(employee.basicRate);
+    if (!employee.basicRate || isNaN(pay) || pay < 0) {
+      errors.basicRate = 'Required and must be a non-negative number.';
+    } else {
+      employee.basicRate = pay.toFixed(2); // always store formatted decimal string
+    }
+
     if (!employee.licenseNo && employee.position.toLowerCase() === 'driver') errors.licenseNo = 'Required';
     if (employee.position.toLowerCase() === 'driver') {
       if (!employee.licenseNo) {
@@ -139,34 +185,58 @@ export const useEmployeeModal = (
     setFieldErrors(prev => ({ ...prev, [field]: undefined }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (governmentIds: any[] = []) => {
     const isValid = validateInput();
     if (!isValid) {
-      showError('Error', 'Please correct the errors in the form.');
+      showError('Error', 'Please correct the highlighted errors.');
       return;
     }
     if (isDuplicateEmployee()) {
       showError('Oops!', 'Employee already exists.');
       return;
     }
-    onSubmit(employee);
-    showSuccess('Success', 'Employee added successfully.');
-    onClose();
+    
+    try {
+      // Include government IDs in the employee object
+      const employeeWithGovIds = {
+        ...employee,
+        governmentIdList: governmentIds
+      };
+      
+      // Wait for the actual backend request to complete
+      await onSubmit(employeeWithGovIds);
+      // Success message and modal closing will be handled by the onSubmit function
+    } catch (error) {
+      // Error handling is done in the onSubmit function
+      console.error('Error in handleSubmit:', error);
+    }
   };
 
-  const handleUpdateConfirm = async () => {
+  const handleUpdateConfirm = async (governmentIds: any[] = []) => {
     const isValid = validateInput();
     if (!isValid) {
-      showError('Validation Error', 'Please correct the errors in the form.');
+      showError('Error', 'Please correct the highlighted errors.');
       return;
     }
     if (isDuplicateEmployee()) {
       showError('Oops!', 'Employee already exists.');
       return;
     }
-    onSubmit(employee);
-    showSuccess('Success', 'Employee added successfully.');
-    onClose();
+    
+    try {
+      // Include government IDs in the employee object
+      const employeeWithGovIds = {
+        ...employee,
+        governmentIdList: governmentIds
+      };
+      
+      // Wait for the actual backend request to complete
+      await onSubmit(employeeWithGovIds);
+      // Success message and modal closing will be handled by the onSubmit function
+    } catch (error) {
+      // Error handling is done in the onSubmit function
+      console.error('Error in handleUpdateConfirm:', error);
+    }
   };
 
   return {
@@ -174,6 +244,7 @@ export const useEmployeeModal = (
     fieldErrors,
     handleChange,
     handleSubmit,
-    handleUpdateConfirm
+    handleUpdateConfirm,
+    formatCurrency
   };
 };

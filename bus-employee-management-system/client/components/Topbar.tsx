@@ -68,20 +68,20 @@ const Topbar = () => {
   return (
     <div className="top-bar">
       <div className="top-links">
-        <a 
+        {/* <a 
           href="#" 
           className={`top-link ${activeLink === 'Dashboard' ? 'active' : ''}`}
           data-link="Dashboard"
         >
           Dashboard
-        </a>
-        <a 
+        </a> */}
+        {/* <a 
           href="#" 
           className={`top-link ${activeLink === 'Accounting' ? 'active' : ''}`}
           data-link="Accounting"
         >
           Accounting
-        </a>
+        </a> */}
         <a 
           href="#" 
           className={`top-link ${activeLink === 'Human Resource' ? 'active' : ''}`}
@@ -89,20 +89,20 @@ const Topbar = () => {
         >
           Human Resource
         </a>
-        <a 
+        {/* <a 
           href="#" 
           className={`top-link ${activeLink === 'Inventory' ? 'active' : ''}`}
           data-link="Inventory"
         >
           Inventory
-        </a>
-        <a 
+        </a> */}
+        {/* <a 
           href="#" 
           className={`top-link ${activeLink === 'Operational' ? 'active' : ''}`}
           data-link="Operational"
         >
           Operational
-        </a>
+        </a> */}
         <div className="link-underline" ref={underlineRef}></div>
       </div>
     </div>

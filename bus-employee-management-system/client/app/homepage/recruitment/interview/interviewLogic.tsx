@@ -2,17 +2,14 @@
 'use client';
 
 import { useState, useMemo } from 'react'; // Import useMemo
-import { showSuccess, showConfirmation } from '@/app/utils/swal';
+import { showSuccess, showConfirmation, showWarning } from '@/app/utils/swal';
 import { FilterSection } from '@/components/ui/filterDropdown';
 
 export interface InterviewSchedule {
+  interviewStatus: 'Scheduled' | 'Completed' | 'Cancelled';
   candidateName: string;
-  position: string;
   interviewDate: string;
   interviewTime: string;
-  interviewer: string;
-  interviewStatus: 'Not Scheduled' | 'Scheduled' | 'Completed' | 'Cancelled';
-  notes?: string;
 }
 
 export const InterviewLogic = () => {
@@ -32,49 +29,21 @@ export const InterviewLogic = () => {
 
   const [interviewSchedules, setInterviewSchedules] = useState<InterviewSchedule[]>([
     {
-      candidateName: 'Juan Dela Cruz',
-      position: 'Driver',
-      interviewDate: '2023-01-20',
-      interviewTime: '10:00 AM',
-      interviewer: 'Maria Santos',
       interviewStatus: 'Scheduled',
-      notes: 'Initial interview for driving skills.'
+      candidateName: 'Juan Dela Cruz',
+      interviewDate: '2023-01-20',
+      interviewTime: '10:00 AM'
     },
     {
+      interviewStatus: 'Cancelled',
       candidateName: 'Mark Reyes',
-      position: 'Supervisor',
       interviewDate: '2023-03-15',
       interviewTime: '02:00 PM',
-      interviewer: 'Ricardo Lim',
-      interviewStatus: 'Not Scheduled',
-      notes: 'Follow-up interview for management experience.'
-    },
-    {
-      candidateName: 'Ana Santos',
-      position: 'Warehouse Staff',
-      interviewDate: '2022-11-10',
-      interviewTime: '09:00 AM',
-      interviewer: 'Jose Rizal',
-      interviewStatus: 'Completed',
-      notes: 'Final interview, awaiting feedback.'
-    },
-    {
-      candidateName: 'Roberto Chua',
-      position: 'Dispatcher',
-      interviewDate: '2023-05-25',
-      interviewTime: '11:00 AM',
-      interviewer: 'Maria Santos',
-      interviewStatus: 'Scheduled',
-      notes: 'Interview for logistics coordination.'
-    },
+    }
   ]);
 
   // This state will be updated by handleApplyFilters and acts as the base for text filtering and pagination
   const [filteredSchedulesAfterAdvancedFilters, setFilteredSchedulesAfterAdvancedFilters] = useState<InterviewSchedule[]>(interviewSchedules);
-
-  // Derived unique options for filters (using useMemo for efficiency)
-  const uniquePositions = useMemo(() => Array.from(new Set(interviewSchedules.map(schedule => schedule.position))), [interviewSchedules]);
-  const uniqueInterviewers = useMemo(() => Array.from(new Set(interviewSchedules.map(schedule => schedule.interviewer))), [interviewSchedules]);
 
   const filterSections: FilterSection[] = [
     {
@@ -84,24 +53,12 @@ export const InterviewLogic = () => {
       defaultValue: { from: "", to: "" }
     },
     {
-      id: "position",
-      title: "Position",
-      type: "checkbox",
-      options: uniquePositions.map(pos => ({ id: pos.toLowerCase(), label: pos }))
-    },
-    {
-      id: "interviewer",
-      title: "Interviewer",
-      type: "checkbox",
-      options: uniqueInterviewers.map(interviewer => ({ id: interviewer.toLowerCase(), label: interviewer }))
-    },
-    {
       id: "sortBy",
       title: "Sort By",
       type: "radio",
       options: [
-        { id: "name", label: "Candidate Name" },
-        { id: "date", label: "Interview Date" }
+        { id: "name", label: "Name" },
+        { id: "date", label: "Date" }
       ],
       defaultValue: "name"
     },
@@ -119,16 +76,6 @@ export const InterviewLogic = () => {
 
   const handleApplyFilters = (filterValues: Record<string, any>) => {
     let newData = [...interviewSchedules]; // Start with the full list
-
-    // Position
-    if (filterValues.position && filterValues.position.length > 0) {
-      newData = newData.filter(item => filterValues.position.includes(item.position.toLowerCase()));
-    }
-
-    // Interviewer
-    if (filterValues.interviewer && filterValues.interviewer.length > 0) {
-      newData = newData.filter(item => filterValues.interviewer.includes(item.interviewer.toLowerCase()));
-    }
 
     // Interview Date Range
     const fromDate = filterValues.interviewDateRange?.from ? new Date(filterValues.interviewDateRange.from) : null;
@@ -174,23 +121,78 @@ export const InterviewLogic = () => {
 
 
   const handleAdd = (newSchedule: InterviewSchedule) => {
+    // Check for same date and time conflict
+    const dateTimeConflict = interviewSchedules.some(
+      (s) =>
+        s.interviewDate === newSchedule.interviewDate &&
+        s.interviewTime === newSchedule.interviewTime
+    );
+
+    if (dateTimeConflict) {
+      showWarning('Oops!', 'An interview is already scheduled at that same date and time.');
+      return;
+    }
+
+    // Check for duplicate candidate unless previous status is 'Cancelled'
+    const existingActive = interviewSchedules.find(
+      (s) =>
+        s.candidateName.toLowerCase() === newSchedule.candidateName.toLowerCase() &&
+        s.interviewStatus !== 'Cancelled'
+    );
+
+    if (existingActive) {
+      showWarning('Oops!', 'This candidate already scheduled or completed an interview.');
+      return;
+    }
+
     const updatedList = [...interviewSchedules, newSchedule];
     setInterviewSchedules(updatedList);
-    setFilteredSchedulesAfterAdvancedFilters(updatedList); // Update the base for filtering
+    setFilteredSchedulesAfterAdvancedFilters(updatedList);
     showSuccess('Success', 'Interview scheduled successfully.');
   };
 
   const handleEdit = (updatedSchedule: InterviewSchedule) => {
     if (!selectedInterview) return;
+
+    const isSameSchedule = (
+      a: InterviewSchedule,
+      b: InterviewSchedule
+    ) =>
+      a.candidateName === b.candidateName &&
+      a.interviewDate === b.interviewDate &&
+      a.interviewTime === b.interviewTime;
+
+    // Check for date/time conflict with others
+    const dateTimeConflict = interviewSchedules.some(
+      (s) =>
+        !isSameSchedule(s, selectedInterview) &&
+        s.interviewDate === updatedSchedule.interviewDate &&
+        s.interviewTime === updatedSchedule.interviewTime
+    );
+
+    if (dateTimeConflict) {
+      showWarning('Oops!', 'Another interview is already scheduled at that time.');
+      return;
+    }
+
+    // Prevent duplicate interview for same candidate unless previous is cancelled
+    const existingActive = interviewSchedules.find(
+      (s) =>
+        !isSameSchedule(s, selectedInterview) &&
+        s.candidateName.toLowerCase() === updatedSchedule.candidateName.toLowerCase() &&
+        s.interviewStatus !== 'Cancelled'
+    );
+
+    if (existingActive) {
+      showWarning('Oops!', 'This candidate already scheduled or completed an interview.');
+      return;
+    }
+
     const updatedList = interviewSchedules.map((schedule) =>
-      schedule.candidateName === selectedInterview.candidateName &&
-      schedule.interviewDate === selectedInterview.interviewDate &&
-      schedule.interviewTime === selectedInterview.interviewTime
-        ? updatedSchedule
-        : schedule
+      isSameSchedule(schedule, selectedInterview) ? updatedSchedule : schedule
     );
     setInterviewSchedules(updatedList);
-    setFilteredSchedulesAfterAdvancedFilters(updatedList); // Update the base for filtering
+    setFilteredSchedulesAfterAdvancedFilters(updatedList);
     showSuccess('Success', 'Interview updated successfully.');
   };
 

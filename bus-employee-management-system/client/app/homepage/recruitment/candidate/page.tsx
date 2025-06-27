@@ -53,7 +53,7 @@ export default function CandidatePage() {
         {/* Application Status Filter */}
         <div className={styles.headerSection}>
           <select className={styles.statusfilterDropdown} value={applicationStatusFilter} onChange={(e) => setApplicationStatusFilter(e.target.value)}>
-            <option value="">Application Status</option>
+            <option value="">All Applications</option>
             <option value="Pending">Pending</option>
             <option value="Processing">Processing</option>
             <option value="Hired">Hired</option>
@@ -61,7 +61,7 @@ export default function CandidatePage() {
 
         {/* Interview Status Filter */}
           <select className={styles.statusfilterDropdown} value={interviewStatusFilter} onChange={(e) => setInterviewStatusFilter(e.target.value)}>
-            <option value="">Interview Status</option>
+            <option value="">All Interviews</option>
             <option value="Not Scheduled">Not Scheduled</option>
             <option value="Scheduled">Scheduled</option>
             <option value="Completed">Completed</option> {/* Corrected duplicated value */}
@@ -107,30 +107,37 @@ export default function CandidatePage() {
               </tr>
             </thead>
             <tbody>
-              {paginatedCandidates.map((c: Candidate, index: number) => (
-                <tr key={`${c.firstName}-${c.lastName}-${index}`}
-                >
-                  <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
-                  <td>{`${c.firstName} ${c.middleName} ${c.lastName}`}</td>
-                  <td>{c.position}</td>
-                  <td>{c.sourceOfHire}</td>
-                  <td>{c.applicationDate}</td>
-                  <td>{c.department}</td>
-                  <td>
-                    <span className={`${styles.applicationStatus} ${c.applicationStatus === 'Pending' ? styles['app-pending'] : c.applicationStatus === 'Processing' ? styles['app-processing'] : styles['app-hired']}`}>
-                      {c.applicationStatus}
-                    </span>
+              {paginatedCandidates.length === 0 ? (
+                <tr>
+                  <td colSpan={8} style={{ textAlign: 'center' }}>
+                    No records found.
                   </td>
-                  <td>
-                    <span className={`${styles.interviewStatus} ${
-                        c.interviewStatus === 'Scheduled' ? styles['interview-scheduled'] :
-                        c.interviewStatus === 'Not Scheduled' ? styles['interview-not-scheduled'] :
-                        c.interviewStatus === 'Completed' ? styles['interview-completed'] :
-                        styles['interview-cancelled']
-                      }`}>
-                      {c.interviewStatus}
-                    </span>
-                  </td>
+                </tr>
+              ) : (
+                paginatedCandidates.map((c: Candidate, index: number) => (
+                  <tr key={`${c.firstName}-${c.lastName}-${index}`}
+                  >
+                    <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
+                    <td>{`${c.firstName} ${c.middleName} ${c.lastName} ${c.suffix}`}</td>
+                    <td>{c.position}</td>
+                    <td>{c.sourceOfHire}</td>
+                    <td>{c.applicationDate}</td>
+                    <td>{c.department}</td>
+                    <td>
+                      <span className={`${styles.applicationStatus} ${c.applicationStatus === 'Pending' ? styles['app-pending'] : c.applicationStatus === 'Processing' ? styles['app-processing'] : styles['app-hired']}`}>
+                        {c.applicationStatus}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`${styles.interviewStatus} ${
+                          c.interviewStatus === 'Scheduled' ? styles['interview-scheduled'] :
+                          c.interviewStatus === 'Not Scheduled' ? styles['interview-not-scheduled'] :
+                          c.interviewStatus === 'Completed' ? styles['interview-completed'] :
+                          styles['interview-cancelled']
+                        }`}>
+                        {c.interviewStatus}
+                      </span>
+                    </td>
 
                   {/* ACTION COLUMN AND CELLS */}
                   <td className={styles.actionCell}>
@@ -183,7 +190,8 @@ export default function CandidatePage() {
                     {/* END OF ACTION COLUMN AND CELLS */}
                   </td>
                 </tr>
-              ))}
+              ))
+            )}
             </tbody>
           </table>
         </div>

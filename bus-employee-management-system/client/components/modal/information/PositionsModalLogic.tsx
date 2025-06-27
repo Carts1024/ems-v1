@@ -1,5 +1,7 @@
 'use client';
 
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import PositionsModalUI from './PositionsModal';
 import { showError, showSuccess, showConfirmation } from '@/app/utils/swal';
@@ -7,36 +9,31 @@ import { showError, showSuccess, showConfirmation } from '@/app/utils/swal';
 interface PositionsModalLogicProps {
   isEdit: boolean;
   defaultValue?: string;
-  defaultDepartment?: string;
+  defaultDepartmentId?: string;
   existingPositions: string[];
+  departmentOptions: { id: string; label: string }[];
   onClose: () => void;
-  onSubmit: (name: string, department: string) => void;
+  onSubmit: (name: string, departmentId: string) => void;
 }
-
-const departmentOptions = [
-  'Accounting',
-  'Human Resource',
-  'Inventory',
-  'Operational',
-];
 
 const PositionsModalLogic: React.FC<PositionsModalLogicProps> = ({
   isEdit,
   defaultValue = '',
-  defaultDepartment = '',
+  defaultDepartmentId = '',
   existingPositions,
+  departmentOptions,
   onClose,
   onSubmit,
 }) => {
   const [positionName, setPositionName] = useState(defaultValue);
-  const [department, setDepartment] = useState(defaultDepartment);
+  const [departmentId, setDepartmentId] = useState(defaultDepartmentId);
   const [error, setError] = useState('');
 
   useEffect(() => {
     setPositionName(defaultValue);
-    setDepartment(defaultDepartment);
+    setDepartmentId(defaultDepartmentId);
     setError('');
-  }, [defaultValue, defaultDepartment]);
+  }, [defaultValue, defaultDepartmentId]);
 
   const validateInput = () => {
     const trimmed = positionName.trim();
@@ -44,7 +41,7 @@ const PositionsModalLogic: React.FC<PositionsModalLogicProps> = ({
       setError('Position name is required.');
       return false;
     }
-    if (!department) {
+    if (!departmentId) {
       setError('Department is required.');
       return false;
     }
@@ -62,7 +59,7 @@ const PositionsModalLogic: React.FC<PositionsModalLogicProps> = ({
 
   const handleSubmit = () => {
     if (!validateInput()) return;
-    onSubmit(positionName.trim(), department);
+    onSubmit(positionName.trim(), departmentId);
     showSuccess('Success', isEdit ? 'Position updated successfully.' : 'Position added successfully.');
     onClose();
   };
@@ -78,12 +75,12 @@ const PositionsModalLogic: React.FC<PositionsModalLogicProps> = ({
       isEdit={isEdit}
       positionName={positionName}
       setPositionName={setPositionName}
-      department={department}
-      setDepartment={setDepartment}
+      departmentId={departmentId}
+      setDepartmentId={setDepartmentId}
       error={error}
       onClose={onClose}
       onSubmit={isEdit ? handleUpdateConfirm : handleSubmit}
-      isSubmitDisabled={!positionName.trim() || !department}
+      isSubmitDisabled={!positionName.trim() || !departmentId}
       departmentOptions={departmentOptions}
     />
   );

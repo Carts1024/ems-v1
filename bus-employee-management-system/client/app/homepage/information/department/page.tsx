@@ -33,7 +33,23 @@ const DepartmentPage = () => {
     handleApplyFilters,
     openActionDropdownIndex,
     toggleActionDropdown,
+    loading,
+    operationLoading,
+    formatDateTime,
   } = DepartmentLogic();
+
+  if (loading) {
+    return (
+      <div className={styles.base}>
+        <div className={styles.departmentContainer}>
+          <div className={styles.loadingContainer}>
+            <div className={styles.spinner}></div>
+            <p>Loading departments...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.base}>
@@ -69,7 +85,11 @@ const DepartmentPage = () => {
           </div>
 
           <div className={styles.buttonWrapper}>
-            <button onClick={() => setShowAddModal(true)} className={styles.addDepartmentButton}>
+            <button 
+              onClick={() => setShowAddModal(true)} 
+              className={styles.addDepartmentButton}
+              disabled={operationLoading}
+            >
               <i className='ri-add-line' />
               Add Department
             </button>
@@ -83,51 +103,60 @@ const DepartmentPage = () => {
                 <th className={styles.firstColumn}>No.</th>
                 <th>Department Name</th>
                 <th>No. of Employees</th>
-                <th>Time Added</th>
-                <th>Time Modified</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {paginatedDepartments.map((dept, index) => (
-                <tr key={dept.name}>
-                  <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
-                  <td>{dept.name}</td>
-                  <td>{dept.employees}</td>
-                  <td>mm-dd-yyyy hh:mm</td>
-                  <td>mm-dd-yyyy hh:mm</td>
-                  <td className={styles.actionCell}>
-                    <button
-                      className={styles.mainActionButton}
-                      onClick={() => toggleActionDropdown(index)}
-                    >
-                      <i className="ri-more-2-fill" />
-                    </button>
-
-                    {openActionDropdownIndex === index && (
-                      <div className={styles.actionDropdown}>
-                        <button
-                          className={styles.editButton}
-                          onClick={() => {
-                            setSelectedDept(dept.name);
-                            setShowEditModal(true);
-                            toggleActionDropdown(null);
-                          }}
-                        > <i className='ri-edit-2-line' /> Edit
-                        </button>
-                        <button
-                          className={styles.deleteButton}
-                          onClick={() => {
-                            handleDeleteRequest(dept.name);
-                            toggleActionDropdown(null);
-                          }}
-                        > <i className='ri-delete-bin-line' /> Delete
-                        </button>
-                      </div>
-                    )}
+              {paginatedDepartments.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className={styles.noData}>
+                    No departments found
                   </td>
                 </tr>
-              ))}
+              ) : (
+                paginatedDepartments.map((dept, index) => (
+                  <tr key={dept.id}>
+                    <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
+                    <td>{dept.departmentName}</td>
+                    <td>{dept.employeeCount || 0}</td>
+                    <td className={styles.actionCell}>
+                      <button
+                        className={styles.mainActionButton}
+                        onClick={() => toggleActionDropdown(index)}
+                        disabled={operationLoading}
+                      >
+                        <i className="ri-more-2-fill" />
+                      </button>
+
+                      {openActionDropdownIndex === index && (
+                        <div className={styles.actionDropdown}>
+                          <button
+                            className={styles.editButton}
+                            onClick={() => {
+                              setSelectedDept(dept);
+                              setShowEditModal(true);
+                              toggleActionDropdown(null);
+                            }}
+                            disabled={operationLoading}
+                          > 
+                            <i className='ri-edit-2-line' /> Edit
+                          </button>
+                          <button
+                            className={styles.deleteButton}
+                            onClick={() => {
+                              handleDeleteRequest(dept);
+                              toggleActionDropdown(null);
+                            }}
+                            disabled={operationLoading}
+                          > 
+                            <i className='ri-delete-bin-line' /> Delete
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -147,19 +176,24 @@ const DepartmentPage = () => {
         {showAddModal && (
           <DepartmentModal
             isEdit={false}
-            existingDepartments={departments.map((d) => d.name)}
+            existingDepartments={departments}
             onClose={() => setShowAddModal(false)}
             onSubmit={handleAdd}
+            isLoading={operationLoading}
           />
         )}
 
-        {showEditModal && (
+        {showEditModal && selectedDept && (
           <DepartmentModal
             isEdit={true}
-            defaultValue={selectedDept}
-            existingDepartments={departments.map((d) => d.name)}
-            onClose={() => setShowEditModal(false)}
+            defaultDepartment={selectedDept}
+            existingDepartments={departments}
+            onClose={() => {
+              setShowEditModal(false);
+              setSelectedDept(null);
+            }}
             onSubmit={handleEdit}
+            isLoading={operationLoading}
           />
         )}
       </div>

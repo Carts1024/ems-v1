@@ -1,29 +1,54 @@
  
  
-import { useState, useMemo } from 'react';
-import { showSuccess, showConfirmation } from '@/app/utils/swal';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { showSuccess, showConfirmation, showError } from '@/app/utils/swal';
 
 export interface Benefits {
+  id: number;
   name: string;
   description: string;
 }
 
 export const BenefitsLogic = () => {
-  const [benefits, setBenefits] = useState<Benefits[]>([
-    { name: 'Service Incentive Leave (SIL)', description: 'Service Incentive Leave (SIL) Benefit' },
-    { name: 'Holiday', description: 'Holiday Pay' },
-    { name: '13th-month Pay', description: '13th Month Pay' },
-    { name: 'Safety', description: 'Safety Benefit' },
-  ]);
-
+  const [benefits, setBenefits] = useState<Benefits[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [operationLoading, setOperationLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedBenefit, setSelectedBenefit] = useState<Benefits | null>(null);
   const [openActionDropdownIndex, setOpenActionDropdownIndex] = useState<number | null>(null);
 
+  // ---- API URL ----
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  // ---- Fetch Benefits Function ----
+  const fetchBenefits = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_URL}/benefit/types`);
+      if (!res.ok) throw new Error('Failed to fetch benefit types');
+      
+      const data = await res.json();
+      setBenefits(data);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching benefit types:', err);
+      showError('Error', 'Failed to fetch benefit types');
+      setLoading(false);
+    }
+  }, [API_URL]);
+
+  // ---- Fetch data on mount ----
+  useEffect(() => {
+    fetchBenefits();
+  }, [fetchBenefits]);
+
   const filteredBenefits = useMemo(() => {
-    return benefits.filter(b => b.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    return benefits.filter(b => 
+      b.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      b.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   }, [benefits, searchTerm]);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,38 +61,114 @@ export const BenefitsLogic = () => {
 
   const totalPages = Math.ceil(filteredBenefits.length / pageSize);
 
-  const handleAdd = (name: string, description: string) => {
-    const newBenefit = {
-      name,
-      description: description.trim() || 'No description',
-    };
-    const updated = [...benefits, newBenefit];
-    setBenefits(updated);
-    showSuccess('Success', 'Benefit added successfully.');
+  const handleAdd = async (name: string, description: string) => {
+    if (operationLoading) return;
+    
+    try {
+      setOperationLoading(true);
+
+      const newBenefitData = {
+        name: name.trim(),
+        description: description.trim() || 'No description'
+      };
+
+      const res = await fetch(`${API_URL}/benefit/types`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newBenefitData),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to create benefit type');
+      }
+
+      await res.json(); // Consume response
+      showSuccess('Success', 'Benefit type added successfully.');
+      
+      // Refresh benefits list
+      await fetchBenefits();
+      setShowAddModal(false);
+    } catch (error) {
+      console.error('Error creating benefit type:', error);
+      showError('Error', (error as Error).message || 'Failed to create benefit type');
+    } finally {
+      setOperationLoading(false);
+    }
   };
 
-  const handleEdit = (updatedName: string, updatedDescription: string) => {
-    if (!selectedBenefit) return;
+  const handleEdit = async (updatedName: string, updatedDescription: string) => {
+    if (!selectedBenefit || operationLoading) return;
+    
+    try {
+      setOperationLoading(true);
 
-    const updatedList = benefits.map((b) =>
-      b.name === selectedBenefit.name
-        ? {
-            ...b,
-            name: updatedName,
-            description: updatedDescription.trim() || 'No description',
-          }
-        : b
+      const updateData = {
+        name: updatedName.trim(),
+        description: updatedDescription.trim() || 'No description'
+      };
+
+      const res = await fetch(`${API_URL}/benefit/types/${selectedBenefit.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateData),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to update benefit type');
+      }
+
+      showSuccess('Success', 'Benefit type updated successfully.');
+      
+      // Refresh benefits list
+      await fetchBenefits();
+      setShowEditModal(false);
+      setSelectedBenefit(null);
+    } catch (error) {
+      console.error('Error updating benefit type:', error);
+      showError('Error', (error as Error).message || 'Failed to update benefit type');
+    } finally {
+      setOperationLoading(false);
+    }
+  };
+
+  const handleDeleteRequest = async (benefit: Benefits) => {
+    if (operationLoading) return;
+    
+    const result = await showConfirmation(
+      `Are you sure you want to delete the benefit type "${benefit.name}"?<br/><small>This action cannot be undone.</small>`
     );
-    setBenefits(updatedList);
-    showSuccess('Success', 'Benefit updated successfully.');
-  };
-
-  const handleDeleteRequest = async (benefitName: string) => {
-    const result = await showConfirmation('Are you sure you want to delete this benefit?');
+    
     if (result.isConfirmed) {
-      const updatedList = benefits.filter(b => b.name !== benefitName);
-      setBenefits(updatedList);
-      showSuccess('Success', 'Benefit deleted successfully.');
+      try {
+        setOperationLoading(true);
+
+        const res = await fetch(`${API_URL}/benefit/types/${benefit.id}`, {
+          method: 'DELETE',
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || 'Failed to delete benefit type');
+        }
+
+        showSuccess('Success', 'Benefit type deleted successfully.');
+        
+        // Refresh benefits list
+        await fetchBenefits();
+        
+        // Close any open modals
+        if (selectedBenefit?.id === benefit.id) {
+          setShowEditModal(false);
+          setSelectedBenefit(null);
+        }
+      } catch (error) {
+        console.error('Error deleting benefit type:', error);
+        showError('Error', (error as Error).message || 'Failed to delete benefit type');
+      } finally {
+        setOperationLoading(false);
+      }
     }
   };
 
@@ -77,6 +178,8 @@ export const BenefitsLogic = () => {
 
   return {
     benefits,
+    loading,
+    operationLoading,
     searchTerm,
     setSearchTerm,
     showAddModal,

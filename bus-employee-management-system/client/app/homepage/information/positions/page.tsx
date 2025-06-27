@@ -27,6 +27,10 @@ const PositionsPage = () => {
     selectedPosition,
     setSelectedPosition,
     positions,
+    departments,
+    departmentOptions,
+    loading,
+    operationLoading,
     handleAdd,
     handleEdit,
     handleDeleteRequest,
@@ -49,80 +53,96 @@ const PositionsPage = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button onClick={() => setShowAddModal(true)} className={styles.addPositionsButton}>
+          <button 
+            onClick={() => setShowAddModal(true)} 
+            className={styles.addPositionsButton}
+            disabled={operationLoading}
+          >
             <i className='ri-add-line' />
             Add Position
           </button>
         </div>
 
-        <div className={styles.tableWrapper}>
-          <table className={styles.positionsTable}>
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th>Position</th>
-                <th>Department</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedPositions.map((pos, index) => (
-                <tr key={pos.positionName}>
-                  <td>{(currentPage - 1) * pageSize + index + 1}</td>
-                  <td>{pos.positionName}</td>
-                  <td>{pos.department}</td>
-                  <td className={styles.actionCell}>
-                    <button
-                      className={styles.mainActionButton}
-                      onClick={() => toggleActionDropdown(index)}
-                    >
-                      <i className="ri-more-2-fill" />
-                    </button>
-                    {openActionDropdownIndex === index && (
-                      <div className={styles.actionDropdown}>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <p>Loading positions...</p>
+          </div>
+        ) : (
+          <>
+            <div className={styles.tableWrapper}>
+              <table className={styles.positionsTable}>
+                <thead>
+                  <tr>
+                    <th>No.</th>
+                    <th>Position</th>
+                    <th>Department</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedPositions.map((pos, index) => (
+                    <tr key={pos.id}>
+                      <td>{(currentPage - 1) * pageSize + index + 1}</td>
+                      <td>{pos.positionName}</td>
+                      <td>{pos.department}</td>
+                      <td className={styles.actionCell}>
                         <button
-                          className={styles.editButton}
-                          onClick={() => {
-                            setSelectedPosition(pos);
-                            setShowEditModal(true);
-                            toggleActionDropdown(null);
-                          }}
+                          className={styles.mainActionButton}
+                          onClick={() => toggleActionDropdown(index)}
+                          disabled={operationLoading}
                         >
-                          <i className='ri-edit-2-line' /> Edit
+                          <i className="ri-more-2-fill" />
                         </button>
-                        <button
-                          className={styles.deleteButton}
-                          onClick={() => {
-                            handleDeleteRequest(pos.positionName);
-                            toggleActionDropdown(null);
-                          }}
-                        >
-                          <i className='ri-delete-bin-line' /> Delete
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                        {openActionDropdownIndex === index && (
+                          <div className={styles.actionDropdown}>
+                            <button
+                              className={styles.editButton}
+                              onClick={() => {
+                                setSelectedPosition(pos);
+                                setShowEditModal(true);
+                                toggleActionDropdown(null);
+                              }}
+                              disabled={operationLoading}
+                            >
+                              <i className='ri-edit-2-line' /> Edit
+                            </button>
+                            <button
+                              className={styles.deleteButton}
+                              onClick={() => {
+                                handleDeleteRequest(pos);
+                                toggleActionDropdown(null);
+                              }}
+                              disabled={operationLoading}
+                            >
+                              <i className='ri-delete-bin-line' /> Delete
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-        <PaginationComponent
-          currentPage={currentPage}
-          totalPages={totalPages}
-          pageSize={pageSize}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={(size) => {
-            setPageSize(size);
-            setCurrentPage(1);
-          }}
-        />
+            <PaginationComponent
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+            />
+          </>
+        )}
 
         {showAddModal && (
           <PositionsModal
             isEdit={false}
             existingPositions={positions.map(p => p.positionName)}
+            departmentOptions={departmentOptions}
             onClose={() => setShowAddModal(false)}
             onSubmit={handleAdd}
           />
@@ -132,8 +152,9 @@ const PositionsPage = () => {
           <PositionsModal
             isEdit={true}
             defaultValue={selectedPosition.positionName}
-            defaultDepartment={selectedPosition.department}
+            defaultDepartmentId={selectedPosition.departmentId?.toString() || ''}
             existingPositions={positions.map(p => p.positionName)}
+            departmentOptions={departmentOptions}
             onClose={() => setShowEditModal(false)}
             onSubmit={handleEdit}
           />

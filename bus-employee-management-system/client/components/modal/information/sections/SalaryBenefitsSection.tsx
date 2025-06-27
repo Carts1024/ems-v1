@@ -126,7 +126,7 @@ const SalaryBenefitsSection: React.FC<Props> = ({
                 <th>Type</th>
                 <th>Amount</th>
                 <th>Effective Date</th>
-                <th>End Date</th>
+                <th>End Date (Optional)</th>
                 <th>Status</th>
                 {!isReadOnly && <th>Actions</th>}
             </tr>
@@ -201,6 +201,7 @@ const SalaryBenefitsSection: React.FC<Props> = ({
                         type="date"
                         className={styles.tableInput}
                         value={tempDeduct.endDate}
+                        placeholder="Optional - leave blank for ongoing"
                         onChange={(e) => setTempDeduct({ ...tempDeduct, endDate: e.target.value })}
                         />
                         {deductFieldError.endDate && <p className={styles.errorText}>{deductFieldError.endDate}</p>}
@@ -233,7 +234,7 @@ const SalaryBenefitsSection: React.FC<Props> = ({
                     <td>{d.type}</td>
                     <td>{d.amount}</td>
                     <td>{d.effectiveDate}</td>
-                    <td>{d.endDate}</td>
+                    <td>{d.endDate || 'Ongoing'}</td>
                     <td>{d.status}</td>
                     {!isReadOnly && (
                         <td className={styles.actionCell}>

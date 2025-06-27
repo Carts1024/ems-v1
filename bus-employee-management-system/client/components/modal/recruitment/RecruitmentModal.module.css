@@ -229,6 +229,18 @@ select.inputField {
   background-color: #571415;
 }
 
+.scheduleRow {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.scheduleColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .actionCell {
   display: flex;
   align-items: center;

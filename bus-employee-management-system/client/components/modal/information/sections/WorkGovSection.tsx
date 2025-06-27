@@ -3,6 +3,7 @@ import React from 'react';
 import styles from '../InformationModal.module.css';
 import { Employee } from '../EmployeeModalLogic';
 import { GovernmentID } from '@/types/employee';
+import { formatDate } from '@/app/utils/dateUtils';
 
 // Define GovIdErrors type locally since it's not exported
 interface GovIdErrors {
@@ -282,8 +283,8 @@ const WorkGovSection: React.FC<WorkGovSectionProps> = ({
                     <>
                       <td>{id.idType}</td>
                       <td>{id.idNumber ? id.idNumber.replace(/.(?=.{4})/g, '*') : ''}</td>
-                      <td>{id.issuedDate}</td>
-                      <td>{id.expiryDate}</td>
+                      <td>{formatDate(id.issuedDate) || id.issuedDate || ''}</td>
+                      <td>{formatDate(id.expiryDate) || id.expiryDate || ''}</td>
                       <td>
                         <span className={`${styles.statusBadge} ${styles[calculateIdStatus(id.issuedDate, id.expiryDate).toLowerCase()]}`}>
                           {calculateIdStatus(id.issuedDate, id.expiryDate)}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { showConfirmation, showSuccess } from '@/app/utils/swal';
+import { formatDate } from '@/app/utils/dateUtils';
 
 // Types
 interface WorkExperience {
@@ -162,7 +163,11 @@ export const useCandidateRecords = () => {
 
   const editEducation = (index: number) => {
     setEditingEducIndex(index);
-    setTempEduc(educationList[index]);
+    const selectedEducation = educationList[index];
+    setTempEduc({
+      ...selectedEducation,
+      completionDate: formatDate(selectedEducation.completionDate) || selectedEducation.completionDate || '',
+    });
   };
 
   const cancelEducationEdit = () => {

@@ -23,11 +23,11 @@ const BenefitsModalLogic: React.FC<BenefitsModalLogicProps> = ({
   onClose,
   onSubmit,
 }) => {
-  const [benefitsName, setBenefitsName] = useState(defaultValue);
+  const [name, setBenefitsName] = useState(defaultValue);
   const [description, setDescription] = useState(defaultDescription);
   const [error, setError] = useState('');
 
-  const trimmedName = benefitsName.trim();
+  const trimmedName = name.trim();
   const trimmedDescription = description.trim();
 
   useEffect(() => {
@@ -89,7 +89,7 @@ const BenefitsModalLogic: React.FC<BenefitsModalLogicProps> = ({
     <BenefitsModalUI
       isEdit={isEdit}
       isView={isView}
-      benefitsName={benefitsName}
+      name={name}
       setBenefitsName={setBenefitsName}
       description={description}
       setDescription={setDescription}

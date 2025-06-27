@@ -1,11 +1,14 @@
-import { IsString, IsOptional, IsBoolean, IsDateString } from 'class-validator';
+import {
+  IsNumber,
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsDateString,
+} from 'class-validator';
 
 export class CreateGovernmentIdDto {
-  @IsString()
-  employeeId: string;
-
-  @IsString()
-  type: string;
+  @IsNumber()
+  typeId: number;
 
   @IsString()
   idNumber: string;

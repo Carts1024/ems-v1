@@ -6,6 +6,7 @@ import { showSuccess, showConfirmation, showError } from '@/app/utils/swal';
 import { Employee } from '@/components/modal/information/EmployeeModalLogic';
 import { Education } from '@/types/employee';
 import { FilterSection } from '@/components/ui/filterDropdown';
+import { formatDate } from '@/app/utils/dateUtils';
 
 // --------- EmployeeLogic.tsx ---------
 export const EmployeeLogic = () => {
@@ -14,6 +15,8 @@ export const EmployeeLogic = () => {
   const [loading, setLoading] = useState(true);
   const [operationLoading, setOperationLoading] = useState(false); // For create/update/delete operations
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<any | null>(null);
@@ -33,6 +36,9 @@ export const EmployeeLogic = () => {
 
   // ---- Government ID Types State ----
   const [governmentIdTypes, setGovernmentIdTypes] = useState<{ id: number, name: string }[]>([]);
+
+  // ---- Roles State ----
+  const [roles, setRoles] = useState<{ id: number, name: string }[]>([]);
 
   // ---- Work Experience States ----
   const [workExperiences, setWorkExperiences] = useState<any[]>([]);
@@ -91,7 +97,7 @@ export const EmployeeLogic = () => {
       institution: selectedEducation?.institution || '',
       degree: selectedEducation?.degree || '',
       fieldOfStudy: selectedEducation?.fieldOfStudy || '',
-      endDate: selectedEducation?.endDate || '',
+      endDate: formatDate(selectedEducation?.endDate) || '',
       id: selectedEducation?.id
     });
   };
@@ -179,6 +185,331 @@ export const EmployeeLogic = () => {
   // ---- API URL ----
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+  // ---- CSV Import Functions ----
+  const parseCsvToEmployees = (csvContent: string): any[] => {
+    const lines = csvContent.trim().split('\n');
+    if (lines.length < 2) {
+      throw new Error('CSV file must contain at least a header row and one data row');
+    }
+
+    const headers = lines[0].split(',').map(h => h.trim());
+    const expectedHeaders = [
+      'employeeNumber', 'firstName', 'middleName', 'lastName', 'suffix', 'email', 
+      'birthdate', 'hiredate', 'phone', 'streetAddress', 'barangay', 'city', 
+      'province', 'country', 'zipCode', 'emergencyContactName', 'emergencyContactNo', 
+      'basicRate', 'licenseType', 'licenseNo', 'restrictionCodes', 'expireDate', 
+      'employeeStatus', 'employeeType', 'employeeClassification', 'terminationDate', 
+      'terminationReason', 'positionId'
+    ];
+
+    // Validate headers
+    const missingHeaders = expectedHeaders.filter(header => !headers.includes(header));
+    if (missingHeaders.length > 0) {
+      throw new Error(`Missing required headers: ${missingHeaders.join(', ')}`);
+    }
+
+    const employees: any[] = [];
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, '')); // Remove quotes
+      
+      if (values.length !== headers.length) {
+        throw new Error(`Row ${i + 1}: Expected ${headers.length} columns, got ${values.length}`);
+      }
+
+      const employee: any = {};
+      headers.forEach((header, index) => {
+        let value: string | null = values[index];
+        
+        // Handle empty values
+        if (value === '' || value === 'null' || value === 'NULL') {
+          value = null;
+        }
+        
+        // Parse specific fields
+        switch (header) {
+          case 'positionId':
+            employee[header] = value ? parseInt(value) : null;
+            break;
+          case 'basicRate':
+            employee[header] = value || '0';
+            break;
+          case 'restrictionCodes':
+            employee[header] = value ? value.split(';').map((code: string) => code.trim()) : [];
+            break;
+          case 'birthdate':
+          case 'hiredate':
+          case 'expireDate':
+          case 'terminationDate':
+            employee[header] = value || null;
+            break;
+          default:
+            employee[header] = value;
+        }
+      });
+
+      // Map CSV fields to expected employee object structure
+      const mappedEmployee = {
+        employeeNumber: employee.employeeNumber,
+        firstName: employee.firstName,
+        middleName: employee.middleName,
+        lastName: employee.lastName,
+        suffix: employee.suffix,
+        email: employee.email,
+        birthdate: employee.birthdate,
+        dateHired: employee.hiredate,
+        contact: employee.phone,
+        houseStreet: employee.streetAddress,
+        barangay: employee.barangay,
+        city: employee.city,
+        stateProvinceRegion: employee.province,
+        country: employee.country,
+        zipCode: employee.zipCode,
+        emergencyContactName: employee.emergencyContactName,
+        emergencyContactNo: employee.emergencyContactNo,
+        basicRate: employee.basicRate,
+        licenseType: employee.licenseType,
+        licenseNo: employee.licenseNo,
+        restrictionCodes: employee.restrictionCodes,
+        expireDate: employee.expireDate,
+        status: employee.employeeStatus,
+        employeeType: employee.employeeType,
+        employeeClassification: employee.employeeClassification,
+        terminationDate: employee.terminationDate,
+        terminationReason: employee.terminationReason,
+        positionId: employee.positionId,
+        // Default values for required fields not in CSV
+        governmentIdList: [], // Will need to be added manually or in separate import
+        benefitList: [],
+        deductionList: []
+      };
+
+      employees.push(mappedEmployee);
+    }
+
+    return employees;
+  };
+
+  const handleCsvImport = async (file: File) => {
+    if (!file) {
+      showError('Error', 'Please select a CSV file to import.');
+      return;
+    }
+
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+      showError('Error', 'Please select a valid CSV file.');
+      return;
+    }
+
+    try {
+      setImportLoading(true);
+      
+      const csvContent = await file.text();
+      const employeesToImport = parseCsvToEmployees(csvContent);
+      
+      console.log('Parsed employees from CSV:', employeesToImport);
+
+      // Validate positions exist
+      const invalidPositions = employeesToImport.filter((emp: any) => {
+        return emp.positionId && !positions.find((pos: any) => pos.id === emp.positionId);
+      });
+
+      if (invalidPositions.length > 0) {
+        const invalidIds = [...new Set(invalidPositions.map((emp: any) => emp.positionId))];
+        showError('Error', `Invalid position IDs found: ${invalidIds.join(', ')}. Please ensure all position IDs exist in the system.`);
+        return;
+      }
+
+      // Import each employee
+      let successCount = 0;
+      let errorCount = 0;
+      const errors: string[] = [];
+
+      for (let i = 0; i < employeesToImport.length; i++) {
+        try {
+          const employee = employeesToImport[i];
+          
+          // Transform for backend API
+          const transformedEmployee = {
+            firstName: employee.firstName,
+            middleName: employee.middleName,
+            lastName: employee.lastName,
+            suffix: employee.suffix,
+            email: employee.email,
+            birthdate: employee.birthdate,
+            hiredate: employee.dateHired,
+            phone: employee.contact,
+            streetAddress: employee.houseStreet,
+            barangay: employee.barangay,
+            city: employee.city,
+            province: employee.stateProvinceRegion,
+            zipCode: employee.zipCode,
+            country: employee.country,
+            emergencyContactName: employee.emergencyContactName,
+            emergencyContactNo: employee.emergencyContactNo,
+            basicRate: employee.basicRate,
+            licenseType: employee.licenseType,
+            licenseNo: employee.licenseNo,
+            restrictionCodes: employee.restrictionCodes,
+            expireDate: employee.expireDate ? new Date(employee.expireDate).toISOString() : null,
+            employeeStatus: employee.status?.toLowerCase() || 'active',
+            employeeType: employee.employeeType?.toLowerCase() || 'regular',
+            employeeClassification: employee.employeeClassification?.toLowerCase() || 'full-time',
+            positionId: employee.positionId,
+            terminationDate: employee.terminationDate,
+            terminationReason: employee.terminationReason,
+            // Empty arrays for required nested data - can be populated later
+            governmentIDs: []
+          };
+
+          const res = await fetch(`${API_URL}/employees`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(transformedEmployee),
+          });
+
+          if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.message || 'Failed to create employee');
+          }
+
+          const createdEmployee = await res.json();
+          
+          // Check if user account creation is needed (same logic as manual creation)
+          const qualifyingPositionIds = [1, 3, 6, 7, 10];
+          if (qualifyingPositionIds.includes(employee.positionId)) {
+            try {
+              await registerUserForEmployee(createdEmployee.id);
+            } catch (userError) {
+              console.warn(`User account creation failed for ${employee.firstName} ${employee.lastName}:`, userError);
+            }
+          }
+
+          successCount++;
+        } catch (error) {
+          errorCount++;
+          const employeeName = `${employeesToImport[i].firstName} ${employeesToImport[i].lastName}`;
+          errors.push(`Row ${i + 2}: ${employeeName} - ${(error as any).message}`);
+          console.error(`Error importing employee ${employeeName}:`, error);
+        }
+      }
+
+      // Refresh employees list
+      await fetchEmployees();
+      
+      // Show results
+      if (errorCount === 0) {
+        showSuccess('Import Successful', `Successfully imported ${successCount} employees.`);
+      } else if (successCount === 0) {
+        showError('Import Failed', `Failed to import all employees:\n${errors.join('\n')}`);
+      } else {
+        showError('Partial Import', `Imported ${successCount} employees successfully, ${errorCount} failed:\n${errors.join('\n')}`);
+      }
+
+      setShowImportModal(false);
+    } catch (error) {
+      console.error('CSV Import Error:', error);
+      showError('Import Error', (error as any).message || 'Failed to process CSV file');
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
+  const downloadCsvTemplate = () => {
+    const headers = [
+      'employeeNumber', 'firstName', 'middleName', 'lastName', 'suffix', 'email',
+      'birthdate', 'hiredate', 'phone', 'streetAddress', 'barangay', 'city',
+      'province', 'country', 'zipCode', 'emergencyContactName', 'emergencyContactNo',
+      'basicRate', 'licenseType', 'licenseNo', 'restrictionCodes', 'expireDate',
+      'employeeStatus', 'employeeType', 'employeeClassification', 'terminationDate',
+      'terminationReason', 'positionId'
+    ];
+
+    const sampleData = [
+      'EMP-2025-000001', 'Juan', 'Reyes', 'Dela Cruz', 'Jr.', 'juan.delacruz@example.com',
+      '1990-01-01', '2020-06-15', '09171234567', '123 Main St', 'Barangay Uno', 'Quezon City',
+      'Metro Manila', 'Philippines', '1100', 'Maria Dela Cruz', '09179876543',
+      '25000.00', 'Professional', 'DL-123456', 'A;B', '', 'active', 'regular', 'full-time', '', '', '1'
+    ];
+
+    const csvContent = [headers.join(','), sampleData.join(',')].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'employee_import_template.csv';
+    link.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  // ---- User Registration Function ----
+  const registerUserForEmployee = async (employeeId: number) => {
+    try {
+      // Fetch the newly created employee details
+      const employeeRes = await fetch(`${API_URL}/employees/${employeeId}`);
+      if (!employeeRes.ok) {
+        throw new Error('Failed to fetch employee details for user registration');
+      }
+      
+      const employee = await employeeRes.json();
+      
+      // Check if employee's positionId qualifies for user account creation
+      const qualifyingPositionIds = [1, 3, 6, 7, 10];
+      if (!qualifyingPositionIds.includes(employee.positionId)) {
+        return;
+      }
+      
+      // Map positionId to roleId based on the specified conditions
+      const positionToRoleMap: { [key: number]: number } = {
+        1: 2,
+        3: 3,
+        6: 4,
+        7: 5,
+        10: 6
+      };
+      
+      const roleId = positionToRoleMap[employee.positionId];
+      
+      // Additional validation: compare position name and role name for extra checking
+      const position = positions.find(pos => pos.id === employee.positionId);
+      const role = roles.find(r => r.id === roleId);
+      
+      // Prepare payload for auth/register endpoint
+      const userRegistrationPayload = {
+        employeeNumber: employee.employeeNumber,
+        firstName: employee.firstName,
+        // positionId: employee.positionId,
+        email: employee.email,
+        roleId: roleId
+      };
+      
+      // Validate required fields
+      if (!employee.email || employee.email.trim() === '') {
+        showError('Warning', 'Employee was created successfully, but user account creation was skipped due to missing email address.');
+        return;
+      }
+      
+      // Make POST request to auth/register endpoint
+      const authRes = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userRegistrationPayload),
+      });
+      
+      if (!authRes.ok) {
+        const errorData = await authRes.json();
+        throw new Error(errorData.message || 'Failed to create user account');
+      }
+      
+      const registeredUser = await authRes.json();
+      
+      showSuccess('Success', 'Employee created successfully and user account has been created for system access.');
+      
+    } catch (error) {
+      console.error('Error during user registration:', error);
+      showError('Warning', `Employee was created successfully, but user account creation failed: ${(error as any).message}`);
+    }
+  };
+
   // ---- Fetch Employees Function ----
   const fetchEmployees = useCallback(async () => {
     try {
@@ -208,7 +539,7 @@ export const EmployeeLogic = () => {
     fetchEmployees();
   }, [fetchEmployees]);
 
-  // ---- Fetch Departments, Positions & Government ID Types ----
+  // ---- Fetch Departments, Positions, Government ID Types & Roles ----
   useEffect(() => {
     fetch(`${API_URL}/departments`)
       .then(res => res.json())
@@ -219,9 +550,25 @@ export const EmployeeLogic = () => {
       .then(data => setPositions(data))
       .catch(() => setPositions([]));
     fetch(`${API_URL}/government-id-type`)
+      .then(res => {
+        console.log('Government ID Types response status:', res.status);
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log('Government ID Types data:', data);
+        setGovernmentIdTypes(data);
+      })
+      .catch(error => {
+        console.error('Error fetching government ID types:', error);
+        setGovernmentIdTypes([]);
+      });
+    fetch(`${API_URL}/roles`)
       .then(res => res.json())
-      .then(data => setGovernmentIdTypes(data))
-      .catch(() => setGovernmentIdTypes([]));
+      .then(data => setRoles(data))
+      .catch(() => setRoles([]));
   }, [API_URL]);
 
   // ---- Dynamic Position Filtering ----
@@ -235,6 +582,11 @@ export const EmployeeLogic = () => {
       setFilteredPositions([]);
     }
   }, [selectedDepartmentId, positions]);
+
+  // Reset pagination when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, departmentFilter, positionFilter]);
 
   // Handle department change
   const handleDepartmentChange = (departmentId: number) => {
@@ -336,15 +688,26 @@ export const EmployeeLogic = () => {
     setFilteredEmployees(newData);
   };
 
-  const filteredByText = filteredEmployees.filter(emp => {
-    const fullName = `${emp.firstName} ${emp.middleName || ''} ${emp.lastName}`.toLowerCase();
-    return (
-      (!statusFilter || emp.status === statusFilter) &&
-      (!departmentFilter || emp.departmentName === departmentFilter) &&
-      (!positionFilter || emp.positionName === positionFilter) &&
-      (!searchTerm || fullName.includes(searchTerm.toLowerCase()))
-    );
-  });
+  // Apply all filters including search term, status filter, department filter, and position filter
+  const filteredByAllCriteria = useMemo(() => {
+    return filteredEmployees.filter(emp => {
+      const fullName = `${emp.firstName} ${emp.middleName || ''} ${emp.lastName}`.toLowerCase();
+      const searchableText = [
+        fullName,
+        emp.employeeNumber || '',
+        emp.email || '',
+        emp.departmentName || '',
+        emp.positionName || ''
+      ].join(' ').toLowerCase();
+      
+      return (
+        (!statusFilter || emp.status === statusFilter) &&
+        (!departmentFilter || emp.departmentName === departmentFilter) &&
+        (!positionFilter || emp.positionName === positionFilter) &&
+        (!searchTerm || searchableText.includes(searchTerm.toLowerCase()))
+      );
+    });
+  }, [filteredEmployees, statusFilter, departmentFilter, positionFilter, searchTerm]);
 
   // ---- Pagination ----
   const [currentPage, setCurrentPage] = useState(1);
@@ -352,20 +715,12 @@ export const EmployeeLogic = () => {
 
   const paginatedEmployees = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
-    return filteredEmployees.slice(start, start + pageSize);
-  }, [filteredEmployees, currentPage, pageSize]);
+    return filteredByAllCriteria.slice(start, start + pageSize);
+  }, [filteredByAllCriteria, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredEmployees.length / pageSize);
+  const totalPages = Math.ceil(filteredByAllCriteria.length / pageSize);
 
   // ---- WORK EXPERIENCE: Backend CRUD ----
-  function formatDate(dateStr: string | undefined) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return '';
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${d.getFullYear()}-${month}-${day}`;
-  }
   // Fetch all work experiences for the selected employee
   const fetchWorkExperiences = async (employeeId: string) => {
     try {
@@ -397,7 +752,12 @@ export const EmployeeLogic = () => {
   // Edit work experience row (UI)
   const editWork = (index: number) => {
     setEditingWorkIndex(index);
-    setTempWork(workExperiences[index]);
+    const workExp = workExperiences[index];
+    setTempWork({
+      ...workExp,
+      from: formatDate(workExp.from) || workExp.from || '',
+      to: formatDate(workExp.to) || workExp.to || '',
+    });
   };
 
   // Cancel add/edit (UI)
@@ -439,7 +799,18 @@ export const EmployeeLogic = () => {
       });
       if (!res.ok) throw new Error('Failed to add');
       newWorkExp = await res.json();
-      setWorkExperiences([...workExperiences, newWorkExp]); // <-- this ensures newWorkExp has id
+      
+      // Map backend response to frontend format
+      const mappedWorkExp = {
+        id: newWorkExp.id,
+        companyName: newWorkExp.companyName || '',
+        position: newWorkExp.position || '',
+        from: newWorkExp.startDate ? formatDate(newWorkExp.startDate) : '',
+        to: newWorkExp.endDate ? formatDate(newWorkExp.endDate) : '',
+        description: newWorkExp.description || '',
+      };
+      
+      setWorkExperiences([...workExperiences, mappedWorkExp]);
       showSuccess('Success', 'Work Experience added.');
     } else {
       // UPDATE
@@ -451,8 +822,19 @@ export const EmployeeLogic = () => {
       });
       if (!res.ok) throw new Error('Failed to update');
       newWorkExp = await res.json();
+      
+      // Map backend response to frontend format
+      const mappedWorkExp = {
+        id: newWorkExp.id,
+        companyName: newWorkExp.companyName || '',
+        position: newWorkExp.position || '',
+        from: newWorkExp.startDate ? formatDate(newWorkExp.startDate) : '',
+        to: newWorkExp.endDate ? formatDate(newWorkExp.endDate) : '',
+        description: newWorkExp.description || '',
+      };
+      
       const updated = workExperiences.map((exp, idx) =>
-        idx === editingWorkIndex ? newWorkExp : exp
+        idx === editingWorkIndex ? mappedWorkExp : exp
       );
       setWorkExperiences(updated);
       showSuccess('Success', 'Work Experience updated.');
@@ -482,9 +864,6 @@ export const EmployeeLogic = () => {
     try {
       setOperationLoading(true);
       
-      console.log('handleAdd called with:', newEmployee);
-      console.log('Available governmentIdTypes:', governmentIdTypes);
-      
       // Validate that positionId is present
       if (!newEmployee.positionId) {
         showError('Error', 'Please select a valid position before saving.');
@@ -507,20 +886,10 @@ export const EmployeeLogic = () => {
         const idNumberValue = govId.idNumber || govId.govtIdNo;
         const hasValidIdNumber = idNumberValue && typeof idNumberValue === 'string' && idNumberValue.trim() !== '';
         
-        console.log('Government ID validation:', {
-          govId,
-          typeValue,
-          hasValidType,
-          idNumberValue,
-          hasValidIdNumber
-        });
-        
         return !hasValidType || !hasValidIdNumber;
       });
       
       if (invalidGovIds.length > 0) {
-        console.log('Invalid Government IDs found:', invalidGovIds);
-        console.log('All Government IDs:', newEmployee.governmentIdList);
         showError('Error', 'All Government IDs must have a valid type and ID number.');
         return;
       }
@@ -554,37 +923,27 @@ export const EmployeeLogic = () => {
         positionId: parseInt(newEmployee.positionId.toString()),
         
         // Government IDs are required and must contain data
-        governmentIDs: {
-          create: newEmployee.governmentIdList.map(govId => {
-            // Find the numeric typeId from the government ID types
-            let typeId = govId.typeId || govId.governmentIdTypeId || govId.idType;
-            
-            console.log('Processing government ID:', { govId, originalTypeId: typeId, governmentIdTypes });
-            
-            // If typeId is a string (name), find the corresponding numeric ID
-            if (typeof typeId === 'string' && isNaN(Number(typeId))) {
-              const govIdType = governmentIdTypes.find(type => type.name === typeId);
-              console.log('Found matching type:', govIdType);
-              typeId = govIdType ? govIdType.id : null;
-            } else if (typeof typeId === 'string' && !isNaN(Number(typeId))) {
-              // If it's a numeric string, convert to number
-              typeId = parseInt(typeId);
-            }
-            
-            console.log('Final typeId for government ID:', typeId);
-            
-            const transformedGovId = {
-              typeId: typeId ? parseInt(typeId.toString()) : null,
-              idNumber: govId.idNumber || govId.govtIdNo,
-              issuedDate: govId.issuedDate || null,
-              expiryDate: govId.expiryDate || null,
-              isActive: govId.isActive !== undefined ? govId.isActive : true
-            };
-            
-            console.log('Transformed government ID:', transformedGovId);
-            return transformedGovId;
-          })
-        }
+        governmentIDs: newEmployee.governmentIdList.map(govId => {
+          // Find the numeric typeId from the government ID types
+          let typeId = govId.typeId || govId.governmentIdTypeId || govId.idType;
+          
+          // If typeId is a string (name), find the corresponding numeric ID
+          if (typeof typeId === 'string' && isNaN(Number(typeId))) {
+            const govIdType = governmentIdTypes.find(type => type.name === typeId);
+            typeId = govIdType ? govIdType.id : null;
+          } else if (typeof typeId === 'string' && !isNaN(Number(typeId))) {
+            // If it's a numeric string, convert to number
+            typeId = parseInt(typeId);
+          }
+          
+          return {
+            typeId: typeId ? parseInt(typeId.toString()) : null,
+            idNumber: govId.idNumber || govId.govtIdNo,
+            issuedDate: govId.issuedDate || null,
+            expiryDate: govId.expiryDate || null,
+            isActive: govId.isActive !== undefined ? govId.isActive : true
+          };
+        })
       };
 
       // Optional: Add work experiences only if they exist
@@ -644,8 +1003,6 @@ export const EmployeeLogic = () => {
       }
 
       // POST to backend (create employee)
-      console.log('Final payload being sent to backend:', JSON.stringify(transformedEmployee, null, 2));
-      
       const res = await fetch(`${API_URL}/employees`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -658,14 +1015,21 @@ export const EmployeeLogic = () => {
       }
 
       const createdEmployee = await res.json();
+      console.log('Employee created successfully:', createdEmployee);
+      
+      // Check if user account creation is needed based on position
+      const qualifyingPositionIds = [1, 3, 6, 7, 10];
+      if (qualifyingPositionIds.includes(parseInt(newEmployee.positionId.toString()))) {
+        await registerUserForEmployee(createdEmployee.id);
+      } else {
+        showSuccess('Success', 'Employee created successfully.');
+      }
       
       // Refresh the full employee list from backend to ensure consistency
       await fetchEmployees();
       
       // Close the modal
       setShowAddModal(false);
-      
-      showSuccess('Success', 'Employee created successfully.');
     } catch (error) {
       console.error('Error creating employee:', error);
       showError('Error', (error as any).message || 'Failed to create employee');
@@ -893,7 +1257,7 @@ export const EmployeeLogic = () => {
     selectedEmployee,
     setSelectedEmployee,
     employees,
-    filteredEmployees: filteredByText,
+    filteredEmployees: filteredByAllCriteria,
     operationLoading,
     searchTerm,
     setSearchTerm,
@@ -969,6 +1333,13 @@ export const EmployeeLogic = () => {
 
   // Government ID Types
   governmentIdTypes,
+
+  // CSV Import functionality
+  handleCsvImport,
+  downloadCsvTemplate,
+  showImportModal,
+  setShowImportModal,
+  importLoading,
 
   // ...rest...
   };

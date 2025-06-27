@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { showSuccess, showConfirmation } from '@/app/utils/swal';
 
 export interface Position {
-  name: string;
+  positionName: string;
   department: string;
 }
 
@@ -15,8 +15,8 @@ const departmentOptions = [
 
 export const PositionsLogic = () => {
   const [positions, setPositions] = useState<Position[]>([
-    { name: 'Manager', department: 'Accounting' },
-    { name: 'Clerk', department: 'Inventory' },
+    { positionName: 'Manager', department: 'Accounting' },
+    { positionName: 'Clerk', department: 'Inventory' },
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,7 +26,7 @@ export const PositionsLogic = () => {
   const [openActionDropdownIndex, setOpenActionDropdownIndex] = useState<number | null>(null);
 
   const filteredPositions = useMemo(() => {
-    return positions.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    return positions.filter(p => p.positionName.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [positions, searchTerm]);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,8 +39,8 @@ export const PositionsLogic = () => {
 
   const totalPages = Math.ceil(filteredPositions.length / pageSize);
 
-  const handleAdd = (name: string, department: string) => {
-    const newPosition = { name, department };
+  const handleAdd = (positionName: string, department: string) => {
+    const newPosition = { positionName, department };
     const updated = [...positions, newPosition];
     setPositions(updated);
     showSuccess('Success', 'Position added successfully.');
@@ -49,18 +49,18 @@ export const PositionsLogic = () => {
   const handleEdit = (updatedName: string, updatedDepartment: string) => {
     if (!selectedPosition) return;
     const updatedList = positions.map(p =>
-      p.name === selectedPosition.name
-        ? { name: updatedName, department: updatedDepartment }
+      p.positionName === selectedPosition.positionName
+        ? { positionName: updatedName, department: updatedDepartment }
         : p
     );
     setPositions(updatedList);
     showSuccess('Success', 'Position updated successfully.');
   };
 
-  const handleDeleteRequest = async (name: string) => {
+  const handleDeleteRequest = async (positionName: string) => {
     const result = await showConfirmation('Are you sure you want to delete this position?');
     if (result.isConfirmed) {
-      setPositions(prev => prev.filter(p => p.name !== name));
+      setPositions(prev => prev.filter(p => p.positionName !== positionName));
       showSuccess('Success', 'Position deleted successfully.');
     }
   };

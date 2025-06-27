@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { showConfirmation, showSuccess, showError } from '@/app/utils/swal';
 import { WorkExperience, Education, GovernmentID, Deduction, Benefit } from '@/types/employee';
+import { formatDate } from '@/app/utils/dateUtils';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -11,7 +12,7 @@ interface DeductionData {
   type: string;
   value: number;
   effectiveDate: string;
-  endDate: string;
+  endDate: string | null; // Allow null for optional end date
   isActive: boolean;
 }
 
@@ -586,13 +587,22 @@ export const useEmployeeRecords = (
       
       const savedGovId = await response.json();
       
-      // Update local state with calculated status
-      const updatedGovId = { ...savedGovId, status: calculatedStatus };
+      // Map backend response to frontend format
+      const responseGovIdType = governmentIdTypes.find(type => type.id === savedGovId.typeId);
+      const mappedGovId = {
+        id: savedGovId.id,
+        idType: responseGovIdType ? responseGovIdType.name : savedGovId.idType || tempGovId.idType,
+        idNumber: savedGovId.idNumber,
+        issuedDate: formatDate(savedGovId.issuedDate) || savedGovId.issuedDate,
+        expiryDate: formatDate(savedGovId.expiryDate) || savedGovId.expiryDate,
+        status: calculatedStatus
+      };
+      
       const updated = [...governmentIds];
       if (editingGovIdIndex === governmentIds.length) {
-        updated.push(updatedGovId);
+        updated.push(mappedGovId);
       } else {
-        updated[editingGovIdIndex!] = updatedGovId;
+        updated[editingGovIdIndex!] = mappedGovId;
       }
       setGovernmentIds(updated);
       setEditingGovIdIndex(null);
@@ -606,13 +616,13 @@ export const useEmployeeRecords = (
   const editGovernmentID = (index: number) => {
     setEditingGovIdIndex(index);
     const govId = governmentIds[index];
-    // Ensure we have the correct data structure for editing
+    // Ensure we have the correct data structure for editing with formatted dates
     setTempGovId({
       ...govId,
       idType: govId.idType || '', // Make sure idType is populated
       idNumber: govId.idNumber || '',
-      issuedDate: govId.issuedDate || '',
-      expiryDate: govId.expiryDate || '',
+      issuedDate: formatDate(govId.issuedDate) || govId.issuedDate || '',
+      expiryDate: formatDate(govId.expiryDate) || govId.expiryDate || '',
       status: govId.status || ''
     });
   };
@@ -784,21 +794,21 @@ export const useEmployeeRecords = (
     }
 
     if (!effectiveDate) errors.effectiveDate = 'Required';
-    if (!endDate) errors.endDate = 'Required';
+    // endDate is optional - no validation required
     if (!status) errors.status = 'Required';
 
     const effDate = new Date(effectiveDate);
-    const expDate = new Date(endDate);
+    const expDate = endDate ? new Date(endDate) : null;
 
-    // Date comparisons
+    // Date comparisons (only if endDate is provided)
     if (effectiveDate && endDate) {
       if (effectiveDate === endDate) {
         errors.endDate = 'End date cannot be same as effective date.';
       }
-      if (expDate < effDate) {
+      if (expDate && expDate < effDate) {
         errors.endDate = 'End date cannot be earlier than effective date.';
       }
-      if (effDate > expDate) {
+      if (expDate && effDate > expDate) {
         errors.effectiveDate = 'Effective date cannot be later than end date.';
       }
     }
@@ -826,7 +836,7 @@ export const useEmployeeRecords = (
         type,
         value: parseFloat(amount),
         effectiveDate,
-        endDate,
+        endDate: endDate || null, // Send null if no end date provided
         isActive: status === 'Active'
       };
 
@@ -1087,22 +1097,12 @@ export const useEmployeeRecords = (
       
       const data = await response.json();
       
-      // Helper function to format dates for input fields
-      const formatDateForInput = (dateStr: string | undefined) => {
-        if (!dateStr) return '';
-        const d = new Date(dateStr);
-        if (isNaN(d.getTime())) return '';
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${d.getFullYear()}-${month}-${day}`;
-      };
-      
       // Update status for each government ID based on dates and transform data structure
       const updatedData = (data || []).map((govId: GovernmentID & { type?: { name: string } }) => ({
         ...govId,
         idType: govId.type?.name || govId.idType || '', // Map type.name to idType for frontend
-        issuedDate: formatDateForInput(govId.issuedDate),
-        expiryDate: formatDateForInput(govId.expiryDate),
+        issuedDate: formatDate(govId.issuedDate) || govId.issuedDate || '',
+        expiryDate: formatDate(govId.expiryDate) || govId.expiryDate || '',
         status: calculateIdStatus(govId.issuedDate, govId.expiryDate)
       }));
       setGovernmentIds(updatedData);

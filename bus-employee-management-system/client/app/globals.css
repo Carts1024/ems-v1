@@ -6,6 +6,11 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Candidate module variables */
+  --border-color: #ddd;
+  --scrollbar-track-color: #f1f1f1;
+  --scrollbar-thumb-color: #ccc;
+  --scrollbar-thumb-hover-color: #999;
 }
 
 @theme inline {

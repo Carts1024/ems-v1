@@ -4,7 +4,7 @@ import styles from './InformationModal.module.css';
 interface BenefitsModalProps {
   isEdit: boolean;
   isView?: boolean;
-  benefitsName: string;
+  name: string;
   setBenefitsName: React.Dispatch<React.SetStateAction<string>>;
   description: string;
   setDescription: React.Dispatch<React.SetStateAction<string>>;
@@ -17,7 +17,7 @@ interface BenefitsModalProps {
 const BenefitsModal: React.FC<BenefitsModalProps> = ({
   isEdit,
   isView,
-  benefitsName,
+  name,
   setBenefitsName,
   description,
   setDescription,
@@ -38,7 +38,7 @@ const BenefitsModal: React.FC<BenefitsModalProps> = ({
           <label className={styles.label}>Benefit</label>
           <input
             type="text"
-            value={benefitsName}
+            value={name}
             onChange={(e) => setBenefitsName(e.target.value.trimStart())}
             className={styles.inputField}
             placeholder="Enter benefit name"

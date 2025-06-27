@@ -4,7 +4,7 @@ import styles from './InformationModal.module.css';
 interface DeductionsModalProps {
   isEdit: boolean;
   isView?: boolean;
-  deductionsName: string;
+  name: string;
   setDeductionsName: React.Dispatch<React.SetStateAction<string>>;
   description: string;
   setDescription: React.Dispatch<React.SetStateAction<string>>;
@@ -17,7 +17,7 @@ interface DeductionsModalProps {
 const DeductionsModal: React.FC<DeductionsModalProps> = ({
   isEdit,
   isView,
-  deductionsName,
+  name,
   setDeductionsName,
   description,
   setDescription,
@@ -38,7 +38,7 @@ const DeductionsModal: React.FC<DeductionsModalProps> = ({
           <label className={styles.label}>Deduction</label>
           <input
             type="text"
-            value={deductionsName}
+            value={name}
             onChange={(e) => setDeductionsName(e.target.value.trimStart())}
             className={styles.inputField}
             placeholder="Enter deduction name"

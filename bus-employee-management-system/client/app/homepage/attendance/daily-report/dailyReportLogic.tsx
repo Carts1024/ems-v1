@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useState, useEffect, useRef, useMemo } from 'react';
@@ -5,39 +7,34 @@ import { showConfirmation, showSuccess } from '@/app/utils/swal';
 import { FilterSection } from '@/components/ui/filterDropdown';
 
 export interface Attendance {
-  attendanceStatus: '' | 'Present' | 'Absent' | 'Late';
+  status: '' | 'Present' | 'Absent' | 'Late';
   employeeName: string;
-  dateHired: string;
+  hiredate: string;
   department: string;
   position: string;
-  attendanceDate: string;
+  date: string;
+  timeIn: string;
+  timeOut: string;
+  remarks: string;
 }
 
 export const DailyReportLogic = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [openActionDropdownIndex, setOpenActionDropdownIndex] = useState<number | null>(null);
+  const [selectedAttendance, setSelectedAttendance] = useState<Attendance | null>(null);
+  const [isViewMode, setIsViewMode] = useState(false);
   const [attendanceList, setAttendanceList] = useState<Attendance[]>([{
-    attendanceStatus: 'Present',
+    status: 'Present',
     employeeName: 'Juan Dela Cruz',
-    dateHired: '2023-01-15',
+    hiredate: '2023-01-15',
     department: 'Operations',
     position: 'Driver',
-    attendanceDate: '2025-06-25'
-  }, {
-    attendanceStatus: 'Absent',
-    employeeName: 'Mark Antonio Reyes',
-    dateHired: '2023-03-10',
-    department: 'Human Resource',
-    position: 'Supervisor',
-    attendanceDate: '2025-06-25'
-  }, {
-    attendanceStatus: 'Late',
-    employeeName: 'Ana Liza Santos',
-    dateHired: '2022-11-05',
-    department: 'Inventory',
-    position: 'Warehouse Staff',
-    attendanceDate: '2025-06-25'
+    date: '2025-06-25',
+    timeIn: '',
+    timeOut: '',
+    remarks:''
   }]);
 
   const departments = Array.from(new Set(attendanceList.map(a => a.department)));
@@ -93,7 +90,7 @@ export const DailyReportLogic = () => {
     if (sortBy === 'name') {
       data.sort((a, b) => a.employeeName.localeCompare(b.employeeName) * sortOrder);
     } else if (sortBy === 'date') {
-      data.sort((a, b) => (new Date(a.dateHired).getTime() - new Date(b.dateHired).getTime()) * sortOrder);
+      data.sort((a, b) => (new Date(a.hiredate).getTime() - new Date(b.hiredate).getTime()) * sortOrder);
     }
 
     setFilteredEmployees(data);
@@ -103,7 +100,7 @@ export const DailyReportLogic = () => {
 
   const filteredByText = useMemo(() =>
     filteredEmployees.filter(emp =>
-      (!statusFilter || emp.attendanceStatus === statusFilter) &&
+      (!statusFilter || emp.status === statusFilter) &&
       (!searchTerm || emp.employeeName.toLowerCase().includes(searchTerm.toLowerCase()))
     ), [filteredEmployees, searchTerm, statusFilter]);
 
@@ -133,6 +130,10 @@ export const DailyReportLogic = () => {
     showSuccess('Success', 'Attendance record deleted.');
   };
 
+    const toggleActionDropdown = (index: number | null) => {
+    setOpenActionDropdownIndex(openActionDropdownIndex === index ? null : index);
+  };
+
   return {
     showAddModal,
     setShowAddModal,
@@ -149,6 +150,12 @@ export const DailyReportLogic = () => {
     setCurrentPage,
     pageSize,
     setPageSize,
-    totalPages
+    totalPages,
+    openActionDropdownIndex,
+    toggleActionDropdown,
+    selectedAttendance,
+    setSelectedAttendance,
+    isViewMode,
+    setIsViewMode,
   };
 };

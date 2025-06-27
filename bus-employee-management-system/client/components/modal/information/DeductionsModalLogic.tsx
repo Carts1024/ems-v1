@@ -23,11 +23,11 @@ const DeductionsModalLogic: React.FC<DeductionsModalLogicProps> = ({
   onClose,
   onSubmit,
 }) => {
-  const [deductionsName, setDeductionsName] = useState(defaultValue);
+  const [name, setDeductionsName] = useState(defaultValue);
   const [description, setDescription] = useState(defaultDescription);
   const [error, setError] = useState('');
 
-  const trimmedName = deductionsName.trim();
+  const trimmedName = name.trim();
   const trimmedDescription = description.trim();
 
   useEffect(() => {
@@ -89,7 +89,7 @@ const DeductionsModalLogic: React.FC<DeductionsModalLogicProps> = ({
     <DeductionsModalUI
       isEdit={isEdit}
       isView={isView}
-      deductionsName={deductionsName}
+      name={name}
       setDeductionsName={setDeductionsName}
       description={description}
       setDescription={setDescription}

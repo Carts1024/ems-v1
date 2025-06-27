@@ -80,7 +80,13 @@ export default function EmployeePage() {
     selectedDepartmentId,
     handleDepartmentChange,
     // --- government id types ---
-    governmentIdTypes
+    governmentIdTypes,
+    // --- CSV Import ---
+    handleCsvImport,
+    downloadCsvTemplate,
+    showImportModal,
+    setShowImportModal,
+    importLoading
   } = EmployeeLogic();
 
 
@@ -264,9 +270,13 @@ export default function EmployeePage() {
             <i className="ri-add-line"/>
             {operationLoading ? 'Processing...' : 'Add Employee'}
           </button>
-          <button className={styles.importButton}>
+          <button 
+            className={styles.importButton}
+            onClick={() => setShowImportModal(true)}
+            disabled={importLoading}
+          >
             <i className="ri-import-line"/>
-            Import
+            {importLoading ? 'Importing...' : 'Import'}
           </button>
         </div>
 
@@ -457,6 +467,74 @@ export default function EmployeePage() {
             handleDepartmentChange={handleDepartmentChange}
             governmentIdTypes={governmentIdTypes}
           />
+        )}
+
+        {/* CSV Import Modal */}
+        {showImportModal && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.importModal}>
+              <div className={styles.modalHeader}>
+                <h2>Import Employees from CSV</h2>
+                <button 
+                  className={styles.closeButton}
+                  onClick={() => setShowImportModal(false)}
+                  disabled={importLoading}
+                >
+                  <i className="ri-close-line"></i>
+                </button>
+              </div>
+              
+              <div className={styles.modalContent}>
+                <div className={styles.importInstructions}>
+                  <h3>Instructions:</h3>
+                  <ol>
+                    <li>Download the CSV template to see the required format</li>
+                    <li>Fill in your employee data using the template</li>
+                    <li>Save as CSV and upload the file</li>
+                    <li>Government IDs, benefits, and deductions can be added after import</li>
+                  </ol>
+                </div>
+
+                <div className={styles.templateSection}>
+                  <button 
+                    className={styles.downloadTemplateButton}
+                    onClick={downloadCsvTemplate}
+                    disabled={importLoading}
+                  >
+                    <i className="ri-download-line"></i>
+                    Download CSV Template
+                  </button>
+                </div>
+
+                <div className={styles.uploadSection}>
+                  <label htmlFor="csvFile" className={styles.fileLabel}>
+                    <i className="ri-file-upload-line"></i>
+                    Choose CSV File
+                  </label>
+                  <input
+                    id="csvFile"
+                    type="file"
+                    accept=".csv"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleCsvImport(file);
+                      }
+                    }}
+                    disabled={importLoading}
+                    className={styles.fileInput}
+                  />
+                </div>
+
+                {importLoading && (
+                  <div className={styles.loadingIndicator}>
+                    <i className="ri-loader-2-line ri-spin"></i>
+                    Importing employees...
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

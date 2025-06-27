@@ -24,25 +24,25 @@ const DashboardPage = () => {
   return (
     <div className={styles.base}>
       <div className={styles.dashboardContainer}>
-        <h1 className={styles.title}>Dashboard Overview</h1>
+        <h1 className={styles.title}>System Dashboard Overview</h1>
 
         {/* Overview Cards */}
         <div className={styles.overviewCards}>
           <div className={styles.card}>
-            <h3>Total Candidates</h3>
-            <p className={styles.cardValue}>{summaryData.totalCandidates}</p>
-          </div>
-          <div className={styles.card}>
             <h3>Total Employees</h3>
             <p className={styles.cardValue}>{summaryData.totalEmployees}</p>
+          </div>
+          <div className={styles.card}>
+            <h3>Active Requests</h3>
+            <p className={styles.cardValue}>{summaryData.activeRequests}</p>
           </div>
           <div className={styles.card}>
             <h3>Open Positions</h3>
             <p className={styles.cardValue}>{summaryData.openPositions}</p>
           </div>
           <div className={styles.card}>
-            <h3>On Leave Employees</h3>
-            <p className={styles.cardValue}>{summaryData.onLeaveEmployees}</p>
+            <h3>Pending Resignations</h3>
+            <p className={styles.cardValue}>{summaryData.pendingResignations}</p>
           </div>
         </div>
 

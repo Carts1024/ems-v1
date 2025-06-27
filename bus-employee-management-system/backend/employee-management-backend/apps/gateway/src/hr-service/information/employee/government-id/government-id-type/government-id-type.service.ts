@@ -59,7 +59,7 @@ export class GovernmentIdTypeService {
   async update(id: number, dto: UpdateGovernmentIdTypeDto) {
     try {
       const response = await firstValueFrom(
-        this.httpService.put(
+        this.httpService.patch(
           `${this.HR_SERVICE_URL}/government-id-type/${id}`,
           dto,
         ),

@@ -60,7 +60,10 @@ export class GovernmentIdService {
   async update(id: number, dto: UpdateGovernmentIdDto) {
     try {
       const response = await firstValueFrom(
-        this.httpService.put(`${this.HR_SERVICE_URL}/government-id/${id}`, dto),
+        this.httpService.patch(
+          `${this.HR_SERVICE_URL}/government-id/${id}`,
+          dto,
+        ),
       );
       return response.data;
     } catch (err) {

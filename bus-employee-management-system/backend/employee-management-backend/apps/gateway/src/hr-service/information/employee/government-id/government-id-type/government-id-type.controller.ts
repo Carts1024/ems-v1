@@ -2,7 +2,7 @@ import {
   Controller,
   Post,
   Get,
-  Put,
+  Patch,
   Delete,
   Param,
   Body,
@@ -30,7 +30,7 @@ export class GovernmentIdTypeController {
     return this.service.findOne(Number(id));
   }
 
-  @Put(':id')
+  @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateGovernmentIdTypeDto) {
     return this.service.update(Number(id), dto);
   }

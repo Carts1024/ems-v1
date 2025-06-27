@@ -2,7 +2,15 @@
 import React from 'react';
 import styles from '../InformationModal.module.css';
 import { Employee } from '../EmployeeModalLogic';
-import { GovernmentID, GovIdErrors } from '../EmployeeRecordsLogic';
+import { GovernmentID } from '@/types/employee';
+
+// Define GovIdErrors type locally since it's not exported
+interface GovIdErrors {
+  idNumber?: string;
+  issuedDate?: string;
+  expiryDate?: string;
+  status?: string;
+}
 
 interface WorkGovSectionProps {
   employee: Employee;
@@ -20,6 +28,14 @@ interface WorkGovSectionProps {
   deleteGovernmentID: (index: number) => void;
   govIdError: GovIdErrors;
   isReadOnly: boolean;
+  // Department and Position props
+  departments: { id: number, departmentName: string }[];
+  positions: { id: number, positionName: string, departmentId: number }[];
+  filteredPositions: { id: number, positionName: string, departmentId: number }[];
+  selectedDepartmentId: number | null;
+  handleDepartmentChange: (departmentId: number) => void;
+  // Government ID Types
+  governmentIdTypes: { id: number, name: string }[];
 }
 
 const WorkGovSection: React.FC<WorkGovSectionProps> = ({
@@ -37,8 +53,35 @@ const WorkGovSection: React.FC<WorkGovSectionProps> = ({
   cancelGovernmentIDEdit,
   deleteGovernmentID,
   govIdError,
-  isReadOnly
+  isReadOnly,
+  // Department and Position props
+  departments,
+  positions, // eslint-disable-line @typescript-eslint/no-unused-vars
+  filteredPositions,
+  selectedDepartmentId,
+  handleDepartmentChange,
+  // Government ID Types
+  governmentIdTypes
 }) => {
+  // Helper function to calculate status based on dates
+  const calculateIdStatus = (issuedDate: string, expiryDate: string): string => {
+    if (!issuedDate || !expiryDate) return 'Pending';
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const issued = new Date(issuedDate);
+    const expiry = new Date(expiryDate);
+    
+    if (issued > today) {
+      return 'Pending';
+    } else if (expiry < today) {
+      return 'Expired';
+    } else {
+      return 'Active';
+    }
+  };
+
   return (
     <div className={styles.sectionGroup}>
       <div className={styles.workInfo}>
@@ -94,28 +137,59 @@ const WorkGovSection: React.FC<WorkGovSectionProps> = ({
         </select>
         {fieldErrors.employeeClassification && <p className={styles.errorText}>{fieldErrors.employeeClassification}</p>}
 
+        <label className={styles.label}>Department</label>
         <select
           className={`${styles.inputField} ${fieldErrors.department ? styles.inputError : ''}`}
           value={employee.department}
-          onChange={(e) => handleChangeWrapper('department', e.target.value)}
+          onChange={(e) => {
+            const selectedDeptName = e.target.value;
+            const selectedDept = departments.find(dept => dept.departmentName === selectedDeptName);
+            if (selectedDept) {
+              handleDepartmentChange(selectedDept.id);
+              handleChangeWrapper('department', selectedDeptName);
+              // Clear position when department changes
+              handleChangeWrapper('position', '');
+              handleChangeWrapper('positionId' as any, '');
+            } else {
+              handleChangeWrapper('department', selectedDeptName);
+            }
+          }}
           disabled={isReadOnly}
         >
-          <option value="">Departments</option>
-          <option value="Accounting">Accounting</option>
-          <option value="Human Resource">Human Resource</option>
-          <option value="Inventory">Inventory</option>
-          <option value="Operations">Operations</option>
+          <option value="">Select Department</option>
+          {departments.map((dept) => (
+            <option key={dept.id} value={dept.departmentName}>
+              {dept.departmentName}
+            </option>
+          ))}
         </select>
         {fieldErrors.department && <p className={styles.errorText}>{fieldErrors.department}</p>}
 
         <label className={styles.label}>Position</label>
-        <input
+        <select
           className={`${styles.inputField} ${fieldErrors.position ? styles.inputError : ''}`}
           value={employee.position}
-          onChange={(e) => handleChangeWrapper('position', e.target.value)}
-          placeholder="Enter position"
-          disabled={isReadOnly}
-        />
+          onChange={(e) => {
+            const selectedPositionName = e.target.value;
+            const selectedPosition = filteredPositions.find(pos => pos.positionName === selectedPositionName);
+            
+            handleChangeWrapper('position', selectedPositionName);
+            if (selectedPosition) {
+              // Also store the positionId for the backend
+              handleChangeWrapper('positionId' as any, selectedPosition.id.toString());
+            }
+          }}
+          disabled={isReadOnly || !selectedDepartmentId}
+        >
+          <option value="">
+            {selectedDepartmentId ? 'Select Position' : 'Select Department First'}
+          </option>
+          {filteredPositions.map((pos) => (
+            <option key={pos.id} value={pos.positionName}>
+              {pos.positionName}
+            </option>
+          ))}
+        </select>
         {fieldErrors.position && <p className={styles.errorText}>{fieldErrors.position}</p>}
 
         {/* Government ID Section */}
@@ -152,13 +226,13 @@ const WorkGovSection: React.FC<WorkGovSectionProps> = ({
                           onChange={(e) => setTempGovId({ ...tempGovId, idType: e.target.value })}
                         >
                           <option value="">Select ID Type</option>
-                          {['SSS', 'Pag-IBIG', 'PhilHealth', 'TIN', 'UMID'].map((type) => {
+                          {governmentIdTypes.map((type) => {
                             const isDisabled = governmentIds.some((id, idx) =>
-                              id.idType === type && editingGovIdIndex !== idx
+                              id.idType === type.name && editingGovIdIndex !== idx
                             );
                             return (
-                              <option key={type} value={type} disabled={isDisabled}>
-                                {type}
+                              <option key={type.id} value={type.name} disabled={isDisabled}>
+                                {type.name}
                               </option>
                             );
                           })}
@@ -191,24 +265,13 @@ const WorkGovSection: React.FC<WorkGovSectionProps> = ({
                         {govIdError.expiryDate && <p className={styles.errorText}>{govIdError.expiryDate}</p>}
                       </td>
                       <td>
-                        <select
-                          className={styles.tableInput}
-                          value={tempGovId.status}
-                          onChange={(e) => setTempGovId({ ...tempGovId, status: e.target.value })}
-                        >
-                          <option value="">Select ID status</option>
-                          {['Active', 'Expired', 'Pending', 'For Renewal', 'Missing'].map((status) => {
-                            const isDisabled = governmentIds.some((id, idx) =>
-                              id.status === status && editingGovIdIndex !== idx
-                            );
-                            return (
-                              <option key={status} value={status} disabled={isDisabled}>
-                                {status}
-                              </option>
-                            );
-                          })}
-                        </select>
-                        {govIdError.status && <p className={styles.errorText}>{govIdError.status}</p>}
+                        {/* Auto-calculated status - no dropdown when editing */}
+                        <span className={styles.calculatedStatus}>
+                          {tempGovId.issuedDate && tempGovId.expiryDate 
+                            ? calculateIdStatus(tempGovId.issuedDate, tempGovId.expiryDate)
+                            : 'Pending'
+                          }
+                        </span>
                       </td>
                       <td className={styles.actionCell}>
                         <button className={styles.xButton} onClick={cancelGovernmentIDEdit}><i className="ri-close-line" /></button>
@@ -221,7 +284,11 @@ const WorkGovSection: React.FC<WorkGovSectionProps> = ({
                       <td>{id.idNumber ? id.idNumber.replace(/.(?=.{4})/g, '*') : ''}</td>
                       <td>{id.issuedDate}</td>
                       <td>{id.expiryDate}</td>
-                      <td>{id.status}</td>
+                      <td>
+                        <span className={`${styles.statusBadge} ${styles[calculateIdStatus(id.issuedDate, id.expiryDate).toLowerCase()]}`}>
+                          {calculateIdStatus(id.issuedDate, id.expiryDate)}
+                        </span>
+                      </td>
                       {!isReadOnly && (
                         <td className={styles.actionCell}>
                           <button className={styles.editButton} onClick={() => editGovernmentID(index)}><i className="ri-edit-2-line" /></button>

@@ -2,6 +2,7 @@
 import React from 'react';
 import styles from '../InformationModal.module.css';
 import { WorkExperience, Education } from '@/types/employee';
+import { format } from 'date-fns';
 
 interface Props {
   // --- Work Experience
@@ -57,15 +58,15 @@ const WorkEducationSection: React.FC<Props> = (props) => {
             <th>No.</th>
             <th>Company</th>
             <th>Position</th>
-            <th>From</th>
-            <th>To</th>
+            <th>Start Date</th>
+            <th>End Date</th>
             <th>Description</th>
             {!props.isReadOnly && <th>Actions</th>}
           </tr>
         </thead>
         <tbody>
           {[...props.workExperiences, ...(props.editingWorkIndex === props.workExperiences.length ? [{
-            company: '', position: '', from: '', to: '', description: ''
+            companyName: '', position: '', from: '', to: '', description: ''
           }] : [])].map((exp, index) => (
             <tr key={index}>
               {props.editingWorkIndex === index ? (
@@ -74,8 +75,8 @@ const WorkEducationSection: React.FC<Props> = (props) => {
                   <td>
                     <input
                       className={styles.tableInput}
-                      value={props.tempWork.company}
-                      onChange={e => props.setTempWork({ ...props.tempWork, company: e.target.value })}
+                      value={props.tempWork.companyName}
+                      onChange={e => props.setTempWork({ ...props.tempWork, companyName: e.target.value })}
                     />
                   </td>
                   <td>
@@ -89,7 +90,7 @@ const WorkEducationSection: React.FC<Props> = (props) => {
                     <input
                       className={styles.tableInput}
                       type="date"
-                      value={props.tempWork.from}
+                      value={props.tempWork.from || ''}
                       onChange={e => {
                         const from = e.target.value;
                         const to = props.tempWork.to;
@@ -103,7 +104,7 @@ const WorkEducationSection: React.FC<Props> = (props) => {
                     <input
                       className={styles.tableInput}
                       type="date"
-                      value={props.tempWork.to}
+                      value={props.tempWork.to || ''}
                       onChange={e => {
                         const to = e.target.value;
                         const from = props.tempWork.from;
@@ -135,11 +136,23 @@ const WorkEducationSection: React.FC<Props> = (props) => {
               ) : (
                 <>
                   <td>{index + 1}</td>
-                  <td>{exp.company}</td>
-                  <td>{exp.position}</td>
-                  <td>{exp.from}</td>
-                  <td>{exp.to}</td>
-                  <td>{exp.description}</td>
+                  <td>{exp.companyName || ''}</td>
+                  <td>{exp.position || ''}</td>
+                  <td>
+                    {exp.from ? (
+                      typeof exp.from === 'string' && exp.from.includes('T') 
+                        ? format(new Date(exp.from), 'yyyy-MM-dd') 
+                        : exp.from
+                    ) : ''}
+                  </td>
+                  <td>
+                    {exp.to ? (
+                      typeof exp.to === 'string' && exp.to.includes('T') 
+                        ? format(new Date(exp.to), 'yyyy-MM-dd') 
+                        : exp.to
+                    ) : ''}
+                  </td>
+                  <td>{exp.description || ''}</td>
                   {!props.isReadOnly && (
                     <td className={styles.actionCell}>
                       <button className={styles.editButton} onClick={() => props.editWork(index)}>
@@ -170,16 +183,16 @@ const WorkEducationSection: React.FC<Props> = (props) => {
         <thead>
           <tr>
             <th>No.</th>
-            <th>Institute</th>
+            <th>Institution</th>
             <th>Degree</th>
-            <th>Specialization</th>
+            <th>Field of Study</th>
             <th>Completion Date</th>
             {!props.isReadOnly && <th>Actions</th>}
           </tr>
         </thead>
         <tbody>
           {[...props.educationList, ...(props.editingEducIndex === props.educationList.length ? [{
-            institute: '', degree: '', specialization: '', completionDate: ''
+            institution: '', degree: '', fieldOfStudy: '', endDate: ''
           }] : [])].map((edu, index) => (
             <tr key={index}>
               {props.editingEducIndex === index ? (
@@ -188,32 +201,32 @@ const WorkEducationSection: React.FC<Props> = (props) => {
                   <td>
                     <input
                       className={styles.tableInput}
-                      value={props.tempEduc.institute}
-                      onChange={e => props.setTempEduc({ ...props.tempEduc, institute: e.target.value })}
+                      value={props.tempEduc.institution || ''}
+                      onChange={e => props.setTempEduc({ ...props.tempEduc, institution: e.target.value })}
                     />
                   </td>
                   <td>
                     <input
                       className={styles.tableInput}
-                      value={props.tempEduc.degree}
+                      value={props.tempEduc.degree || ''}
                       onChange={e => props.setTempEduc({ ...props.tempEduc, degree: e.target.value })}
                     />
                   </td>
                   <td>
                     <input
                       className={styles.tableInput}
-                      value={props.tempEduc.specialization}
-                      onChange={e => props.setTempEduc({ ...props.tempEduc, specialization: e.target.value })}
+                      value={props.tempEduc.fieldOfStudy || ''}
+                      onChange={e => props.setTempEduc({ ...props.tempEduc, fieldOfStudy: e.target.value })}
                     />
                   </td>
                   <td>
                     <input
                       className={styles.tableInput}
                       type="date"
-                      value={props.tempEduc.completionDate}
+                      value={props.tempEduc.endDate || ''}
                       onChange={e => {
                         const value = e.target.value;
-                        props.setTempEduc({ ...props.tempEduc, completionDate: value });
+                        props.setTempEduc({ ...props.tempEduc, endDate: value });
                         if (props.setEducDateError) {
                           if (new Date(value) > new Date()) {
                             props.setEducDateError('Date cannot be in the future.');
@@ -241,10 +254,12 @@ const WorkEducationSection: React.FC<Props> = (props) => {
               ) : (
                 <>
                   <td>{index + 1}</td>
-                  <td>{edu.institute}</td>
-                  <td>{edu.degree}</td>
-                  <td>{edu.specialization}</td>
-                  <td>{edu.completionDate}</td>
+                  <td>{edu.institution || ''}</td>
+                  <td>{edu.degree || ''}</td>
+                  <td>{edu.fieldOfStudy || ''}</td>
+                  <td>
+                    {edu.endDate ? format(new Date(edu.endDate), 'yyyy-MM-dd') : ''}
+                  </td>
                   {!props.isReadOnly && (
                     <td className={styles.actionCell}>
                       <button className={styles.editButton} onClick={() => props.editEducation(index)}>

@@ -32,8 +32,9 @@ export interface Employee {
   dateHired: string;
   employeeType: string;
   employeeClassification: string,
-  department: string;
-  position: string;
+  department: string; // For display purposes
+  position: string; // For display purposes
+  positionId?: number; // For backend API
   basicRate: string;
   govtIdType: string;
   govtIdNo: string;
@@ -92,6 +93,7 @@ const [employee, setEmployee] = useState<Employee>({
   employeeClassification: '',
   department: '',
   position: '',
+  positionId: undefined, // Initialize positionId for backend
   basicRate: '',
   govtIdType: '',
   govtIdNo: '',
@@ -137,6 +139,7 @@ const [employee, setEmployee] = useState<Employee>({
     if (!employee.employeeClassification) errors.employeeClassification = 'Required';
     if (!employee.department) errors.department = 'Required';
     if (!employee.position.trim()) errors.position = 'Required';
+    if (!employee.positionId) errors.position = 'Please select a valid position';
 
     const pay = parseFloat(employee.basicRate);
     if (!employee.basicRate || isNaN(pay) || pay < 0) {
@@ -182,7 +185,7 @@ const [employee, setEmployee] = useState<Employee>({
     setFieldErrors(prev => ({ ...prev, [field]: undefined }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (governmentIds: any[] = []) => {
     const isValid = validateInput();
     if (!isValid) {
       showError('Error', 'Please correct the highlighted errors.');
@@ -192,12 +195,24 @@ const [employee, setEmployee] = useState<Employee>({
       showError('Oops!', 'Employee already exists.');
       return;
     }
-    onSubmit(employee);
-    showSuccess('Success', 'Employee added successfully.');
-    onClose();
+    
+    try {
+      // Include government IDs in the employee object
+      const employeeWithGovIds = {
+        ...employee,
+        governmentIdList: governmentIds
+      };
+      
+      // Wait for the actual backend request to complete
+      await onSubmit(employeeWithGovIds);
+      // Success message and modal closing will be handled by the onSubmit function
+    } catch (error) {
+      // Error handling is done in the onSubmit function
+      console.error('Error in handleSubmit:', error);
+    }
   };
 
-  const handleUpdateConfirm = async () => {
+  const handleUpdateConfirm = async (governmentIds: any[] = []) => {
     const isValid = validateInput();
     if (!isValid) {
       showError('Error', 'Please correct the highlighted errors.');
@@ -207,9 +222,21 @@ const [employee, setEmployee] = useState<Employee>({
       showError('Oops!', 'Employee already exists.');
       return;
     }
-    onSubmit(employee);
-    showSuccess('Success', 'Employee updated successfully.');
-    onClose();
+    
+    try {
+      // Include government IDs in the employee object
+      const employeeWithGovIds = {
+        ...employee,
+        governmentIdList: governmentIds
+      };
+      
+      // Wait for the actual backend request to complete
+      await onSubmit(employeeWithGovIds);
+      // Success message and modal closing will be handled by the onSubmit function
+    } catch (error) {
+      // Error handling is done in the onSubmit function
+      console.error('Error in handleUpdateConfirm:', error);
+    }
   };
 
   return {

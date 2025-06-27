@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   Query,
+  Patch,
 } from '@nestjs/common';
 import { EducationService } from './education.service';
 import { CreateEducationDto } from './dto/create-education.dto';
@@ -31,7 +32,7 @@ export class EducationController {
     return this.service.findOne(Number(id));
   }
 
-  @Put(':id')
+  @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateEducationDto) {
     return this.service.update(Number(id), dto);
   }

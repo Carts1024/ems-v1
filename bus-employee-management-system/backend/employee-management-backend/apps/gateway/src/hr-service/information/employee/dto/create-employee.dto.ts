@@ -10,9 +10,9 @@ import {
 } from 'class-validator';
 
 export class CreateEmployeeDto {
-  @IsString()
-  @IsNotEmpty()
-  Id: string;
+  // @IsString()
+  // @IsNotEmpty()
+  // Id: string;
 
   @IsString()
   @IsNotEmpty()

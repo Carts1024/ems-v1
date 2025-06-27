@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './InformationModal.module.css';
 import { useEmployeeModal, Employee } from './EmployeeModalLogic';
 import { useEmployeeRecords } from './EmployeeRecordsLogic';
@@ -54,6 +54,16 @@ interface EmployeeModalProps {
   isTempEducValid: boolean;
   educDateError?: string;
   setEducDateError?: (val: string) => void;
+
+  // Department and Position
+  departments: { id: number, departmentName: string }[];
+  positions: { id: number, positionName: string, departmentId: number }[];
+  filteredPositions: { id: number, positionName: string, departmentId: number }[];
+  selectedDepartmentId: number | null;
+  handleDepartmentChange: (departmentId: number) => void;
+
+  // Government ID Types
+  governmentIdTypes: { id: number, name: string }[];
 }
 
 const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
@@ -72,8 +82,43 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
     props.onClose
   );
 
-  const employeeRecords = useEmployeeRecords(props.isEdit ? (props.defaultValue?.governmentIdList || []) : []);
+  const employeeRecords = useEmployeeRecords(
+    (props.isEdit || props.isReadOnly) ? (props.defaultValue?.governmentIdList || []) : [], 
+    (props.isEdit || props.isReadOnly) ? props.defaultValue?.id : undefined,
+    props.governmentIdTypes
+  );
   const [hasChanges, setHasChanges] = useState(false);
+  const lastFetchedEmployeeIdRef = useRef<string | null>(null);
+
+  // Extract the fetch function to avoid dependency issues
+  const { fetchGovernmentIds, loadDeductionTypes, loadEmployeeDeductions, loadBenefitTypes, loadEmployeeBenefits } = employeeRecords;
+
+  // Load deduction and benefit types on mount
+  useEffect(() => {
+    loadDeductionTypes();
+    loadBenefitTypes();
+  }, [loadDeductionTypes, loadBenefitTypes]);
+
+  // Fetch government IDs when modal opens with an existing employee (only once per employee)
+  useEffect(() => {
+    if ((props.isEdit || props.isReadOnly) && props.defaultValue?.id && props.defaultValue.id !== lastFetchedEmployeeIdRef.current) {
+      // Small delay to prevent duplicate requests during fast transitions
+      const timeoutId = setTimeout(() => {
+        if (props.defaultValue?.id) {
+          fetchGovernmentIds(props.defaultValue.id);
+          loadEmployeeDeductions();
+          loadEmployeeBenefits();
+          lastFetchedEmployeeIdRef.current = props.defaultValue.id;
+        }
+      }, 50);
+      
+      return () => clearTimeout(timeoutId);
+    }
+    // Reset when modal closes or switches to add mode
+    if (!props.isEdit && !props.isReadOnly) {
+      lastFetchedEmployeeIdRef.current = null;
+    }
+  }, [props.isEdit, props.isReadOnly, props.defaultValue?.id, fetchGovernmentIds, loadEmployeeDeductions, loadEmployeeBenefits]);
 
   const handleChangeWrapper = (field: keyof Employee, value: string | string[]) => {
     if (!hasChanges && value !== props.defaultValue?.[field]) {
@@ -96,12 +141,16 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
 
   const handleSubmitWrapper = () => {
     if (!employeeRecords.validateGovernmentIds()) return;
-    handleSubmit();
+    
+    // Pass government IDs to handleSubmit
+    handleSubmit(employeeRecords.governmentIds || []);
   };
 
   const handleUpdateConfirmWrapper = () => {
     if (!employeeRecords.validateGovernmentIds()) return;
-    handleUpdateConfirm();
+    
+    // Pass government IDs to handleUpdateConfirm  
+    handleUpdateConfirm(employeeRecords.governmentIds || []);
   };
 
   return (
@@ -169,6 +218,12 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
           handleChangeWrapper={handleChangeWrapper}
           isReadOnly={!!props.isReadOnly}
           governmentIdList={employee.governmentIdList ?? []}
+          departments={props.departments}
+          positions={props.positions}
+          filteredPositions={props.filteredPositions}
+          selectedDepartmentId={props.selectedDepartmentId}
+          handleDepartmentChange={props.handleDepartmentChange}
+          governmentIdTypes={props.governmentIdTypes}
         />
 
         <h3>Salary Information</h3>
@@ -178,11 +233,9 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
           fieldErrors={fieldErrors}
           handleChangeWrapper={handleChangeWrapper}
           isReadOnly={props.isReadOnly}
-          deductionList={employee.deductionList ?? []}
-          benefitList={employee.benefitList ?? []}
         />
-        <h3>Related Forms/ Requests</h3>
-        <ExitLeaveSection />
+        {/* <h3>Related Forms/ Requests</h3>
+        <ExitLeaveSection /> */}
 
         <div className={styles.buttonGroup}>
           {props.isReadOnly ? (

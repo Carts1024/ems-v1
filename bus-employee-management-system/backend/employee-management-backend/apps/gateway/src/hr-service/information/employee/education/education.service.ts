@@ -60,7 +60,7 @@ export class EducationService {
   async update(id: number, dto: UpdateEducationDto) {
     try {
       const response = await firstValueFrom(
-        this.httpService.put(`${this.HR_SERVICE_URL}/education/${id}`, dto),
+        this.httpService.patch(`${this.HR_SERVICE_URL}/education/${id}`, dto),
       );
       return response.data;
     } catch (err) {

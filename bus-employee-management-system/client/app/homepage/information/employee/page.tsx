@@ -42,6 +42,7 @@ export default function EmployeePage() {
     pageSize,
     setPageSize,
     totalPages,
+    operationLoading,
     // --- work experience ---
     workExperiences,
     setWorkExperiences,
@@ -71,7 +72,15 @@ export default function EmployeePage() {
     deleteEducation,
     isTempEducValid,
     educDateError,
-    setEducDateError
+    setEducDateError,
+    // --- department and position ---
+    departments,
+    positions,
+    filteredPositions,
+    selectedDepartmentId,
+    handleDepartmentChange,
+    // --- government id types ---
+    governmentIdTypes
   } = EmployeeLogic();
 
 
@@ -100,9 +109,10 @@ export default function EmployeePage() {
 
     // Transform Deductions
     const deductionList = (apiEmp.deductions || []).map((d: any) => ({
+      id: d.id,
       reason: d.deductionType?.name || '',
       frequency: d.frequency || '',
-      type: d.type || '',
+      type: d.type || 'fixed',
       amount: d.value || '',
       effectiveDate: d.effectiveDate ? formatDate(d.effectiveDate) : '',
       endDate: d.endDate ? formatDate(d.endDate) : '',
@@ -111,6 +121,7 @@ export default function EmployeePage() {
 
     // Transform Benefits
     const benefitList = (apiEmp.benefits || []).map((b: any) => ({
+      id: b.id,
       benefit: b.benefitType?.name || '',
       frequency: b.frequency || '',
       amount: b.value || '',
@@ -122,7 +133,7 @@ export default function EmployeePage() {
   // Work Experience
   const workExperiences = (apiEmp.workExperiences || []).map((w: any) => ({
     id: w.id || w._id, // Ensure we have a unique identifier
-    company: w.companyName || '',
+    companyName: w.companyName || '',
     position: w.position || '',
     from: w.startDate ? formatDate(w.startDate) : '',
     to: w.endDate ? formatDate(w.endDate) : '',
@@ -131,11 +142,11 @@ export default function EmployeePage() {
 
   // Education
   const educationList = (apiEmp.educations || []).map((e: any) => ({
-    institute: e.institution || '',
+    institution: e.institution || '',
     degree: e.degree || '',
-    specialization: e.fieldOfStudy || '',
-    completionDate: e.endDate ? formatDate(e.endDate) : '', // Using endDate as completion
-    // you can also include honors/description if needed
+    fieldOfStudy: e.fieldOfStudy || '',
+    endDate: e.endDate ? formatDate(e.endDate) : '',
+    id: e.id
   }));
 
     // Transform Government IDs
@@ -162,7 +173,8 @@ export default function EmployeePage() {
       suffix: apiEmp.suffix ?? '',
       department: apiEmp.position?.department?.departmentName ?? '',
       position: apiEmp.position?.positionName ?? '',
-      basicPay: apiEmp.basicRate ?? '',
+      positionId: apiEmp.position?.id ?? apiEmp.positionId, // Extract positionId from API
+      basicRate: apiEmp.basicRate ?? '',
       deductionList,
       benefitList,
       educationList,
@@ -238,9 +250,19 @@ export default function EmployeePage() {
             />
           </div>
 
-          <button className={styles.addEmployeeButton} onClick={() => setShowAddModal(true)}>
+          <button 
+            className={styles.addEmployeeButton} 
+            onClick={() => {
+              setShowAddModal(true);
+              // Reset department selection for new employee
+              if (selectedDepartmentId) {
+                handleDepartmentChange(0); // Pass 0 to reset 
+              }
+            }}
+            disabled={operationLoading}
+          >
             <i className="ri-add-line"/>
-            Add Employee
+            {operationLoading ? 'Processing...' : 'Add Employee'}
           </button>
           <button className={styles.importButton}>
             <i className="ri-import-line"/>
@@ -316,12 +338,16 @@ export default function EmployeePage() {
                         }}>
                         <i className="ri-edit-2-line"/> Edit
                       </button>
-                        <button className={styles.deleteButton}
+                        <button 
+                          className={styles.deleteButton}
                           onClick={() => {
                             handleDeleteRequest(emp);
                             toggleActionDropdown(null); // Close dropdown
-                          }}>
-                          <i className="ri-delete-bin-line"/> Delete
+                          }}
+                          disabled={operationLoading}
+                        >
+                          <i className="ri-delete-bin-line"/> 
+                          {operationLoading ? 'Deleting...' : 'Delete'}
                         </button> 
                       </div>
                     )}
@@ -378,6 +404,12 @@ export default function EmployeePage() {
             isTempEducValid={isTempEducValid}
             educDateError={educDateError}
             setEducDateError={setEducDateError}
+            departments={departments}
+            positions={positions}
+            filteredPositions={filteredPositions}
+            selectedDepartmentId={selectedDepartmentId}
+            handleDepartmentChange={handleDepartmentChange}
+            governmentIdTypes={governmentIdTypes}
           />
         )}
 
@@ -418,6 +450,12 @@ export default function EmployeePage() {
             isTempEducValid={isTempEducValid}
             educDateError={educDateError}
             setEducDateError={setEducDateError}
+            departments={departments}
+            positions={positions}
+            filteredPositions={filteredPositions}
+            selectedDepartmentId={selectedDepartmentId}
+            handleDepartmentChange={handleDepartmentChange}
+            governmentIdTypes={governmentIdTypes}
           />
         )}
       </div>

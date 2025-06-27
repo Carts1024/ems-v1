@@ -1,8 +1,7 @@
 // types/employee.ts
 
 export interface WorkExperience {
-  id?: string;
-  company: string;
+  companyName: string;
   position: string;
   from: string;
   to: string;
@@ -11,13 +10,14 @@ export interface WorkExperience {
 
 export interface Education {
   id?: string;
-  institute: string;
+  institution: string;
   degree: string;
-  specialization: string;
-  completionDate: string;
+  fieldOfStudy: string;
+  endDate: string;
 }
 
 export interface GovernmentID {
+  id?: string;
   idType: string;
   idNumber: string;
   issuedDate: string;
@@ -26,6 +26,7 @@ export interface GovernmentID {
 }
 
 export interface Deduction {
+  id?: number;
   reason: string;
   frequency: string;
   type: 'fixed' | 'percentage';
@@ -36,6 +37,7 @@ export interface Deduction {
 }
 
 export interface Benefit {
+  id?: number;
   benefit: string;
   frequency: string;
   amount: string;

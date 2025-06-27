@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // C:\Users\clari\OneDrive\School\GitHub\ems-v1\bus-employee-management-system\client\app\homepage\usermanagement\userlogic.tsx
 import { useState, useEffect, useMemo } from 'react';
 import { showConfirmation, showSuccess, showError } from '@/app/utils/swal';

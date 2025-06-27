@@ -6,6 +6,7 @@ import { showSuccess, showConfirmation, showError } from '@/app/utils/swal';
 import { Employee } from '@/components/modal/information/EmployeeModalLogic';
 import { Education } from '@/types/employee';
 import { FilterSection } from '@/components/ui/filterDropdown';
+import { formatDate } from '@/app/utils/dateUtils';
 
 // --------- EmployeeLogic.tsx ---------
 export const EmployeeLogic = () => {
@@ -96,7 +97,7 @@ export const EmployeeLogic = () => {
       institution: selectedEducation?.institution || '',
       degree: selectedEducation?.degree || '',
       fieldOfStudy: selectedEducation?.fieldOfStudy || '',
-      endDate: selectedEducation?.endDate || '',
+      endDate: formatDate(selectedEducation?.endDate) || '',
       id: selectedEducation?.id
     });
   };
@@ -582,6 +583,11 @@ export const EmployeeLogic = () => {
     }
   }, [selectedDepartmentId, positions]);
 
+  // Reset pagination when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, departmentFilter, positionFilter]);
+
   // Handle department change
   const handleDepartmentChange = (departmentId: number) => {
     // If departmentId is 0 or less, reset to null
@@ -682,15 +688,26 @@ export const EmployeeLogic = () => {
     setFilteredEmployees(newData);
   };
 
-  const filteredByText = filteredEmployees.filter(emp => {
-    const fullName = `${emp.firstName} ${emp.middleName || ''} ${emp.lastName}`.toLowerCase();
-    return (
-      (!statusFilter || emp.status === statusFilter) &&
-      (!departmentFilter || emp.departmentName === departmentFilter) &&
-      (!positionFilter || emp.positionName === positionFilter) &&
-      (!searchTerm || fullName.includes(searchTerm.toLowerCase()))
-    );
-  });
+  // Apply all filters including search term, status filter, department filter, and position filter
+  const filteredByAllCriteria = useMemo(() => {
+    return filteredEmployees.filter(emp => {
+      const fullName = `${emp.firstName} ${emp.middleName || ''} ${emp.lastName}`.toLowerCase();
+      const searchableText = [
+        fullName,
+        emp.employeeNumber || '',
+        emp.email || '',
+        emp.departmentName || '',
+        emp.positionName || ''
+      ].join(' ').toLowerCase();
+      
+      return (
+        (!statusFilter || emp.status === statusFilter) &&
+        (!departmentFilter || emp.departmentName === departmentFilter) &&
+        (!positionFilter || emp.positionName === positionFilter) &&
+        (!searchTerm || searchableText.includes(searchTerm.toLowerCase()))
+      );
+    });
+  }, [filteredEmployees, statusFilter, departmentFilter, positionFilter, searchTerm]);
 
   // ---- Pagination ----
   const [currentPage, setCurrentPage] = useState(1);
@@ -698,20 +715,12 @@ export const EmployeeLogic = () => {
 
   const paginatedEmployees = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
-    return filteredEmployees.slice(start, start + pageSize);
-  }, [filteredEmployees, currentPage, pageSize]);
+    return filteredByAllCriteria.slice(start, start + pageSize);
+  }, [filteredByAllCriteria, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredEmployees.length / pageSize);
+  const totalPages = Math.ceil(filteredByAllCriteria.length / pageSize);
 
   // ---- WORK EXPERIENCE: Backend CRUD ----
-  function formatDate(dateStr: string | undefined) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return '';
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${d.getFullYear()}-${month}-${day}`;
-  }
   // Fetch all work experiences for the selected employee
   const fetchWorkExperiences = async (employeeId: string) => {
     try {
@@ -743,7 +752,12 @@ export const EmployeeLogic = () => {
   // Edit work experience row (UI)
   const editWork = (index: number) => {
     setEditingWorkIndex(index);
-    setTempWork(workExperiences[index]);
+    const workExp = workExperiences[index];
+    setTempWork({
+      ...workExp,
+      from: formatDate(workExp.from) || workExp.from || '',
+      to: formatDate(workExp.to) || workExp.to || '',
+    });
   };
 
   // Cancel add/edit (UI)
@@ -785,7 +799,18 @@ export const EmployeeLogic = () => {
       });
       if (!res.ok) throw new Error('Failed to add');
       newWorkExp = await res.json();
-      setWorkExperiences([...workExperiences, newWorkExp]); // <-- this ensures newWorkExp has id
+      
+      // Map backend response to frontend format
+      const mappedWorkExp = {
+        id: newWorkExp.id,
+        companyName: newWorkExp.companyName || '',
+        position: newWorkExp.position || '',
+        from: newWorkExp.startDate ? formatDate(newWorkExp.startDate) : '',
+        to: newWorkExp.endDate ? formatDate(newWorkExp.endDate) : '',
+        description: newWorkExp.description || '',
+      };
+      
+      setWorkExperiences([...workExperiences, mappedWorkExp]);
       showSuccess('Success', 'Work Experience added.');
     } else {
       // UPDATE
@@ -797,8 +822,19 @@ export const EmployeeLogic = () => {
       });
       if (!res.ok) throw new Error('Failed to update');
       newWorkExp = await res.json();
+      
+      // Map backend response to frontend format
+      const mappedWorkExp = {
+        id: newWorkExp.id,
+        companyName: newWorkExp.companyName || '',
+        position: newWorkExp.position || '',
+        from: newWorkExp.startDate ? formatDate(newWorkExp.startDate) : '',
+        to: newWorkExp.endDate ? formatDate(newWorkExp.endDate) : '',
+        description: newWorkExp.description || '',
+      };
+      
       const updated = workExperiences.map((exp, idx) =>
-        idx === editingWorkIndex ? newWorkExp : exp
+        idx === editingWorkIndex ? mappedWorkExp : exp
       );
       setWorkExperiences(updated);
       showSuccess('Success', 'Work Experience updated.');
@@ -1221,7 +1257,7 @@ export const EmployeeLogic = () => {
     selectedEmployee,
     setSelectedEmployee,
     employees,
-    filteredEmployees: filteredByText,
+    filteredEmployees: filteredByAllCriteria,
     operationLoading,
     searchTerm,
     setSearchTerm,

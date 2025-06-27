@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useMemo } from 'react';
 import { showConfirmation, showSuccess, showError } from '@/app/utils/swal';
 import { FilterSection } from '@/components/ui/filterDropdown';

@@ -87,13 +87,13 @@ const LeaveFormModal: React.FC<LeaveFormModalProps> = ({
       endDate: formatDateForComparison(defaultValue.endDate),
       specificPartialDate: formatDateForComparison(defaultValue.specificPartialDate),
       // Ensure all fields are included for a proper comparison
-      employeeName: defaultValue.employeeName || '',
+      employee: defaultValue.employee || '',
       department: defaultValue.department || '',
       dateHired: defaultValue.dateHired || '',
       jobPosition: defaultValue.jobPosition || '',
       leaveType: defaultValue.leaveType || '',
       customLeaveType: defaultValue.customLeaveType || '',
-      reasonForLeave: defaultValue.reasonForLeave || '',
+      reason: defaultValue.reason || '',
       contactInformation: defaultValue.contactInformation || '',
       supportingDocuments: defaultValue.supportingDocuments || '',
       approver: defaultValue.approver || '',
@@ -108,13 +108,13 @@ const LeaveFormModal: React.FC<LeaveFormModalProps> = ({
       endDate: formatDateForComparison(leave.endDate),
       specificPartialDate: formatDateForComparison(leave.specificPartialDate),
       // Ensure all fields are included for a proper comparison
-      employeeName: leave.employeeName || '',
+      employee: leave.employee || '',
       department: leave.department || '',
       dateHired: leave.dateHired || '',
       jobPosition: leave.jobPosition || '',
       leaveType: leave.leaveType || '',
       customLeaveType: leave.customLeaveType || '',
-      reasonForLeave: leave.reasonForLeave || '',
+      reason: leave.reason || '',
       contactInformation: leave.contactInformation || '',
       supportingDocuments: leave.supportingDocuments || '',
       approver: leave.approver || '',
@@ -167,16 +167,16 @@ const LeaveFormModal: React.FC<LeaveFormModalProps> = ({
             <div className={styles.formColumn}>
               <h4>Employee Details</h4>
               {/* Employee Name */}
-              <label htmlFor="employeeName" className={styles.label}>Employee Name</label>
+              <label htmlFor="employee" className={styles.label}>Employee Name</label>
               <input
-                id="employeeName"
-                className={`${styles.inputField} ${fieldErrors.employeeName ? styles.inputError : ''}`}
-                value={leave.employeeName}
-                onChange={(e) => handleChangeWrapper('employeeName', e.target.value)}
+                id="employee"
+                className={`${styles.inputField} ${fieldErrors.employee ? styles.inputError : ''}`}
+                value={leave.employee}
+                onChange={(e) => handleChangeWrapper('employee', e.target.value)}
                 placeholder="Enter employee name"
                 readOnly={isView} // Make read-only in view mode
               />
-              {fieldErrors.employeeName && !isView && <p className={styles.errorText}>{fieldErrors.employeeName}</p>}
+              {fieldErrors.employee && !isView && <p className={styles.errorText}>{fieldErrors.employee}</p>}
 
               {/* Department */}
               <label htmlFor="department" className={styles.label}>Department</label>
@@ -372,17 +372,17 @@ const LeaveFormModal: React.FC<LeaveFormModalProps> = ({
             <div className={styles.formColumn}>
               <h4>Other Information</h4>
               {/* Reason for Leave */}
-              <label htmlFor="reasonForLeave" className={styles.label}>Reason for Leave</label>
+              <label htmlFor="reason" className={styles.label}>Reason for Leave</label>
               <textarea
-                id="reasonForLeave"
-                className={`${styles.inputField} ${fieldErrors.reasonForLeave ? styles.inputError : ''}`}
-                value={leave.reasonForLeave}
-                onChange={(e) => handleChangeWrapper('reasonForLeave', e.target.value)}
+                id="reason"
+                className={`${styles.inputField} ${fieldErrors.reason ? styles.inputError : ''}`}
+                value={leave.reason}
+                onChange={(e) => handleChangeWrapper('reason', e.target.value)}
                 placeholder="Briefly explain the reason for your leave..."
                 rows={4}
                 readOnly={isView} // Make read-only in view mode
               ></textarea>
-              {fieldErrors.reasonForLeave && !isView && <p className={styles.errorText}>{fieldErrors.reasonForLeave}</p>}
+              {fieldErrors.reason && !isView && <p className={styles.errorText}>{fieldErrors.reason}</p>}
 
               {/* Contact Information During Leave */}
               <label htmlFor="contactInformation" className={styles.label}>Contact Information During Leave (Optional)</label>

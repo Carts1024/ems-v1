@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable prefer-const */
+ 
 import { useState, useEffect } from 'react';
 
 export interface InterviewForm {

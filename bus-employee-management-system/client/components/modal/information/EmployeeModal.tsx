@@ -142,15 +142,23 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
   const handleSubmitWrapper = () => {
     if (!employeeRecords.validateGovernmentIds()) return;
     
-    // Pass government IDs to handleSubmit
-    handleSubmit(employeeRecords.governmentIds || []);
+    // Pass government IDs, benefits, and deductions to handleSubmit
+    handleSubmit(
+      employeeRecords.governmentIds || [], 
+      employeeRecords.benefitList || [], 
+      employeeRecords.deductionList || []
+    );
   };
 
   const handleUpdateConfirmWrapper = () => {
     if (!employeeRecords.validateGovernmentIds()) return;
     
-    // Pass government IDs to handleUpdateConfirm  
-    handleUpdateConfirm(employeeRecords.governmentIds || []);
+    // Pass government IDs, benefits, and deductions to handleUpdateConfirm  
+    handleUpdateConfirm(
+      employeeRecords.governmentIds || [], 
+      employeeRecords.benefitList || [], 
+      employeeRecords.deductionList || []
+    );
   };
 
   return (

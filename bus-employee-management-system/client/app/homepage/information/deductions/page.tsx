@@ -12,6 +12,8 @@ import PaginationComponent from '@/components/ui/pagination';
 const DeductionsPage = () => {
   const {
     filteredDeductions,
+    loading,
+    isOperationLoading,
     searchTerm,
     setSearchTerm,
     paginatedDeductions,
@@ -54,7 +56,11 @@ const DeductionsPage = () => {
             />
           </div>
 
-          <button onClick={() => setShowAddModal(true)} className={styles.addDeductionsButton}>
+          <button 
+            onClick={() => setShowAddModal(true)} 
+            className={styles.addDeductionsButton}
+            disabled={isOperationLoading}
+          >
             <i className='ri-add-line'/>
             Add Deduction
           </button>
@@ -70,8 +76,21 @@ const DeductionsPage = () => {
               </tr>
             </thead>
             <tbody>
-              {paginatedDeductions.map((deduct, index) => (
-                <tr key={deduct.name}>
+              {loading ? (
+                <tr>
+                  <td colSpan={3} style={{ textAlign: 'center', padding: '20px' }}>
+                    Loading deductions...
+                  </td>
+                </tr>
+              ) : paginatedDeductions.length === 0 ? (
+                <tr>
+                  <td colSpan={3} style={{ textAlign: 'center', padding: '20px' }}>
+                    No deductions found
+                  </td>
+                </tr>
+              ) : (
+                paginatedDeductions.map((deduct, index) => (
+                <tr key={deduct.id}>
                   <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
                   <td>{deduct.name}</td>
                   <td className={styles.actionCell}>
@@ -79,6 +98,7 @@ const DeductionsPage = () => {
                     <button
                       className={styles.mainActionButton} // You might need to define this style
                       onClick={() => toggleActionDropdown(index)}
+                      disabled={isOperationLoading}
                     >
                       <i className="ri-more-2-fill" />
                     </button>
@@ -109,7 +129,7 @@ const DeductionsPage = () => {
                         <button
                           className={styles.deleteButton}
                           onClick={() => {
-                            handleDeleteRequest(deduct.name);
+                            handleDeleteRequest(deduct);
                             toggleActionDropdown(null); // Close dropdown after action
                           }}
                         > <i className='ri-delete-bin-line' /> Delete
@@ -118,7 +138,8 @@ const DeductionsPage = () => {
                     )}
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>

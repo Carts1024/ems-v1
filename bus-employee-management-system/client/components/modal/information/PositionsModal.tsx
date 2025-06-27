@@ -5,21 +5,21 @@ interface PositionsModalProps {
   isEdit: boolean;
   positionName: string;
   setPositionName: React.Dispatch<React.SetStateAction<string>>;
-  department: string;
-  setDepartment: React.Dispatch<React.SetStateAction<string>>;
+  departmentId: string;
+  setDepartmentId: React.Dispatch<React.SetStateAction<string>>;
   error: string;
   onClose: () => void;
   onSubmit: () => void;
   isSubmitDisabled: boolean;
-  departmentOptions: string[];
+  departmentOptions: { id: string; label: string }[];
 }
 
 const PositionsModal: React.FC<PositionsModalProps> = ({
   isEdit,
   positionName,
   setPositionName,
-  department,
-  setDepartment,
+  departmentId,
+  setDepartmentId,
   error,
   onClose,
   onSubmit,
@@ -49,13 +49,13 @@ const PositionsModal: React.FC<PositionsModalProps> = ({
         <div className={styles.inputGroup}>
           <label className={styles.label}>Department</label>
           <select
-            value={department}
-            onChange={(e) => setDepartment(e.target.value)}
+            value={departmentId}
+            onChange={(e) => setDepartmentId(e.target.value)}
             className={styles.inputField}
           >
             <option value="">Select department</option>
             {departmentOptions.map(opt => (
-              <option key={opt} value={opt}>{opt}</option>
+              <option key={opt.id} value={opt.id}>{opt.label}</option>
             ))}
           </select>
         </div>

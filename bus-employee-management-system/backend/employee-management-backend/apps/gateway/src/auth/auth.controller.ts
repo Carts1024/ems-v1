@@ -5,7 +5,7 @@
  
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable prettier/prettier */
-import { Controller, Post, Body, Res, Headers, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, Res, Headers, BadRequestException, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
@@ -179,4 +179,62 @@ export class AuthController {
     });
     res.status(200).json({ message: 'Logged out' });
   }
+
+  @Get('security-questions')
+  @HttpCode(HttpStatus.OK)
+  async getSecurityQuestions() {
+    // Forward GET request to Auth-MS
+    const response = await firstValueFrom(
+      this.httpService.get(`${this.AUTH_SERVICE_URL}/auth/security-questions`)
+    );
+    return response.data;
+  }
+
+  @Post('setup-security-question')
+  async setupSecurityQuestion(@Body() body: any) {
+    // Forward the request to Auth-MS
+    const res = await firstValueFrom(
+      this.httpService.post(`${this.AUTH_SERVICE_URL}/auth/setup-security-question`, body)
+    );
+    return res.data;
+  }
+
+  @Post('mandatory-password-reset')
+  async mandatoryPasswordReset(@Body() body: any) {
+    // Forward the request to Auth-MS
+    const res = await firstValueFrom(
+      this.httpService.post(`${this.AUTH_SERVICE_URL}/auth/mandatory-password-reset`, body)
+    );
+    return res.data;
+  }
+
+  @Post('request-password-reset')
+  @HttpCode(HttpStatus.OK)
+  async requestPasswordReset(@Body() body: { email: string }) {
+    const res = await firstValueFrom(
+      this.httpService.post(`${this.AUTH_SERVICE_URL}/auth/request-password-reset`, body)
+    );
+    return res.data;
+  }
+
+  @Post('security-question-with-token')
+  @HttpCode(HttpStatus.OK)
+  async getSecurityQuestionWithToken(@Body() body: { token: string }) {
+    const res = await firstValueFrom(
+      this.httpService.post(`${this.AUTH_SERVICE_URL}/auth/security-question-with-token`, body)
+    );
+    return res.data;
+  }
+
+  @Post('validate-security-answer-with-token')
+  @HttpCode(HttpStatus.OK)
+  async validateSecurityAnswerWithToken(
+    @Body() body: { token: string; answer: string }
+  ) {
+    const res = await firstValueFrom(
+      this.httpService.post(`${this.AUTH_SERVICE_URL}/auth/validate-security-answer-with-token`, body)
+    );
+    return res.data;
+  }
 }
+

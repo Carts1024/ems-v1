@@ -107,12 +107,12 @@ const CandidateModal: React.FC<CandidateModalProps> = (props) => {
           </h1>
         )}
 
-        <h3>Candidate Details</h3>
+        <h3>Candidate Information</h3>
 
         <div className={styles.sectionGroup}>
           <div className={styles.formSections}>
             <div className={styles.basicInfo}>
-              <h4>Basic Information</h4>
+              <h4>Personal Details</h4>
               <label className={styles.label}>Last Name</label>
               <input
                 className={`${styles.inputField} ${fieldErrors.lastName ? styles.inputError : ''}`}
@@ -135,12 +135,25 @@ const CandidateModal: React.FC<CandidateModalProps> = (props) => {
 
               {!(props.isReadOnly && !candidate.middleName) && (
                 <>
-                  <label className={styles.label}>Middle Name (Optional)</label>
+                  <label className={styles.label}>Middle Name</label>
                   <input
                     className={styles.inputField}
                     value={candidate.middleName}
                     onChange={(e) => handleChangeWrapper('middleName', e.target.value)}
                     placeholder="Enter middle name"
+                    disabled={props.isReadOnly}
+                  />
+                </>
+              )}
+
+              {!(props.isReadOnly && !candidate.suffix) && (
+                <>
+                  <label className={styles.label}>Suffix</label>
+                  <input
+                    className={styles.inputField}
+                    value={candidate.suffix}
+                    onChange={(e) => handleChangeWrapper('suffix', e.target.value)}
+                    placeholder="Enter suffix"
                     disabled={props.isReadOnly}
                   />
                 </>
@@ -178,17 +191,60 @@ const CandidateModal: React.FC<CandidateModalProps> = (props) => {
                 disabled={props.isReadOnly}
               />
               {fieldErrors.contact && <p className={styles.errorText}>{fieldErrors.contact}</p>}
+            </div>
+          </div>
 
-              <label className={styles.label}>Address</label>
+          <div>
+            <h4>Address</h4>
+              <label className={styles.label}>House No./Street</label>
               <input
-                className={`${styles.inputField} ${fieldErrors.address ? styles.inputError : ''}`}
-                value={candidate.address}
-                onChange={(e) => handleChangeWrapper('address', e.target.value)}
-                placeholder="Enter address"
+                className={`${styles.inputField} ${fieldErrors.streetAddress ? styles.inputError : ''}`}
+                value={candidate.streetAddress}
+                onChange={(e) => handleChangeWrapper('streetAddress', e.target.value)}
+                placeholder="Enter house no/ street"
                 disabled={props.isReadOnly}
               />
-              {fieldErrors.address && <p className={styles.errorText}>{fieldErrors.address}</p>}
-            </div>
+              {fieldErrors.streetAddress && <p className={styles.errorText}>{fieldErrors.streetAddress}</p>}
+
+              <label className={styles.label}>Barangay</label>
+              <input
+                className={`${styles.inputField} ${fieldErrors.barangay ? styles.inputError : ''}`}
+                value={candidate.barangay}
+                onChange={(e) => handleChangeWrapper('barangay', e.target.value)}
+                placeholder="Enter barangay"
+                disabled={props.isReadOnly}
+              />
+              {fieldErrors.barangay && <p className={styles.errorText}>{fieldErrors.barangay}</p>}
+
+              <label className={styles.label}>City</label>
+              <input
+                className={`${styles.inputField} ${fieldErrors.city ? styles.inputError : ''}`}
+                value={candidate.city}
+                onChange={(e) => handleChangeWrapper('city', e.target.value)}
+                placeholder="Enter city"
+                disabled={props.isReadOnly}
+              />
+              {fieldErrors.city && <p className={styles.errorText}>{fieldErrors.city}</p>}
+
+              <label className={styles.label}>Province</label>
+              <input
+                className={`${styles.inputField} ${fieldErrors.province ? styles.inputError : ''}`}
+                value={candidate.province}
+                onChange={(e) => handleChangeWrapper('province', e.target.value)}
+                placeholder="Enter province"
+                disabled={props.isReadOnly}
+              />
+              {fieldErrors.province && <p className={styles.errorText}>{fieldErrors.province}</p>}
+
+              <label className={styles.label}>Country</label>
+              <input
+                className={`${styles.inputField} ${fieldErrors.country ? styles.inputError : ''}`}
+                value={candidate.country}
+                onChange={(e) => handleChangeWrapper('country', e.target.value)}
+                placeholder="Enter country"
+                disabled={props.isReadOnly}
+              />
+              {fieldErrors.country && <p className={styles.errorText}>{fieldErrors.country}</p>}
           </div>
 
           {/* Work Experience Table */}
@@ -366,7 +422,7 @@ const CandidateModal: React.FC<CandidateModalProps> = (props) => {
           </table>
         </div>
 
-        <h3>Onboarding Information</h3>
+        <h3>Application Information</h3>
 
         <div className={styles.sectionGroup}>
           <div className={styles.onboardingInfo}>
@@ -445,66 +501,6 @@ const CandidateModal: React.FC<CandidateModalProps> = (props) => {
             </table>
           </div>
         </div>
-
-        {/* Related Forms or Requests */}
-
-        {/* <h3>Related Forms/ Requests</h3>
-
-        <div className={styles.sectionGroup}>
-          <div className={styles.relatedForms}>
-            <h4>Exit Details</h4>
-            <table className={styles.exitDetailsTable}>
-              <thead>
-                <tr>
-                  <th className={styles.firstColumn}>No.</th>
-                  <th>Date Hired</th>
-                  <th>Department</th>
-                  <th>Position</th>
-                  <th>Request Date</th>
-                  <th>Last Day of Work</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>2019-02-20</td>
-                  <td>Operations</td>
-                  <td>Driver</td>
-                  <td>2024-04-15</td>
-                  <td>2024-05-15</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <h4>Leave Requests</h4>
-            <table className={styles.leaveRequestTable}>
-              <thead>
-                <tr>
-                  <th className={styles.firstColumn}>No.</th>
-                  <th>Date Hired</th>
-                  <th>Department</th>
-                  <th>Position</th>
-                  <th>Request Date</th>
-                  <th>Leave Type</th>
-                  <th>Start Date</th>
-                  <th>End Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>2021-03-10</td>
-                  <td>Operations</td>
-                  <td>Driver</td>
-                  <td>2024-03-01</td>
-                  <td>Vacation Leave</td>
-                  <td>2024-06-10</td>
-                  <td>2024-06-17</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div> */}
 
         <div className={styles.buttonGroup}>
           {props.isReadOnly ? (

@@ -4,14 +4,15 @@
 }
 
 .interviewContainer {
-  max-width: auto;
-  height: auto;
-  max-height: none; 
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   padding: 2rem;
-  padding-top: 0.01rem; 
+  padding-top: 0.01rem;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  overflow: hidden;
 }
 
 .title {
@@ -95,106 +96,16 @@
   width: 75px;
 }
 
-/* .actionCell {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.actionCell i{
-  padding: 3px 6px; 
-  font-size: 14px; 
-  border-radius: 4px; 
-  color: #FFFFFF; 
-  transition: all 0.3s ease-in-out; 
-  cursor: pointer; 
-  border: none; 
-}
-
-.viewButton {
-  background-color: #13CE66;
-  border-radius: 4px;
-}
-
-.viewButton:hover {
-  background-color: #12B75C;
-}
-
-.editButton{
-  background-color: #2D8EFF;
-  border-radius: 4px;
-}
-
-.editButton:hover {
-  background-color: #267BDB;
-}
-
-.deleteButton {
-  background-color: #FF4949;
-  border-radius: 4px;
-}
-
-.deleteButton:hover {
-  background-color: #DE3939;
-} */
-
-/* =================================== */
-/* .tableWrapper {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.interviewTable {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-  text-align: center;
-  color: red;
-
-}
-
-.interviewTable thead th {
-  position: sticky;
-  top: 0;
-  background: #fff;
-  z-index: 2;
-  border-bottom: 2px solid #ddd;
-  padding: 10px;
-}
-
-.interviewTable tbody {
-  display: block;
-  max-height: 300px; /* scroll height
-  overflow-y: auto;
-  width: 100%;
-}
-
-.interviewTable thead,
-.interviewTable tbody tr {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
-}
-
-.interviewTable tbody td {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-} */
-
 /* =========================================== */
 /* Table Styling */
 .tableWrapper {
-  flex: 1 1 auto;
-  min-height: 0;
-  margin-bottom: 1.5rem;
+  flex: 1; 
+  overflow-y: auto;
+  overflow-x: hidden;
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  background-color: #fff;
-  border-color: #B7B7B7;
-  overflow-x: auto; /* Kept for responsiveness */
-  overflow-y: visible; /* This should be auto to allow scrolling */
-  position: relative;
-  z-index: 0;
+  margin-bottom: 1rem;
+  max-height: unset; 
 }
 
 /* Custom Scrollbar Styles for WebKit (Chrome, Safari, Edge) */
@@ -239,24 +150,28 @@
 }
 
 .interviewTable thead th {
+  position: sticky;
+  top: 0;
   padding: 12px 15px;
   font-weight: 600;
   color: black;
   text-align: center;
   border-bottom: 1px solid #ccc;
   background-color: #D8D8D8;
-  white-space: normal; /* Allow text wrapping for headers */
+  white-space: normal; 
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: top;
+  height: 60px;
+  z-index: 10;
 }
 
 /* Flexible column sizing. Adjust percentages as needed. */
 .interviewTable thead th:nth-child(1) { width: 5%; } /* No. */
 .interviewTable thead th:nth-child(2) { width: 10%; } /* Interview Status */
-.interviewTable thead th:nth-child(3) { width: 15%; } /* Name */
-.interviewTable thead th:nth-child(4) { width: 10%; } /* Desired position */
-.interviewTable thead th:nth-child(5) { width: 16%; } /* Interview date */
+.interviewTable thead th:nth-child(3) { width: 20%; } /* Name */
+.interviewTable thead th:nth-child(4) { width: 15%; } /* Interview Date */
+.interviewTable thead th:nth-child(5) { width: 10%; } /* Interview Time*/
 .interviewTable thead th:nth-child(6) { width: 10%; } /* Actions */
 
 
@@ -382,11 +297,6 @@ td.truncate {
   text-align: center;
 }
 
-.interview-not-scheduled {
-  background-color: #f2dede;
-  color: #a94442;
-}
-
 .interview-scheduled {
   background-color: #d9edf7;
   color: #31708f;
@@ -395,4 +305,9 @@ td.truncate {
 .interview-completed {
   background-color: #D1F7D1;
   color: #23915F;
+}
+
+.interview-cancelled {
+  background-color: #f2dede;
+  color: #a94442;
 }

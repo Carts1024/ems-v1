@@ -3,11 +3,13 @@ import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { EmployeeService } from './employee.service';
 import { EmployeeController } from './employee.controller';
-import { PositionsController } from './positions.controller';
+import { WorkExperienceModule } from './workExperience/work-experience.module';
+import { GovernmentIdModule } from './government-id/government-id.module';  
+import { EducationModule } from './education/education.module';
 
 @Module({
-  imports: [HttpModule],
-  controllers: [EmployeeController,PositionsController],
+  imports: [HttpModule, WorkExperienceModule, GovernmentIdModule, EducationModule],
+  controllers: [EmployeeController],
   providers: [EmployeeService],
 })
 export class EmployeeModule {}

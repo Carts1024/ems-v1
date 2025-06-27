@@ -1,4 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 "use client";
 
 import { useRouter } from 'next/navigation';
@@ -13,9 +14,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     // Check if user is authenticated (you'll need to implement this)
     const isAuthenticated = localStorage.getItem('isAuthenticated');
-    if (!isAuthenticated) {
-      router.push('/homepage');
-    }
+    // if (!isAuthenticated) {
+    //   router.push('');
+    // }
   }, []);
 
   return (

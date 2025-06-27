@@ -43,7 +43,7 @@ export class AuthController {
       phone,
       barangay,
       zipCode,
-      departmentId,
+      positionId, // <- Use positionId instead of departmentId
       // ...user fields:
       email,
       roleId,
@@ -70,7 +70,7 @@ export class AuthController {
           phone,
           barangay,
           zipCode,
-          departmentId,
+          positionId, // <-- Change here
         })
       );
       employee = res.data;
@@ -93,6 +93,7 @@ export class AuthController {
 
     return userRes.data;
   }
+
 
   @Post('first-password-reset')
   async firstResetPassword(@Body() body: { employeeNumber: string; newPassword: string }) {

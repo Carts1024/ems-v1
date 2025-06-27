@@ -10,7 +10,12 @@ import appConfig from './config/app.config';
 import authConfig from './config/auth.config';
 import { RolesController } from './auth/roles.controller';
 import { DepartmentController } from './hr-service/information/department/department.controller';
-
+import { EmployeeModule } from './hr-service/information/employee/employee.module';
+import { BenefitsModule } from './hr-service/benefits/benefits.module';
+import { DeductionsModule } from './hr-service/deductions/deductions.module';
+import { PositionsModule } from './hr-service/information/positions/positions.module';
+import { AttendanceModule } from './hr-service/attendance/attendance.module';
+import { FinanceEmpModule } from './hr-service/finance/finance.module';
 
 
 
@@ -23,6 +28,12 @@ import { DepartmentController } from './hr-service/information/department/depart
     }),
     HttpModule,
     AuthModule,
+    EmployeeModule,
+    BenefitsModule,
+    DeductionsModule,
+    PositionsModule,
+    AttendanceModule,
+    FinanceEmpModule,
     ClientsModule.register([
       {
         

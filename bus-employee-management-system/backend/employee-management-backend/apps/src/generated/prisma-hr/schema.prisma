@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../src/generated/prisma-hr" // or any unique path
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model employee {
+  id             String   @id @default(cuid())
+  firstName      String
+  lastName       String
+  birthdate      DateTime
+  hiredate       DateTime
+  phone          String
+  barangay       String
+  zipCode        String
+  employeeStatus String   @default("active") // Employee status (e.g., 'active', 'inactive', 'terminated', 'On Leave')
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  departmentId   Int // Foreign key to Department model
+
+  department Department @relation(fields: [departmentId], references: [id])
+}
+
+model Department {
+  id             Int      @id @default(autoincrement())
+  departmentName String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relationships
+  employee employee[]
+}

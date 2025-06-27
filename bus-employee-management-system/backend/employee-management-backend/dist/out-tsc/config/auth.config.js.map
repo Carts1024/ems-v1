@@ -1,0 +1,1 @@
+{"version":3,"file":"auth.config.js","sourceRoot":"","sources":["../../../apps/gateway/src/config/auth.config.ts"],"names":[],"mappings":";;AACA,kBAAe,GAAG,EAAE,CAAC,CAAC;IACpB,IAAI,EAAE;QACJ,SAAS,EAAE,OAAO,CAAC,GAAG,CAAC,UAAU;QACjC,cAAc,EAAE,OAAO,CAAC,GAAG,CAAC,gBAAgB;KAC7C;CACF,CAAC,CAAC"}

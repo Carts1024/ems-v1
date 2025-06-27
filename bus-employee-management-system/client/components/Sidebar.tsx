@@ -21,19 +21,19 @@ const Sidebar = () => {
 
     // Menu structure data
     const menuItems = [
+        // {
+        //     path: '/homepage',
+        //     name: 'Dashboard',
+        //     icon: 'ri-dashboard-line',
+        //     key: 'dashboard'
+        // },
         {
-            path: '/homepage',
-            name: 'Dashboard',
-            icon: 'ri-dashboard-line',
-            key: 'dashboard'
-        },
-        {
-            name: 'Onboarding',
+            name: 'Recruitment',
             icon: 'ri-user-add-line',
-            key: 'onboarding',
+            key: 'recruitment',
             subItems: [
-                { path: '/homepage/onboarding/candidate', name: 'Candidate Overview', key: 'candidate-overview' },
-                { path: '/homepage/onboarding/interview', name: 'Interview Scheduling', key: 'interview-scheduling' }
+                { path: '/homepage/recruitment/candidate', name: 'Candidate Overview', key: 'candidate-overview' },
+                { path: '/homepage/recruitment/interview', name: 'Interview Scheduling', key: 'interview-scheduling' }
             ]
         },
         {
@@ -41,7 +41,7 @@ const Sidebar = () => {
             icon: 'ri-time-line',
             key: 'attendance',
             subItems: [
-                { path: '/homepage/attendance/time-in-out', name: 'Time-in/Time-out', key: 'time-in-out' },
+                // { path: '/homepage/attendance/time-in-out', name: 'Time-in/Time-out', key: 'time-in-out' },
                 { path: '/homepage/attendance/daily-report', name: 'Daily Attendance Report', key: 'daily-report' }
             ]
         },
@@ -51,7 +51,10 @@ const Sidebar = () => {
             key: 'employee',
             subItems: [
                 { path: '/homepage/information/employee', name: 'Employee List', key: 'employee-list' },
-                { path: '/homepage/information/department', name: 'Department List', key: 'departments' }
+                { path: '/homepage/information/department', name: 'Department List', key: 'departments' },
+                { path: '/homepage/information/positions', name: 'Positions', key: 'positions' },
+                { path: '/homepage/information/benefits', name: 'Benefits', key: 'benefits' },
+                { path: '/homepage/information/deductions', name: 'Deductions', key: 'deductions' }
             ]
         },
         {
@@ -59,8 +62,9 @@ const Sidebar = () => {
             icon: 'ri-file-list-line',
             key: 'requests',
             subItems: [
-                { path: '/requests/leave', name: 'Leave', key: 'leave' },
-                { path: '/requests/resignation', name: 'Resignation', key: 'resignation' }
+                { path: '/homepage/requests/leave', name: 'Leave', key: 'leave' },
+                { path: '/homepage/requests/resignation', name: 'Resignation', key: 'resignation' },
+                { path: '/homepage/requests/resignation', name: 'Cash Advance', key: 'cash-advance' }
             ]
         },
         {
@@ -109,8 +113,7 @@ const Sidebar = () => {
 
     const handleLogout = async () => {
         await logout();
-        const logoutRedirectUrl = 'https://auth.agilabuscorp.me';
-        window.location.href = logoutRedirectUrl;
+        window.location.href = '/authentication/login'; // Ensures middleware and browser see the cookie is gone
     };
 
 
@@ -118,7 +121,7 @@ const Sidebar = () => {
         <div className="sidebar shadow-lg">
             <div className="sidebar-content">
                 <div className="logo-img">
-                    <img src="/assets/images/agila logo.png" alt="logo" />
+                    <img src="/assets/images/AgilaBusLogo.png" alt="logo" />
                 </div>
 
                 <div className="nav-links">

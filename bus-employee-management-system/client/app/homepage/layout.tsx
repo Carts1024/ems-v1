@@ -13,9 +13,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     // Check if user is authenticated (you'll need to implement this)
     const isAuthenticated = localStorage.getItem('isAuthenticated');
-    if (!isAuthenticated) {
-      router.push('/homepage');
-    }
+    // if (!isAuthenticated) {
+    //   router.push('');
+    // }
   }, []);
 
   return (

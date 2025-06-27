@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import React from 'react';
@@ -6,14 +7,12 @@ import "@/styles/filters.css"
 import "@/styles/pagination.css"
 import DepartmentModal from '@/components/modal/information/DepartmentModalLogic';
 import { DepartmentLogic } from './departmentLogic';
+import PaginationComponent from '@/components/ui/pagination';
 
 const DepartmentPage = () => {
   const {
-    filteredDepartments,
     searchTerm,
     setSearchTerm,
-    employeeFilter,
-    setEmployeeFilter,
     showAddModal,
     setShowAddModal,
     showEditModal,
@@ -21,9 +20,19 @@ const DepartmentPage = () => {
     selectedDept,
     setSelectedDept,
     departments,
+    filteredDepartments,
+    paginatedDepartments,
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    totalPages,
     handleAdd,
     handleEdit,
     handleDeleteRequest,
+    handleApplyFilters,
+    openActionDropdownIndex,
+    toggleActionDropdown,
   } = DepartmentLogic();
 
   return (
@@ -35,7 +44,7 @@ const DepartmentPage = () => {
 
           {/* Search */}
           <div className={styles.search}>
-            <i className='ri-search-line'/>
+            <i className='ri-search-line' />
             <input
               type="text"
               placeholder="Search here..."
@@ -44,23 +53,21 @@ const DepartmentPage = () => {
             />
           </div>
 
-
-          {/* No. of Employees Filter */}
+          {/* Sort by No. of Employees */}
+          <label>Sort by</label>
           <select
             className={styles.filterDropdown}
-            value={employeeFilter}
-            onChange={(e) => setEmployeeFilter(e.target.value)}
+            onChange={(e) =>
+              handleApplyFilters({ sortBy: 'employees', order: e.target.value })
+            }
           >
             <option value="">No. of Employees</option>
-            <option value="1-20">1-20</option>
-            <option value="21-40">21-40</option>
-            <option value="41-60">41-60</option>
-            <option value="61-80">61-80</option>
-            <option value="81-100">81-100</option>
-            <option value="101+">more than 100</option>
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
           </select>
+
           <button onClick={() => setShowAddModal(true)} className={styles.addDepartmentButton}>
-            <i className='ri-add-line'/>
+            <i className='ri-add-line' />
             Add Department
           </button>
         </div>
@@ -78,50 +85,60 @@ const DepartmentPage = () => {
               </tr>
             </thead>
             <tbody>
-            {filteredDepartments.map((dept, index) => (
-              <tr key={dept.id}>
-                <td className={styles.firstColumn}>{index + 1}</td>
-                <td>{dept.name}</td>
-                <td>{dept.employees}</td>
-                <td>{new Date(dept.createdAt).toLocaleString()}</td>
-                <td>{new Date(dept.updatedAt).toLocaleString()}</td>
-                <td className={styles.actionCell}>
-                  <button
-                    className={styles.editButton}
-                    onClick={() => {
-                      setSelectedDept({ id: dept.id, name: dept.name });
-                      setShowEditModal(true);
-                    }}
-                  >
-                    <i className='ri-edit-2-line'/>
-                  </button>
-                  <button
-                    className={styles.deleteButton}
-                    onClick={() => handleDeleteRequest(dept.id)}
-                  >
-                    <i className='ri-delete-bin-line' />
-                  </button>
-                </td>
-              </tr>
-            ))}
+              {paginatedDepartments.map((dept, index) => (
+                <tr key={dept.name}>
+                  <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
+                  <td>{dept.name}</td>
+                  <td>{dept.employees}</td>
+                  <td>mm-dd-yyyy hh:mm</td>
+                  <td>mm-dd-yyyy hh:mm</td>
+                  <td className={styles.actionCell}>
+                    <button
+                      className={styles.mainActionButton}
+                      onClick={() => toggleActionDropdown(index)}
+                    >
+                      <i className="ri-more-2-fill" />
+                    </button>
+
+                    {openActionDropdownIndex === index && (
+                      <div className={styles.actionDropdown}>
+                        <button
+                          className={styles.editButton}
+                          onClick={() => {
+                            setSelectedDept(dept.name);
+                            setShowEditModal(true);
+                            toggleActionDropdown(null);
+                          }}
+                        > <i className='ri-edit-2-line' /> Edit
+                        </button>
+                        <button
+                          className={styles.deleteButton}
+                          onClick={() => {
+                            handleDeleteRequest(dept.name);
+                            toggleActionDropdown(null);
+                          }}
+                        > <i className='ri-delete-bin-line' /> Delete
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
 
         {/* Pagination */}
-        <div className="pagination">
-            <button className="page-btn">
-              <i className="ri-arrow-left-s-line"></i>
-            </button>
-            <button className="page-btn active">1</button>
-            <button className="page-btn">2</button>
-            <button className="page-btn">3</button>
-            <button className="page-btn">4</button>
-            <button className="page-btn">5</button>
-            <button className="page-btn">
-              <i className="ri-arrow-right-s-line"></i>
-            </button>
-        </div>
+        <PaginationComponent
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPageChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
 
         {showAddModal && (
           <DepartmentModal
@@ -135,7 +152,7 @@ const DepartmentPage = () => {
         {showEditModal && (
           <DepartmentModal
             isEdit={true}
-            defaultValue={selectedDept?.name}
+            defaultValue={selectedDept}
             existingDepartments={departments.map((d) => d.name)}
             onClose={() => setShowEditModal(false)}
             onSubmit={handleEdit}

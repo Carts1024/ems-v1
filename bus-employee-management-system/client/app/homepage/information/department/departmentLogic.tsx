@@ -1,135 +1,100 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react';
-import { showSuccess, showError, showConfirmation } from '@/app/utils/swal';
+import { useState, useMemo } from 'react';
+import { showSuccess, showWarning, showConfirmation, showError } from '@/app/utils/swal';
+
+export interface Department {
+  name: string;
+  employees: number;
+}
 
 export const DepartmentLogic = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedDept, setSelectedDept] = useState<{ id: number; name: string } | null>(null);
-  const [modalDeptName, setModalDeptName] = useState('');
+  const [selectedDept, setSelectedDept] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [employeeFilter, setEmployeeFilter] = useState('');
+  const [openActionDropdownIndex, setOpenActionDropdownIndex] = useState<number | null>(null);
 
-  const [departments, setDepartments] = useState<
-    { id: number; name: string; employees: number; createdAt: string; updatedAt: string }[]
-  >([]);
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  // Fetch departments from backend
-  useEffect(() => {
-    
-    fetch(`${apiUrl}/departments`)
-      .then((res) => res.json())
-      .then((data) => {
-        const mapped = data.map((dept: any) => ({
-          id: dept.id,
-          name: dept.departmentName,
-          employees: dept._count.employee,
-          createdAt: dept.createdAt,
-          updatedAt: dept.updatedAt,
-        }));
-        setDepartments(mapped);
-      })
-      .catch(() => showError('Error', 'Failed to load departments'));
-  }, []);
+  const [departments, setDepartments] = useState<Department[]>([
+    { name: 'Accounting', employees: 12 },
+    { name: 'Human Resource', employees: 25 },
+    { name: 'Inventory', employees: 48 },
+    { name: 'Operations', employees: 67 },
+  ]);
 
-  // --- Add ---
-  const handleAdd = async (newName: string) => {
-    try {
-      const res = await fetch(`${apiUrl}/departments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ departmentName: newName }),
-      });
-      if (!res.ok) throw new Error();
-      const added = await res.json();
-      setDepartments((prev) => [
-        ...prev,
-        {
-          id: added.id,
-          name: added.departmentName,
-          employees: 0,
-          createdAt: added.createdAt,
-          updatedAt: added.updatedAt,
-        },
-      ]);
-      showSuccess('Success', 'Department added successfully.');
-    } catch {
-      showError('Error', 'Failed to add department.');
-    }
-  };
+  const [currentFilteredDepartments, setCurrentFilteredDepartments] = useState<Department[]>(departments);
 
-  // --- Edit ---
-  const handleEdit = async (updatedName: string) => {
-    if (!selectedDept) return;
-    try {
-      const res = await fetch(`${apiUrl}/departments/${selectedDept.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ departmentName: updatedName }),
-      });
-      if (!res.ok) throw new Error();
-      setDepartments((prev) =>
-        prev.map((dept) =>
-          dept.id === selectedDept.id ? { ...dept, name: updatedName } : dept
-        )
+  const handleApplyFilters = (filterValues: Record<string, any>) => {
+    let newData = [...departments];
+
+    // Search
+    if (searchTerm) {
+      newData = newData.filter(dept =>
+        dept.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      showSuccess('Success', 'Department updated successfully.');
-    } catch {
-      showError('Error', 'Failed to update department.');
     }
+
+    // Sorting
+    const sortBy = filterValues.sortBy;
+    const sortOrder = filterValues.order === 'desc' ? -1 : 1;
+    if (sortBy === 'employees') {
+      newData.sort((a, b) => (a.employees - b.employees) * sortOrder);
+    }
+
+    setCurrentFilteredDepartments(newData);
   };
 
-  // --- Delete ---
-  const handleDeleteRequest = async (deptId: number) => {
-    const dept = departments.find((d) => d.id === deptId);
+  const filteredDepartments = currentFilteredDepartments.filter(dept =>
+    dept.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const paginatedDepartments = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredDepartments.slice(start, start + pageSize);
+  }, [filteredDepartments, currentPage, pageSize]);
+
+  const totalPages = Math.ceil(filteredDepartments.length / pageSize);
+
+  const handleAdd = (newName: string) => {
+    const newDepartment = { name: newName, employees: 0 };
+    const updatedList = [...departments, newDepartment];
+    setDepartments(updatedList);
+    setCurrentFilteredDepartments(updatedList);
+    showSuccess('Success', 'Department added successfully.');
+  };
+
+  const handleEdit = (updatedName: string) => {
+    const updatedList = departments.map((dept) =>
+      dept.name === selectedDept ? { ...dept, name: updatedName } : dept
+    );
+    setDepartments(updatedList);
+    setCurrentFilteredDepartments(updatedList);
+    showSuccess('Success', 'Department updated successfully.');
+  };
+
+  const handleDeleteRequest = async (deptName: string) => {
+    const dept = departments.find((d) => d.name === deptName);
     if (dept && dept.employees > 0) {
       return showError('Error', 'This department cannot be deleted because it still contains employees.');
     }
+
     const result = await showConfirmation('Are you sure you want to delete this department?');
     if (result.isConfirmed) {
-      try {
-        const res = await fetch(`${apiUrl}/departments/${deptId}`, { method: 'DELETE' });
-        if (!res.ok) throw new Error();
-        setDepartments((prev) => prev.filter((d) => d.id !== deptId));
-        showSuccess('Success', 'Department deleted successfully.');
-      } catch {
-        showError('Error', 'Failed to delete department.');
-      }
+      const updatedList = departments.filter((d) => d.name !== deptName);
+      setDepartments(updatedList);
+      setCurrentFilteredDepartments(updatedList);
+      showSuccess('Success', 'Department deleted successfully.');
     }
   };
 
-  // Filtering logic
-  const filteredDepartments = departments.filter((dept) => {
-    const matchesSearch = dept.name.toLowerCase().includes(searchTerm.toLowerCase());
-    let matchesFilter = true;
-
-    if (employeeFilter) {
-      const [min, max] = employeeFilter === '101+'
-        ? [101, Infinity]
-        : employeeFilter.split('-').map(Number);
-      matchesFilter = dept.employees >= min && dept.employees <= max;
-    }
-
-    return matchesSearch && matchesFilter;
-  });
-
-  // Modal open/close helpers
-  const openAddModal = () => {
-    setModalDeptName('');
-    setShowAddModal(true);
-  };
-  const openEditModal = (dept: { id: number; name: string }) => {
-    setSelectedDept(dept);
-    setModalDeptName(dept.name);
-    setShowEditModal(true);
+  const toggleActionDropdown = (index: number | null) => {
+    setOpenActionDropdownIndex(openActionDropdownIndex === index ? null : index);
   };
 
   return {
     searchTerm,
     setSearchTerm,
-    employeeFilter,
-    setEmployeeFilter,
     showAddModal,
     setShowAddModal,
     showEditModal,
@@ -138,12 +103,17 @@ export const DepartmentLogic = () => {
     setSelectedDept,
     departments,
     filteredDepartments,
+    paginatedDepartments,
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    totalPages,
     handleAdd,
     handleEdit,
     handleDeleteRequest,
-    modalDeptName,
-    setModalDeptName,
-    openAddModal,
-    openEditModal,
+    handleApplyFilters,
+    openActionDropdownIndex,
+    toggleActionDropdown,
   };
 };

@@ -857,6 +857,225 @@ export const EmployeeLogic = () => {
     }
   };
 
+  // ---- Benefits States ----
+  const [benefitList, setBenefitList] = useState<any[]>([]);
+  const [editingBenefitIndex, setEditingBenefitIndex] = useState<number | null>(null);
+  const [tempBenefit, setTempBenefit] = useState<any>({
+    typeId: '', amount: '', frequency: 'monthly', effectiveDate: '', endDate: '', status: 'active'
+  });
+  const [isTempBenefitValid, setIsTempBenefitValid] = useState(true);
+
+  // ---- Deductions States ----
+  const [deductionList, setDeductionList] = useState<any[]>([]);
+  const [editingDeductionIndex, setEditingDeductionIndex] = useState<number | null>(null);
+  const [tempDeduction, setTempDeduction] = useState<any>({
+    typeId: '', type: 'fixed', amount: '', frequency: 'monthly', effectiveDate: '', endDate: '', status: 'active'
+  });
+  const [isTempDeductionValid, setIsTempDeductionValid] = useState(true);
+
+  // ---- Benefits Management ----
+  const addBenefit = () => {
+    setEditingBenefitIndex(benefitList.length);
+    setTempBenefit({ typeId: '', amount: '', frequency: 'monthly', effectiveDate: '', endDate: '', status: 'active' });
+  };
+
+  const editBenefit = (index: number) => {
+    setEditingBenefitIndex(index);
+    const selectedBenefit = benefitList[index];
+    setTempBenefit({
+      typeId: selectedBenefit?.typeId || selectedBenefit?.benefitTypeId || '',
+      amount: selectedBenefit?.amount || selectedBenefit?.value || '',
+      frequency: selectedBenefit?.frequency || 'monthly',
+      effectiveDate: formatDate(selectedBenefit?.effectiveDate) || '',
+      endDate: formatDate(selectedBenefit?.endDate) || '',
+      status: selectedBenefit?.status || 'active',
+      id: selectedBenefit?.id
+    });
+  };
+
+  const cancelBenefitEdit = () => {
+    setEditingBenefitIndex(null);
+    setTempBenefit({ typeId: '', amount: '', frequency: 'monthly', effectiveDate: '', endDate: '', status: 'active' });
+  };
+
+  const saveBenefit = async () => {
+    // For new employees (no id yet), just update local state
+    if (!selectedEmployee || !selectedEmployee.id) {
+      // Add or update in local array only
+      let newBenefitArr = [...benefitList];
+      if (editingBenefitIndex === benefitList.length) {
+        newBenefitArr.push(tempBenefit);
+      } else if (editingBenefitIndex !== null) {
+        newBenefitArr[editingBenefitIndex] = tempBenefit;
+      }
+      setBenefitList(newBenefitArr);
+      setEditingBenefitIndex(null);
+      setTempBenefit({ typeId: '', amount: '', frequency: 'monthly', effectiveDate: '', endDate: '', status: 'active' });
+      showSuccess('Success', 'Benefit saved locally.');
+      return;
+    }
+
+    // For existing employees, save to backend
+    const benefitDto = {
+      ...tempBenefit,
+      employeeId: selectedEmployee.id,
+      benefitTypeId: tempBenefit.typeId,
+      value: parseFloat(tempBenefit.amount || '0'),
+      isActive: tempBenefit.status?.toLowerCase() === 'active'
+    };
+
+    try {
+      let newBenefit: any;
+      if (editingBenefitIndex === benefitList.length) {
+        // ADD
+        const res = await fetch(`${API_URL}/benefits`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(benefitDto),
+        });
+        if (!res.ok) throw new Error('Failed to add benefit');
+        newBenefit = await res.json();
+        setBenefitList([...benefitList, newBenefit]);
+        showSuccess('Success', 'Benefit added.');
+      } else {
+        // UPDATE
+        const id = benefitList[editingBenefitIndex!].id;
+        const res = await fetch(`${API_URL}/benefits/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(benefitDto),
+        });
+        if (!res.ok) throw new Error('Failed to update benefit');
+        newBenefit = await res.json();
+        const updated = benefitList.map((benefit, idx) =>
+          idx === editingBenefitIndex ? newBenefit : benefit
+        );
+        setBenefitList(updated);
+        showSuccess('Success', 'Benefit updated.');
+      }
+      setEditingBenefitIndex(null);
+      setTempBenefit({ typeId: '', amount: '', frequency: 'monthly', effectiveDate: '', endDate: '', status: 'active' });
+    } catch (err) {
+      showError('Error', (err as any).message || 'Failed to save benefit');
+    }
+  };
+
+  const deleteBenefit = async (index: number) => {
+    try {
+      const benefit = benefitList[index];
+      if (benefit.id) {
+        const res = await fetch(`${API_URL}/benefits/${benefit.id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Failed to delete benefit');
+        showSuccess('Success', 'Benefit deleted.');
+      }
+      setBenefitList(benefitList.filter((_, i) => i !== index));
+    } catch (err: any) {
+      showError('Error', err.message || 'Failed to delete benefit');
+    }
+  };
+
+  // ---- Deductions Management ----
+  const addDeduction = () => {
+    setEditingDeductionIndex(deductionList.length);
+    setTempDeduction({ typeId: '', type: 'fixed', amount: '', frequency: 'monthly', effectiveDate: '', endDate: '', status: 'active' });
+  };
+
+  const editDeduction = (index: number) => {
+    setEditingDeductionIndex(index);
+    const selectedDeduction = deductionList[index];
+    setTempDeduction({
+      typeId: selectedDeduction?.typeId || selectedDeduction?.deductionTypeId || '',
+      type: selectedDeduction?.type || 'fixed',
+      amount: selectedDeduction?.amount || selectedDeduction?.value || '',
+      frequency: selectedDeduction?.frequency || 'monthly',
+      effectiveDate: formatDate(selectedDeduction?.effectiveDate) || '',
+      endDate: formatDate(selectedDeduction?.endDate) || '',
+      status: selectedDeduction?.status || 'active',
+      id: selectedDeduction?.id
+    });
+  };
+
+  const cancelDeductionEdit = () => {
+    setEditingDeductionIndex(null);
+    setTempDeduction({ typeId: '', type: 'fixed', amount: '', frequency: 'monthly', effectiveDate: '', endDate: '', status: 'active' });
+  };
+
+  const saveDeduction = async () => {
+    // For new employees (no id yet), just update local state
+    if (!selectedEmployee || !selectedEmployee.id) {
+      // Add or update in local array only
+      let newDeductionArr = [...deductionList];
+      if (editingDeductionIndex === deductionList.length) {
+        newDeductionArr.push(tempDeduction);
+      } else if (editingDeductionIndex !== null) {
+        newDeductionArr[editingDeductionIndex] = tempDeduction;
+      }
+      setDeductionList(newDeductionArr);
+      setEditingDeductionIndex(null);
+      setTempDeduction({ typeId: '', type: 'fixed', amount: '', frequency: 'monthly', effectiveDate: '', endDate: '', status: 'active' });
+      showSuccess('Success', 'Deduction saved locally.');
+      return;
+    }
+
+    // For existing employees, save to backend
+    const deductionDto = {
+      ...tempDeduction,
+      employeeId: selectedEmployee.id,
+      deductionTypeId: tempDeduction.typeId,
+      value: parseFloat(tempDeduction.amount || '0'),
+      isActive: tempDeduction.status?.toLowerCase() === 'active'
+    };
+
+    try {
+      let newDeduction: any;
+      if (editingDeductionIndex === deductionList.length) {
+        // ADD
+        const res = await fetch(`${API_URL}/deductions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(deductionDto),
+        });
+        if (!res.ok) throw new Error('Failed to add deduction');
+        newDeduction = await res.json();
+        setDeductionList([...deductionList, newDeduction]);
+        showSuccess('Success', 'Deduction added.');
+      } else {
+        // UPDATE
+        const id = deductionList[editingDeductionIndex!].id;
+        const res = await fetch(`${API_URL}/deductions/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(deductionDto),
+        });
+        if (!res.ok) throw new Error('Failed to update deduction');
+        newDeduction = await res.json();
+        const updated = deductionList.map((deduction, idx) =>
+          idx === editingDeductionIndex ? newDeduction : deduction
+        );
+        setDeductionList(updated);
+        showSuccess('Success', 'Deduction updated.');
+      }
+      setEditingDeductionIndex(null);
+      setTempDeduction({ typeId: '', type: 'fixed', amount: '', frequency: 'monthly', effectiveDate: '', endDate: '', status: 'active' });
+    } catch (err) {
+      showError('Error', (err as any).message || 'Failed to save deduction');
+    }
+  };
+
+  const deleteDeduction = async (index: number) => {
+    try {
+      const deduction = deductionList[index];
+      if (deduction.id) {
+        const res = await fetch(`${API_URL}/deductions/${deduction.id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Failed to delete deduction');
+        showSuccess('Success', 'Deduction deleted.');
+      }
+      setDeductionList(deductionList.filter((_, i) => i !== index));
+    } catch (err: any) {
+      showError('Error', err.message || 'Failed to delete deduction');
+    }
+  };
+  
   // ---- Add/Edit/Delete Employee ----
   const handleAdd = async (newEmployee: Employee) => {
     if (operationLoading) return; // Prevent multiple submissions
@@ -894,7 +1113,7 @@ export const EmployeeLogic = () => {
         return;
       }
 
-      // Transform employee data for backend - new structure
+      // Transform employee data for backend - STEP 1: Create basic employee first
       const transformedEmployee: any = {
         firstName: newEmployee.firstName,
         middleName: newEmployee.middleName,
@@ -946,7 +1165,7 @@ export const EmployeeLogic = () => {
         })
       };
 
-      // Optional: Add work experiences only if they exist
+      // Add work experiences only if they exist
       if (workExperiences && workExperiences.length > 0) {
         transformedEmployee.workExperiences = {
           create: workExperiences.map(work => ({
@@ -959,7 +1178,7 @@ export const EmployeeLogic = () => {
         };
       }
 
-      // Optional: Add education only if it exists
+      // Add education only if it exists
       if (educationList && educationList.length > 0) {
         transformedEmployee.educations = {
           create: educationList.map(edu => ({
@@ -973,36 +1192,7 @@ export const EmployeeLogic = () => {
         };
       }
 
-      // Optional: Add benefits only if they exist
-      if (newEmployee.benefitList && newEmployee.benefitList.length > 0) {
-        transformedEmployee.benefits = {
-          create: newEmployee.benefitList.map(benefit => ({
-            benefitTypeId: benefit.benefitTypeId || benefit.typeId,
-            value: parseFloat(benefit.amount || benefit.value || '0'),
-            frequency: benefit.frequency?.toLowerCase() || 'monthly',
-            effectiveDate: benefit.effectiveDate,
-            endDate: benefit.endDate || null,
-            isActive: benefit.status?.toLowerCase() === 'active' || true
-          }))
-        };
-      }
-
-      // Optional: Add deductions only if they exist
-      if (newEmployee.deductionList && newEmployee.deductionList.length > 0) {
-        transformedEmployee.deductions = {
-          create: newEmployee.deductionList.map(deduction => ({
-            type: deduction.type?.toLowerCase() || 'fixed',
-            value: parseFloat(deduction.amount || deduction.value || '0'),
-            frequency: deduction.frequency?.toLowerCase() || 'monthly',
-            effectiveDate: deduction.effectiveDate,
-            endDate: deduction.endDate || null,
-            isActive: deduction.status?.toLowerCase() === 'active' || true,
-            deductionTypeId: deduction.deductionTypeId || deduction.typeId || 1
-          }))
-        };
-      }
-
-      // POST to backend (create employee)
+      // STEP 1: Create employee without benefits and deductions
       const res = await fetch(`${API_URL}/employees`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1017,6 +1207,102 @@ export const EmployeeLogic = () => {
       const createdEmployee = await res.json();
       console.log('Employee created successfully:', createdEmployee);
       
+      // STEP 2: Add benefits if they exist (from modal)
+      const modalBenefitList = newEmployee.benefitList || [];
+      if (modalBenefitList && modalBenefitList.length > 0) {
+        try {
+          // Fetch benefit types to map names to IDs
+          const benefitTypesRes = await fetch(`${API_URL}/benefit/types`);
+          const benefitTypes = benefitTypesRes.ok ? await benefitTypesRes.json() : [];
+
+          const benefitPromises = modalBenefitList.map(async (benefit) => {
+            // Find benefit type ID by name
+            const benefitType = benefitTypes.find((bt: any) => bt.name === benefit.benefit);
+            const benefitTypeId = benefitType ? benefitType.id : null;
+
+            if (!benefitTypeId) {
+              console.warn(`Benefit type not found for: ${benefit.benefit}`);
+              return; // Skip this benefit if type not found
+            }
+
+            // Map modal benefit structure to backend API structure
+            const benefitData = {
+              employeeId: createdEmployee.id,
+              benefitTypeId: benefitTypeId,
+              value: parseFloat(benefit.amount || '0'),
+              frequency: benefit.frequency?.toLowerCase() || 'monthly',
+              effectiveDate: benefit.effectiveDate,
+              endDate: benefit.endDate || null,
+              isActive: benefit.status?.toLowerCase() === 'active' || true
+            };
+
+            const benefitRes = await fetch(`${API_URL}/benefits`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(benefitData),
+            });
+
+            if (!benefitRes.ok) {
+              const errorData = await benefitRes.json();
+              console.error('Failed to create benefit:', errorData);
+              // Don't throw error for benefits - just log and continue
+            }
+          });
+
+          await Promise.allSettled(benefitPromises);
+        } catch (error) {
+          console.error('Error processing benefits:', error);
+        }
+      }
+
+      // STEP 3: Add deductions if they exist (from modal)
+      const modalDeductionList = newEmployee.deductionList || [];
+      if (modalDeductionList && modalDeductionList.length > 0) {
+        try {
+          // Fetch deduction types to map names to IDs
+          const deductionTypesRes = await fetch(`${API_URL}/deduction/types`);
+          const deductionTypes = deductionTypesRes.ok ? await deductionTypesRes.json() : [];
+
+          const deductionPromises = modalDeductionList.map(async (deduction) => {
+            // Find deduction type ID by name
+            const deductionType = deductionTypes.find((dt: any) => dt.name === deduction.reason);
+            const deductionTypeId = deductionType ? deductionType.id : null;
+
+            if (!deductionTypeId) {
+              console.warn(`Deduction type not found for: ${deduction.reason}`);
+              return; // Skip this deduction if type not found
+            }
+
+            // Map modal deduction structure to backend API structure
+            const deductionData = {
+              employeeId: createdEmployee.id,
+              type: deduction.type?.toLowerCase() || 'fixed',
+              value: parseFloat(deduction.amount || '0'),
+              frequency: deduction.frequency?.toLowerCase() || 'monthly',
+              effectiveDate: deduction.effectiveDate,
+              endDate: deduction.endDate || null,
+              isActive: deduction.status?.toLowerCase() === 'active' || true,
+              deductionTypeId: deductionTypeId            };
+
+            const deductionRes = await fetch(`${API_URL}/deductions`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(deductionData),
+            });
+
+            if (!deductionRes.ok) {
+              const errorData = await deductionRes.json();
+              console.error('Failed to create deduction:', errorData);
+              // Don't throw error for deductions - just log and continue
+            }
+          });
+
+          await Promise.allSettled(deductionPromises);
+        } catch (error) {
+          console.error('Error processing deductions:', error);
+        }
+      }
+      
       // Check if user account creation is needed based on position
       const qualifyingPositionIds = [1, 3, 6, 7, 10];
       if (qualifyingPositionIds.includes(parseInt(newEmployee.positionId.toString()))) {
@@ -1027,6 +1313,9 @@ export const EmployeeLogic = () => {
       
       // Refresh the full employee list from backend to ensure consistency
       await fetchEmployees();
+      
+      // Clear local state after successful creation
+      clearLocalState();
       
       // Close the modal
       setShowAddModal(false);
@@ -1179,11 +1468,15 @@ export const EmployeeLogic = () => {
     if (emp.id) {
       await fetchWorkExperiences(emp.id);
       await fetchEducationList(emp.id);
+      await fetchBenefitList(emp.id);
+      await fetchDeductionList(emp.id);
       // Note: Government IDs will be fetched by the EmployeeModal itself
     } else {
       // For new employees without ID, use the data from the employee object
       setWorkExperiences(emp.workExperiences ?? []);
       setEducationList(emp.educationList ?? []);
+      setBenefitList(emp.benefitList ?? []);
+      setDeductionList(emp.deductionList ?? []);
     }
     setCurrentPage(1);
     setPageSize(10);
@@ -1207,11 +1500,15 @@ export const EmployeeLogic = () => {
     if (emp.id) {
       await fetchWorkExperiences(emp.id);
       await fetchEducationList(emp.id);
+      await fetchBenefitList(emp.id);
+      await fetchDeductionList(emp.id);
       // Note: Government IDs will be fetched by the EmployeeModal itself
     } else {
       // For new employees without ID, use the data from the employee object
       setWorkExperiences(emp.workExperiences ?? []);
       setEducationList(emp.educationList ?? []);
+      setBenefitList(emp.benefitList ?? []);
+      setDeductionList(emp.deductionList ?? []);
     }
     setCurrentPage(1);
   setPageSize(10);
@@ -1248,10 +1545,54 @@ export const EmployeeLogic = () => {
     }
   };
 
+  // ---- Fetch Benefits and Deductions ----
+  const fetchBenefitList = async (employeeId: string) => {
+    try {
+      const res = await fetch(`${API_URL}/benefits?employeeId=${employeeId}`);
+      if (!res.ok) throw new Error('Failed to fetch benefits');
+      const data = await res.json();
+      setBenefitList(data || []);
+    } catch (err) {
+      showError('Error', (err as Error).message || 'Could not load benefits');
+      setBenefitList([]);
+    }
+  };
+
+  const fetchDeductionList = async (employeeId: string) => {
+    try {
+      const res = await fetch(`${API_URL}/deductions?employeeId=${employeeId}`);
+      if (!res.ok) throw new Error('Failed to fetch deductions');
+      const data = await res.json();
+      setDeductionList(data || []);
+    } catch (err) {
+      showError('Error', (err as Error).message || 'Could not load deductions');
+      setDeductionList([]);
+    }
+  };
+
+  // ---- Handle opening add modal ----
+  const handleOpenAddModal = () => {
+    clearLocalState();
+    setShowAddModal(true);
+  };
+
+  // ---- Clear local state when adding new employee ----
+  const clearLocalState = () => {
+    setWorkExperiences([]);
+    setEducationList([]);
+    setBenefitList([]);
+    setDeductionList([]);
+    setEditingWorkIndex(null);
+    setEditingEducIndex(null);
+    setEditingBenefitIndex(null);
+    setEditingDeductionIndex(null);
+  };
+
   // ---- Return everything for use in modal and section ----
   return {
     showAddModal,
     setShowAddModal,
+    handleOpenAddModal,
     showEditModal,
     setShowEditModal,
     selectedEmployee,
@@ -1341,6 +1682,29 @@ export const EmployeeLogic = () => {
   setShowImportModal,
   importLoading,
 
-  // ...rest...
+  // Benefits and Deductions
+  benefitList,
+  setBenefitList,
+  tempBenefit,
+  setTempBenefit,
+  editingBenefitIndex,
+  setEditingBenefitIndex,
+  addBenefit,
+  saveBenefit,
+  editBenefit,
+  cancelBenefitEdit,
+  deleteBenefit,
+
+  deductionList,
+  setDeductionList,
+  tempDeduction,
+  setTempDeduction,
+  editingDeductionIndex,
+  setEditingDeductionIndex,
+  addDeduction,
+  saveDeduction,
+  editDeduction,
+  cancelDeductionEdit,
+  deleteDeduction,
   };
 };

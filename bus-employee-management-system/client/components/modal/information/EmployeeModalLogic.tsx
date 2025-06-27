@@ -185,7 +185,7 @@ const [employee, setEmployee] = useState<Employee>({
     setFieldErrors(prev => ({ ...prev, [field]: undefined }));
   };
 
-  const handleSubmit = async (governmentIds: any[] = []) => {
+  const handleSubmit = async (governmentIds: any[] = [], benefitList: any[] = [], deductionList: any[] = []) => {
     const isValid = validateInput();
     if (!isValid) {
       showError('Error', 'Please correct the highlighted errors.');
@@ -197,14 +197,16 @@ const [employee, setEmployee] = useState<Employee>({
     }
     
     try {
-      // Include government IDs in the employee object
-      const employeeWithGovIds = {
+      // Include government IDs, benefits, and deductions in the employee object
+      const employeeWithAllData = {
         ...employee,
-        governmentIdList: governmentIds
+        governmentIdList: governmentIds,
+        benefitList: benefitList,
+        deductionList: deductionList
       };
       
       // Wait for the actual backend request to complete
-      await onSubmit(employeeWithGovIds);
+      await onSubmit(employeeWithAllData);
       // Success message and modal closing will be handled by the onSubmit function
     } catch (error) {
       // Error handling is done in the onSubmit function
@@ -212,7 +214,7 @@ const [employee, setEmployee] = useState<Employee>({
     }
   };
 
-  const handleUpdateConfirm = async (governmentIds: any[] = []) => {
+  const handleUpdateConfirm = async (governmentIds: any[] = [], benefitList: any[] = [], deductionList: any[] = []) => {
     const isValid = validateInput();
     if (!isValid) {
       showError('Error', 'Please correct the highlighted errors.');
@@ -224,14 +226,16 @@ const [employee, setEmployee] = useState<Employee>({
     }
     
     try {
-      // Include government IDs in the employee object
-      const employeeWithGovIds = {
+      // Include government IDs, benefits, and deductions in the employee object
+      const employeeWithAllData = {
         ...employee,
-        governmentIdList: governmentIds
+        governmentIdList: governmentIds,
+        benefitList: benefitList,
+        deductionList: deductionList
       };
       
       // Wait for the actual backend request to complete
-      await onSubmit(employeeWithGovIds);
+      await onSubmit(employeeWithAllData);
       // Success message and modal closing will be handled by the onSubmit function
     } catch (error) {
       // Error handling is done in the onSubmit function

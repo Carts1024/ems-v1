@@ -821,11 +821,37 @@ export const useEmployeeRecords = (
     setDeductFieldError({});
 
     try {
+      // For new employees (no employeeId yet), just update local state
       if (!employeeId) {
-        showError('Error', 'No employee ID provided');
+        const formattedDeduction = {
+          id: undefined, // No ID yet for new employee
+          reason,
+          frequency,
+          type,
+          amount,
+          effectiveDate,
+          endDate,
+          status
+        };
+
+        if (editingDeductIndex === deductionList.length) {
+          // Add new deduction to local state
+          setDeductionList(prev => [...prev, formattedDeduction]);
+          showSuccess('Success', 'Deduction saved locally.');
+        } else {
+          // Update existing deduction in local state
+          const updated = [...deductionList];
+          updated[editingDeductIndex!] = formattedDeduction;
+          setDeductionList(updated);
+          showSuccess('Success', 'Deduction updated locally.');
+        }
+
+        setEditingDeductIndex(null);
+        setTempDeduct({ reason: '', frequency: '', type: 'fixed', amount: '', effectiveDate: '', endDate: '', status: '' });
         return;
       }
 
+      // For existing employees, save to backend
       // Find deduction type ID by name
       const deductionType = deductionTypes.find(dt => dt.name === reason);
       const deductionTypeId = deductionType ? deductionType.id : null;
@@ -957,17 +983,42 @@ export const useEmployeeRecords = (
     setBenefitFieldError({});
 
     try {
+      // Calculate status automatically based on dates
+      const calculatedStatus = calculateStatus(effectiveDate, endDate || '');
+
+      // For new employees (no employeeId yet), just update local state
       if (!employeeId) {
-        showError('Error', 'No employee ID provided');
+        const formattedBenefit = {
+          id: undefined, // No ID yet for new employee
+          benefit,
+          frequency,
+          amount,
+          effectiveDate,
+          endDate: endDate || '',
+          status: calculatedStatus
+        };
+
+        if (editingBenefitIndex === benefitList.length) {
+          // Add new benefit to local state
+          setBenefitList(prev => [...prev, formattedBenefit]);
+          showSuccess('Success', 'Benefit saved locally.');
+        } else {
+          // Update existing benefit in local state
+          const updated = [...benefitList];
+          updated[editingBenefitIndex!] = formattedBenefit;
+          setBenefitList(updated);
+          showSuccess('Success', 'Benefit updated locally.');
+        }
+
+        setEditingBenefitIndex(null);
+        setTempBenefit({ benefit: '', frequency: '', amount: '', effectiveDate: '', endDate: '', status: '' });
         return;
       }
 
+      // For existing employees, save to backend
       // Find benefit type ID by name
       const benefitType = benefitTypes.find(bt => bt.name === benefit);
       const benefitTypeId = benefitType ? benefitType.id : null;
-
-      // Calculate status automatically based on dates
-      const calculatedStatus = calculateStatus(effectiveDate, endDate || '');
 
       const benefitData = {
         benefitTypeId,

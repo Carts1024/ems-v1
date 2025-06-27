@@ -21,6 +21,18 @@ export class PositionsService {
       });
   }
 
+  findOne(id: string) {
+    return this.httpService
+      .get(`${this.hrServiceUrl}/positions/${id}`)
+      .toPromise()
+      .then((res) => res?.data)
+      .catch((err) => {
+        throw new InternalServerErrorException(
+          err?.response?.data || err.message,
+        );
+      });
+  }
+
   create(data: any) {
     return this.httpService
       .post(`${this.hrServiceUrl}/positions`, data)
@@ -33,5 +45,27 @@ export class PositionsService {
       });
   }
 
-  // Add update, findOne, and remove if you want full CRUD!
+  update(id: string, data: any) {
+    return this.httpService
+      .patch(`${this.hrServiceUrl}/positions/${id}`, data)
+      .toPromise()
+      .then((res) => res?.data)
+      .catch((err) => {
+        throw new InternalServerErrorException(
+          err?.response?.data || err.message,
+        );
+      });
+  }
+
+  remove(id: string) {
+    return this.httpService
+      .delete(`${this.hrServiceUrl}/positions/${id}`)
+      .toPromise()
+      .then((res) => res?.data)
+      .catch((err) => {
+        throw new InternalServerErrorException(
+          err?.response?.data || err.message,
+        );
+      });
+  }
 }

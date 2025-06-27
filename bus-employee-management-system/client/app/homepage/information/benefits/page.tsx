@@ -27,6 +27,8 @@ const BenefitsPage = () => {
     selectedBenefit,
     setSelectedBenefit,
     benefits,
+    loading,
+    operationLoading,
     handleAdd,
     handleEdit,
     handleDeleteRequest,
@@ -54,86 +56,102 @@ const BenefitsPage = () => {
             />
           </div>
 
-          <button onClick={() => setShowAddModal(true)} className={styles.addBenefitsButton}>
+          <button 
+            onClick={() => setShowAddModal(true)} 
+            className={styles.addBenefitsButton}
+            disabled={operationLoading}
+          >
             <i className='ri-add-line'/>
             Add Benefit
           </button>
         </div>
 
-        <div className={styles.tableWrapper}>
-          <table className={styles.benefitsTable}>
-            <thead>
-              <tr>
-                <th className={styles.firstColumn}>No.</th>
-                <th>Name</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedBenefits.map((bnfts, index) => (
-                <tr key={bnfts.name}>
-                  <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
-                  <td>{bnfts.name}</td>
-                  <td className={styles.actionCell}>
-                    {/* The main action button */}
-                    <button
-                      className={styles.mainActionButton} // You might need to define this style
-                      onClick={() => toggleActionDropdown(index)}
-                    >
-                      <i className="ri-more-2-fill" />
-                    </button>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <p>Loading benefit types...</p>
+          </div>
+        ) : (
+          <>
+            <div className={styles.tableWrapper}>
+              <table className={styles.benefitsTable}>
+                <thead>
+                  <tr>
+                    <th className={styles.firstColumn}>No.</th>
+                    <th>Name</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedBenefits.map((bnfts, index) => (
+                    <tr key={bnfts.id}>
+                      <td className={styles.firstColumn}>{(currentPage - 1) * pageSize + index + 1}</td>
+                      <td>{bnfts.name}</td>
+                      <td className={styles.actionCell}>
+                        {/* The main action button */}
+                        <button
+                          className={styles.mainActionButton} // You might need to define this style
+                          onClick={() => toggleActionDropdown(index)}
+                          disabled={operationLoading}
+                        >
+                          <i className="ri-more-2-fill" />
+                        </button>
 
-                    {/* Action dropdown container, conditionally rendered */}
-                    {openActionDropdownIndex === index && (
-                      <div className={styles.actionDropdown}>
-                        <button
-                          className={styles.viewButton}
-                            onClick={() => {
-                            setSelectedBenefit(bnfts);
-                            setIsViewMode(true);
-                            setShowEditModal(true);
-                            toggleActionDropdown(null);
-                        }}
-                        > <i className='ri-eye-line'/> View
-                        </button>
-                        <button
-                          className={styles.editButton}
-                            onClick={() => {
-                            setSelectedBenefit(bnfts);
-                            setIsViewMode(false);
-                            setShowEditModal(true);
-                            toggleActionDropdown(null);
-                        }}
-                        > <i className='ri-edit-2-line'/> Edit
-                        </button>
-                        <button
-                          className={styles.deleteButton}
-                          onClick={() => {
-                            handleDeleteRequest(bnfts.name);
-                            toggleActionDropdown(null); // Close dropdown after action
-                          }}
-                        > <i className='ri-delete-bin-line' /> Delete
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                        {/* Action dropdown container, conditionally rendered */}
+                        {openActionDropdownIndex === index && (
+                          <div className={styles.actionDropdown}>
+                            <button
+                              className={styles.viewButton}
+                                onClick={() => {
+                                setSelectedBenefit(bnfts);
+                                setIsViewMode(true);
+                                setShowEditModal(true);
+                                toggleActionDropdown(null);
+                            }}
+                            disabled={operationLoading}
+                            > <i className='ri-eye-line'/> View
+                            </button>
+                            <button
+                              className={styles.editButton}
+                                onClick={() => {
+                                setSelectedBenefit(bnfts);
+                                setIsViewMode(false);
+                                setShowEditModal(true);
+                                toggleActionDropdown(null);
+                            }}
+                            disabled={operationLoading}
+                            > <i className='ri-edit-2-line'/> Edit
+                            </button>
+                            <button
+                              className={styles.deleteButton}
+                              onClick={() => {
+                                handleDeleteRequest(bnfts);
+                                toggleActionDropdown(null); // Close dropdown after action
+                              }}
+                              disabled={operationLoading}
+                            > <i className='ri-delete-bin-line' /> Delete
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-        {/* Pagination */}
-        <PaginationComponent
-          currentPage={currentPage}
-          totalPages={totalPages}
-          pageSize={pageSize}
-          onPageChange={(page) => setCurrentPage(page)}
-          onPageSizeChange={(size) => {
-            setPageSize(size);
-            setCurrentPage(1); // reset to page 1 when size changes
-          }}
-        />
+            {/* Pagination */}
+            <PaginationComponent
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              onPageChange={(page) => setCurrentPage(page)}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1); // reset to page 1 when size changes
+              }}
+            />
+          </>
+        )}
 
         {showAddModal && (
         <BenefitsModal

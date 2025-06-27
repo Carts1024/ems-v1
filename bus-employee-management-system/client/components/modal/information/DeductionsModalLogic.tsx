@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import DeductionsModalUI from '@/components/modal/information/DeductionsModal';
-import { showError, showConfirmation, showSuccess } from '@/app/utils/swal';
+import { showError, showConfirmation } from '@/app/utils/swal';
 
 interface DeductionsModalLogicProps {
   isEdit: boolean;
@@ -58,7 +58,6 @@ const DeductionsModalLogic: React.FC<DeductionsModalLogicProps> = ({
     if (!validateInput()) return;
 
     onSubmit(trimmedName, trimmedDescription);
-    showSuccess('Success', isEdit ? 'Deduction updated successfully.' : 'Deduction added successfully.');
     onClose();
   };
 

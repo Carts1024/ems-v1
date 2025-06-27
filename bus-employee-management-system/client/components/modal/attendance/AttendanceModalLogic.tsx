@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { showConfirmation, showSuccess } from '@/app/utils/swal';
-import { Attendance } from '@/app/homepage/attendance/daily-report/dailyReportLogic';
+import { useState, useEffect } from 'react';
+import { showConfirmation, showSuccess, showError } from '@/app/utils/swal';
+import { Attendance, Employee, AttendancePayload } from '@/types/attendance';
+import { attendanceService, employeeService } from '@/services/attendanceService';
 
 export const useAttendanceModal = (
   onSubmit: (attendance: Attendance) => void,
@@ -10,10 +11,16 @@ export const useAttendanceModal = (
   isView?: boolean,
   defaultValue?: Attendance,
 ) => {
+  // Employee dropdown state
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [loadingEmployees, setLoadingEmployees] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>('');
+
   const [attendance, setAttendance] = useState<Attendance>(
     defaultValue ?? {
       status: '',
       employeeName: '',
+      employeeId: '',
       hiredate: '',
       department: '',
       position: '',
@@ -21,30 +28,81 @@ export const useAttendanceModal = (
       timeIn: '',
       timeOut: '',
       remarks: '',
+      isHoliday: false,
     }
   );
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-    const handleChangeWrapper = (field: keyof Attendance, value: string) => {
+  // Load employees on mount
+  useEffect(() => {
+    const loadEmployees = async () => {
+      setLoadingEmployees(true);
+      try {
+        const employeeList = await employeeService.getAllEmployees();
+        setEmployees(employeeList);
+        
+        // If editing, set the selected employee
+        if (defaultValue?.employeeId) {
+          setSelectedEmployeeId(defaultValue.employeeId);
+        }
+      } catch (error) {
+        console.error('Failed to load employees:', error);
+        showError('Error', 'Failed to load employees');
+      } finally {
+        setLoadingEmployees(false);
+      }
+    };
+
+    loadEmployees();
+  }, [defaultValue?.employeeId]);
+
+  // Update attendance when employee selection changes
+  useEffect(() => {
+    if (selectedEmployeeId) {
+      const selectedEmployee = employees.find(emp => emp.id === selectedEmployeeId);
+      if (selectedEmployee) {
+        setAttendance(prev => ({
+          ...prev,
+          employeeId: selectedEmployee.id,
+          employeeName: `${selectedEmployee.firstName} ${selectedEmployee.lastName}`,
+          hiredate: selectedEmployee.hiredate,
+          department: selectedEmployee.position?.department?.departmentName || selectedEmployee.department || '',
+          position: selectedEmployee.position?.positionName || selectedEmployee.positionName || '',
+        }));
+      }
+    }
+  }, [selectedEmployeeId, employees]);
+
+  const handleChangeWrapper = (field: keyof Attendance, value: string | boolean) => {
     setAttendance((prev) => ({ ...prev, [field]: value }));
 
     // Clear error for the field being updated
     setFieldErrors((prevErrors) => {
-        const newErrors = { ...prevErrors };
-        delete newErrors[field];
-        return newErrors;
+      const newErrors = { ...prevErrors };
+      delete newErrors[field];
+      return newErrors;
     });
-    };
+  };
 
+  const handleEmployeeChange = (employeeId: string) => {
+    setSelectedEmployeeId(employeeId);
+    // Clear employee-related errors
+    setFieldErrors((prevErrors) => {
+      const newErrors = { ...prevErrors };
+      delete newErrors.employeeName;
+      delete newErrors.employeeId;
+      return newErrors;
+    });
+  };
 
   const validateFields = () => {
     const errors: Record<string, string> = {};
 
     const normalizeDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    date.setHours(0, 0, 0, 0); // strip time
-    return date;
+      const date = new Date(dateStr);
+      date.setHours(0, 0, 0, 0); // strip time
+      return date;
     };
 
     const today = new Date();
@@ -54,30 +112,17 @@ export const useAttendanceModal = (
       errors.status = 'Status is required';
     }
 
-    if (!attendance.employeeName.trim()) {
-      errors.employeeName = 'Employee name is required';
-    }
-
-    if (!attendance.hiredate) {
-    errors.hiredate = 'Date hired is required';
-    } else if (normalizeDate(attendance.hiredate) > today) {
-    errors.hiredate = 'Date hired cannot be in the future';
-    }
-
-    if (!attendance.department) {
-      errors.department = 'Department is required';
-    }
-
-    if (!attendance.position) {
-      errors.position = 'Position is required';
+    if (!selectedEmployeeId) {
+      errors.employeeId = 'Employee is required';
     }
 
     if (!attendance.date) {
-    errors.date = 'Attendance date is required';
+      errors.date = 'Attendance date is required';
     } else if (normalizeDate(attendance.date) > today) {
-    errors.attendanceDate = 'Date cannot be in the future';
+      errors.date = 'Date cannot be in the future';
     }
 
+    // Time validation only if both times are provided
     if (attendance.timeIn && attendance.timeOut) {
       const [inHour, inMinute] = attendance.timeIn.split(':').map(Number);
       const [outHour, outMinute] = attendance.timeOut.split(':').map(Number);
@@ -101,11 +146,55 @@ export const useAttendanceModal = (
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmitWrapper = () => {
+  const convertToAttendancePayload = (attendance: Attendance): AttendancePayload => {
+    // Convert date and times to ISO strings
+    const attendanceDate = new Date(attendance.date);
+    
+    // For timeIn and timeOut, combine with the attendance date
+    const timeInISO = attendance.timeIn 
+      ? new Date(`${attendance.date}T${attendance.timeIn}:00.000Z`).toISOString()
+      : new Date(attendanceDate.setHours(0, 0, 0, 0)).toISOString();
+    
+    const timeOutISO = attendance.timeOut 
+      ? new Date(`${attendance.date}T${attendance.timeOut}:00.000Z`).toISOString()
+      : new Date(attendanceDate.setHours(23, 59, 59, 999)).toISOString();
+
+    return {
+      date: new Date(attendance.date).toISOString(),
+      status: attendance.status,
+      timeIn: timeInISO,
+      timeOut: timeOutISO,
+      remarks: attendance.remarks || '',
+      isHoliday: attendance.isHoliday || false,
+    };
+  };
+
+  const handleSubmitWrapper = async () => {
     if (!validateFields()) return;
-    onSubmit(attendance);
-    onClose();
-    showSuccess('Success', 'Attendance recorded successfully.');
+
+    try {
+      const payload = convertToAttendancePayload(attendance);
+      
+      if (defaultValue?.id) {
+        // Update existing attendance
+        await attendanceService.updateAttendance(
+          selectedEmployeeId,
+          defaultValue.id,
+          payload
+        );
+        showSuccess('Success', 'Attendance updated successfully.');
+      } else {
+        // Create new attendance
+        await attendanceService.createAttendance(selectedEmployeeId, payload);
+        showSuccess('Success', 'Attendance recorded successfully.');
+      }
+      
+      onSubmit(attendance);
+      onClose();
+    } catch (error) {
+      console.error('Error saving attendance:', error);
+      showError('Error', 'Failed to save attendance record');
+    }
   };
 
   const handleExitClick = async () => {
@@ -133,11 +222,16 @@ export const useAttendanceModal = (
   return {
     attendance,
     fieldErrors,
+    employees,
+    loadingEmployees,
+    selectedEmployeeId,
     handleChangeWrapper,
+    handleEmployeeChange,
     handleSubmitWrapper,
     handleExitClick,
     fullDateText,
     numericDateTime,
-    isView, defaultValue
+    isView,
+    defaultValue,
   };
 };

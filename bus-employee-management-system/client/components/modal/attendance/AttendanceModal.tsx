@@ -2,8 +2,9 @@
 
 import React from 'react';
 import styles from './AttendanceModal.module.css';
-import { Attendance } from '@/app/homepage/attendance/daily-report/dailyReportLogic';
+import { Attendance } from '@/types/attendance';
 import { useAttendanceModal } from './AttendanceModalLogic';
+import { SearchableDropdown, DropdownOption } from '@/components/ui/SearchableDropdown';
 
 interface AttendanceModalProps {
   onClose: () => void;
@@ -21,12 +22,24 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
   const {
     attendance,
     fieldErrors,
+    employees,
+    loadingEmployees,
+    selectedEmployeeId,
     handleChangeWrapper,
+    handleEmployeeChange,
     handleSubmitWrapper,
     handleExitClick,
     fullDateText,
     numericDateTime,
   } = useAttendanceModal(onSubmit, onClose, isView, defaultValue);
+
+  // Convert employees to dropdown options
+  const employeeOptions: DropdownOption[] = employees.map(employee => ({
+    id: employee.id,
+    label: `${employee.firstName} ${employee.lastName}`,
+    subtitle: `${employee.employeeNumber} • ${employee.position?.positionName || 'N/A'} • ${employee.position?.department?.departmentName || employee.department || 'N/A'}`,
+    data: employee,
+  }));
 
   return (
     <div className={styles.modalOverlay}>
@@ -39,7 +52,9 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
             <h1 className={styles.heading}>
               {isView
                 ? "Attendance Details"
-                : "Record Attendance"}
+                : defaultValue?.id 
+                  ? "Edit Attendance"
+                  : "Record Attendance"}
             </h1>
             <h4 className={styles.date}>
                 {fullDateText} <br />
@@ -61,50 +76,55 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
         </select>
         {fieldErrors.status && <p className={styles.errorText}>{fieldErrors.status}</p>}
 
-        <label className={styles.label}>Employee Name</label>
-        <input
-          className={`${styles.inputField} ${fieldErrors.employeeName ? styles.inputError : ''}`}
-          value={attendance.employeeName}
-          onChange={(e) => handleChangeWrapper('employeeName', e.target.value)}
-          placeholder="Enter employee name"
+        <label className={styles.label}>Employee</label>
+        <SearchableDropdown
+          options={employeeOptions}
+          value={selectedEmployeeId}
+          onChange={handleEmployeeChange}
+          placeholder="Search and select employee..."
           disabled={isView}
+          loading={loadingEmployees}
+          error={fieldErrors.employeeId}
         />
-        {fieldErrors.employeeName && <p className={styles.errorText}>{fieldErrors.employeeName}</p>}
+        {fieldErrors.employeeId && <p className={styles.errorText}>{fieldErrors.employeeId}</p>}
 
-        <label className={styles.label}>Date Hired</label>
-        <input
-          type="date"
-          className={`${styles.inputField} ${fieldErrors.hiredate ? styles.inputError : ''}`}
-          value={attendance.hiredate}
-          onChange={(e) => handleChangeWrapper('hiredate', e.target.value)}
-          disabled={isView}
-        />
-        {fieldErrors.hiredate && <p className={styles.errorText}>{fieldErrors.hiredate}</p>}
+        {/* Display employee details (read-only) */}
+        {attendance.employeeName && (
+          <>
+            <label className={styles.label}>Employee Name</label>
+            <input
+              className={styles.inputField}
+              value={attendance.employeeName}
+              disabled
+              style={{ backgroundColor: '#f9fafb', color: '#6b7280' }}
+            />
 
-        <label className={styles.label}>Department</label>
-        <select
-          className={`${styles.inputField} ${fieldErrors.department ? styles.inputError : ''}`}
-          value={attendance.department}
-          onChange={(e) => handleChangeWrapper('department', e.target.value)}
-          disabled={isView}
-        >
-          <option value="">Departments</option>
-          <option value="Accounting">Accounting</option>
-          <option value="Human Resource">Human Resource</option>
-          <option value="Inventory">Inventory</option>
-          <option value="Operations">Operations</option>
-        </select>
-        {fieldErrors.department && <p className={styles.errorText}>{fieldErrors.department}</p>}
+            <label className={styles.label}>Date Hired</label>
+            <input
+              type="date"
+              className={styles.inputField}
+              value={attendance.hiredate}
+              disabled
+              style={{ backgroundColor: '#f9fafb', color: '#6b7280' }}
+            />
 
-        <label className={styles.label}>Position</label>
-        <input
-          className={`${styles.inputField} ${fieldErrors.position ? styles.inputError : ''}`}
-          value={attendance.position}
-          onChange={(e) => handleChangeWrapper('position', e.target.value)}
-          placeholder="Enter position"
-          disabled={isView}
-        />
-        {fieldErrors.position && <p className={styles.errorText}>{fieldErrors.position}</p>}
+            <label className={styles.label}>Department</label>
+            <input
+              className={styles.inputField}
+              value={attendance.department}
+              disabled
+              style={{ backgroundColor: '#f9fafb', color: '#6b7280' }}
+            />
+
+            <label className={styles.label}>Position</label>
+            <input
+              className={styles.inputField}
+              value={attendance.position}
+              disabled
+              style={{ backgroundColor: '#f9fafb', color: '#6b7280' }}
+            />
+          </>
+        )}
 
         <label className={styles.label}>Attendance Date</label>
         <input
@@ -121,7 +141,7 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
             <label className={styles.label}>Time In</label>
             <input
               type="time"
-              className={styles.inputField}
+              className={`${styles.inputField} ${fieldErrors.timeIn ? styles.inputError : ''}`}
               value={attendance.timeIn}
               onChange={(e) => handleChangeWrapper('timeIn', e.target.value)}
               disabled={isView}
@@ -132,13 +152,28 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
             <label className={styles.label}>Time Out</label>
             <input
               type="time"
-              className={styles.inputField}
+              className={`${styles.inputField} ${fieldErrors.timeOut ? styles.inputError : ''}`}
               value={attendance.timeOut}
               onChange={(e) => handleChangeWrapper('timeOut', e.target.value)}
               disabled={isView}
             />
             {fieldErrors.timeOut && <p className={styles.errorText}>{fieldErrors.timeOut}</p>}
           </div>
+        </div>
+
+        <label className={styles.label}>Is Holiday</label>
+        <div className={styles.checkboxContainer}>
+          <input
+            type="checkbox"
+            id="isHoliday"
+            checked={attendance.isHoliday || false}
+            onChange={(e) => handleChangeWrapper('isHoliday', e.target.checked)}
+            disabled={isView}
+            className={styles.checkbox}
+          />
+          <label htmlFor="isHoliday" className={styles.checkboxLabel}>
+            Mark as holiday
+          </label>
         </div>
 
         <label className={styles.label}>Remarks</label>
@@ -154,7 +189,9 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
           {!isView && (
             <div className={styles.buttonGroup}>
               <button onClick={handleExitClick} className={styles.cancelButton}>Cancel</button>
-              <button onClick={handleSubmitWrapper} className={styles.submitButton}>Record</button>
+              <button onClick={handleSubmitWrapper} className={styles.submitButton}>
+                {defaultValue?.id ? 'Update' : 'Record'}
+              </button>
             </div>
           )}
       </div>

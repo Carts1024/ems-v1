@@ -396,19 +396,29 @@ export const EmployeeLogic = () => {
       // Refresh employees list
       await fetchEmployees();
       
-      // Show results
-      if (errorCount === 0) {
-        showSuccess('Import Successful', `Successfully imported ${successCount} employees.`);
-      } else if (successCount === 0) {
-        showError('Import Failed', `Failed to import all employees:\n${errors.join('\n')}`);
-      } else {
-        showError('Partial Import', `Imported ${successCount} employees successfully, ${errorCount} failed:\n${errors.join('\n')}`);
-      }
-
+      // Close the import modal first
       setShowImportModal(false);
+      
+      // Show results after a short delay to ensure the modal is closed
+      setTimeout(() => {
+        if (errorCount === 0) {
+          showSuccess('Import Successful', `Successfully imported ${successCount} employees.`);
+        } else if (successCount === 0) {
+          showError('Import Failed', `Failed to import all employees:\n${errors.join('\n')}`);
+        } else {
+          showError('Partial Import', `Imported ${successCount} employees successfully, ${errorCount} failed:\n${errors.join('\n')}`);
+        }
+      }, 100);
     } catch (error) {
       console.error('CSV Import Error:', error);
-      showError('Import Error', (error as any).message || 'Failed to process CSV file');
+      
+      // Close the import modal first
+      setShowImportModal(false);
+      
+      // Show error after a short delay to ensure the modal is closed
+      setTimeout(() => {
+        showError('Import Error', (error as any).message || 'Failed to process CSV file');
+      }, 100);
     } finally {
       setImportLoading(false);
     }
@@ -1165,34 +1175,13 @@ export const EmployeeLogic = () => {
         })
       };
 
-      // Add work experiences only if they exist
-      if (workExperiences && workExperiences.length > 0) {
-        transformedEmployee.workExperiences = {
-          create: workExperiences.map(work => ({
-            companyName: work.companyName,
-            position: work.position,
-            startDate: work.from,
-            endDate: work.to || null,
-            description: work.description || null
-          }))
-        };
-      }
-
-      // Add education only if it exists
-      if (educationList && educationList.length > 0) {
-        transformedEmployee.educations = {
-          create: educationList.map(edu => ({
-            institution: edu.institution,
-            degree: edu.degree,
-            fieldOfStudy: edu.fieldOfStudy,
-            startDate: null, // Add if you have startDate in your education model
-            endDate: edu.endDate,
-            description: null // Add if you have description in your education model
-          }))
-        };
-      }
+      // Don't include work experiences and education in the initial employee creation
+      // They will be added separately after the employee is created
+      // This follows the same pattern as benefits and deductions
 
       // STEP 1: Create employee without benefits and deductions
+      console.log('Final transformedEmployee object:', JSON.stringify(transformedEmployee, null, 2));
+      
       const res = await fetch(`${API_URL}/employees`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1207,7 +1196,76 @@ export const EmployeeLogic = () => {
       const createdEmployee = await res.json();
       console.log('Employee created successfully:', createdEmployee);
       
-      // STEP 2: Add benefits if they exist (from modal)
+      // STEP 2: Add work experiences if they exist (from local state)
+      if (workExperiences && workExperiences.length > 0) {
+        try {
+          console.log('Adding work experiences:', workExperiences);
+
+          const workExperiencePromises = workExperiences.map(async (work) => {
+            const workData = {
+              employeeId: createdEmployee.id,
+              companyName: work.companyName,
+              position: work.position,
+              startDate: work.from || work.startDate,
+              endDate: work.to || work.endDate || null,
+              description: work.description || null
+            };
+
+            const workRes = await fetch(`${API_URL}/work-experience`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(workData),
+            });
+
+            if (!workRes.ok) {
+              const errorData = await workRes.json();
+              console.error('Failed to create work experience:', errorData);
+              // Don't throw error for work experience - just log and continue
+            }
+          });
+
+          await Promise.allSettled(workExperiencePromises);
+        } catch (error) {
+          console.error('Error processing work experiences:', error);
+        }
+      }
+
+      // STEP 3: Add education if it exists (from local state)
+      if (educationList && educationList.length > 0) {
+        try {
+          console.log('Adding education:', educationList);
+
+          const educationPromises = educationList.map(async (edu) => {
+            const educationData = {
+              employeeId: createdEmployee.id,
+              institution: edu.institution,
+              degree: edu.degree,
+              fieldOfStudy: edu.fieldOfStudy,
+              startDate: null, // Add if you have startDate in your education model
+              endDate: edu.endDate,
+              description: null // Add if you have description in your education model
+            };
+
+            const educationRes = await fetch(`${API_URL}/education`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(educationData),
+            });
+
+            if (!educationRes.ok) {
+              const errorData = await educationRes.json();
+              console.error('Failed to create education:', errorData);
+              // Don't throw error for education - just log and continue
+            }
+          });
+
+          await Promise.allSettled(educationPromises);
+        } catch (error) {
+          console.error('Error processing education:', error);
+        }
+      }
+      
+      // STEP 4: Add benefits if they exist (from modal)
       const modalBenefitList = newEmployee.benefitList || [];
       if (modalBenefitList && modalBenefitList.length > 0) {
         try {
@@ -1255,7 +1313,7 @@ export const EmployeeLogic = () => {
         }
       }
 
-      // STEP 3: Add deductions if they exist (from modal)
+      // STEP 5: Add deductions if they exist (from modal)
       const modalDeductionList = newEmployee.deductionList || [];
       if (modalDeductionList && modalDeductionList.length > 0) {
         try {

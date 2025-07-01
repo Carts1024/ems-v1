@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
 import "@/styles/sidebar.css";
 // import { useRouter } from 'next/navigation';
 import { logout } from '@/app/utils/logout';
-
+const AUTH_URL= process.env.NEXT_AUTH_URL;
 const Sidebar = () => {
     const pathname = usePathname();
     // const router = useRouter();
@@ -18,7 +18,6 @@ const Sidebar = () => {
         employee: false,
         requests: false
     });
-
     // Menu structure data
     const menuItems = [
         // {
@@ -79,12 +78,12 @@ const Sidebar = () => {
         //     icon: 'ri-folder-line',
         //     key: 'documents'
         // },
-        {
-            path: '/authentication/new-password',
-            name: 'Settings',
-            icon: 'ri-settings-line',
-            key: 'settings'
-        }
+        // {
+        //     path: '/authentication/new-password',
+        //     name: 'Settings',
+        //     icon: 'ri-settings-line',
+        //     key: 'settings'
+        // }
     ];
 
     // Set active item and expand menus based on current route
@@ -119,7 +118,7 @@ const Sidebar = () => {
 
     const handleLogout = async () => {
         await logout();
-        window.location.href = '/authentication/login'; // Ensures middleware and browser see the cookie is gone
+        window.location.href = `${AUTH_URL}/authentication/login`; // Ensures middleware and browser see the cookie is gone
     };
 
 

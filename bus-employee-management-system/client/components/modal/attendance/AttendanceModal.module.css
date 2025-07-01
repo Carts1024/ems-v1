@@ -27,7 +27,7 @@
   text-align: center;
   color: #111827;
   font-size: 24px;
-  font-weight: 600 (bold);
+  font-weight: 600; /* Corrected to numeric value */
   margin-Bottom: 15px;
 }
 
@@ -187,28 +187,35 @@ select.inputField {
 }
 
 .sectionHeader {
-  padding-top: 2rem;
+  padding-top: .5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-bottom: 1rem;
 }
+
+.centeredHeader {
+  justify-content: center; /* Centers content horizontally */
+  text-align: center; /* Ensures text inside is centered */
+}
+
 
 .addWorkExpButton,
 .addEducButton,
 .addGovtIdButton,
 .addDeductButton,
 .addBenefitButton {
-  width: 25px; 
+  width: 25px;
   height: 30px;
   display: flex;
-  justify-content: center; 
+  justify-content: center;
   align-items: center;
-  border-radius: 5px; 
-  background-color: #961C1E; 
-  color: #FFFFFF; 
-  font-size: 14px; 
-  transition: all 0.3s ease-in-out; 
-  cursor: pointer; 
+  border-radius: 5px;
+  background-color: #961C1E;
+  color: #FFFFFF;
+  font-size: 14px;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
   border: none;
   padding: 0.5rem 1rem;
 }
@@ -228,13 +235,13 @@ select.inputField {
 }
 
 .actionCell i{
-  padding: 3px 6px; 
-  font-size: 14px; 
-  border-radius: 4px; 
-  color: #FFFFFF; 
-  transition: all 0.3s ease-in-out; 
-  cursor: pointer; 
-  border: none; 
+  padding: 3px 6px;
+  font-size: 14px;
+  border-radius: 4px;
+  color: #FFFFFF;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  border: none;
 }
 
 .editButton,
@@ -274,7 +281,7 @@ select.inputField {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  margin-top: 1.5rem;
+  margin-top: 5rem;
 }
 
 .cancelButton,
@@ -303,7 +310,7 @@ select.inputField {
 }
 
 .cancelButton:hover:not(:disabled) {
-  background-color: #f2cccc; 
+  background-color: #f2cccc;
 }
 
 .cancelButton:disabled {
@@ -316,7 +323,7 @@ select.inputField {
 .submitButton {
   padding: 0.5rem 2rem;
   min-width: 130px;
-  background-color: #961c1e; 
+  background-color: #961c1e;
   color: white;
   font-weight: 700;
   font-size: 1rem;
@@ -328,11 +335,11 @@ select.inputField {
 }
 
 .submitButton:hover:not(:disabled) {
-  background-color: #4b0c0d; 
+  background-color: #4b0c0d;
 }
 
 .submitButton:disabled {
-  background-color: #bd7b7b; 
+  background-color: #bd7b7b;
   color: #f2f2f2;
   cursor: not-allowed;
 }
@@ -389,7 +396,7 @@ select.inputField {
 }
 
 .closeButton:hover {
-  color: #571415; 
+  color: #571415;
 }
 .heading {
   display: flex;
@@ -407,7 +414,7 @@ select.inputField {
   width: 3rem;
   height: 3 rem;
   margin-right: 10px;
-  color: #961c1e; 
+  color: #961c1e;
 }
 .tableWrapper {
   overflow-x: auto;
@@ -492,4 +499,34 @@ select.inputField {
   .formSections {
     flex-direction: column;
   }
+}
+
+/* New CSS classes for FacialRecognitionModal */
+.cameraPlaceholderContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1.5rem auto 0.5rem auto;
+  background-color: #f0f0f0;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+  aspect-ratio: 16 / 9;
+  flex-direction: column;
+  color: #888;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.cameraIcon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.cameraInstructionText {
+  text-align: center;
+  color: #666;
+  margin-bottom: 1.5rem;
+  margin-top: 2rem;
 }

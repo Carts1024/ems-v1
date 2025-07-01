@@ -17,7 +17,7 @@
 
 .title {
   font-size: 24px;
-  font-weight: 600 (bold);
+  font-weight: 600; /* changed from (bold) to 600 */
   margin-Bottom: 15px;
 }
 
@@ -28,66 +28,65 @@
 }
 
 .search i {
-  display: flex; 
-  align-items: center; 
-  border: 1px solid #B3B3B3; 
-  border-right: none; 
-  border-radius: 8px 0 0 8px; 
-  height: 35px; 
-  padding: 8px; 
+  display: flex;
+  align-items: center;
+  border: 1px solid #B3B3B3;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  height: 35px;
+  padding: 8px;
 }
 
 .search input {
   border: 1px solid var(--border-color);
   border-left: none;
-  border-radius: 0 8px 8px 0; 
-  width: 400px; 
-  height: 35px; 
-  padding-right: 0 8px; 
-  font-size: 14px; 
+  border-radius: 0 8px 8px 0;
+  width: 400px;
+  height: 35px;
+  padding: 0 8px; /* Corrected padding */
+  font-size: 14px;
 }
 
-.addAttendanceButton {
-  width: 100px; 
-  height: 35px; 
-  display: flex; 
-  justify-content: center; 
-  align-items: center; 
-  gap: 8px; 
-  border-radius: 5px; 
-  background-color: #961C1E; 
-  color: #FFFFFF; 
-  font-size: 14px; 
-  transition: all 0.3s ease-in-out; 
+.addAttendanceButton,
+.facialRecognitionButton { /* Added facialRecognitionButton here */
+  width: 150px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 5px;
+  background-color: #961C1E;
+  color: #FFFFFF;
+  font-size: 14px;
+  transition: all 0.3s ease-in-out;
   border: none;
   padding: 0.5rem 1rem;
   cursor: pointer;
 }
 
-.addAttendanceButton:hover {
+.addAttendanceButton:hover,
+.facialRecognitionButton:hover { /* Added facialRecognitionButton here */
   background-color: #571415;
 }
 
 .importButton,
 .exportButton {
-  width: 100px; 
-  height: 35px; 
-  display: flex; 
-  justify-content: center; 
-  align-items: center; 
-  gap: 8px; 
-  border-radius: 8px; 
-  background-color: #961C1E; 
-  color: #FFFFFF; 
-  font-size: 14px; 
-  transition: all 0.3s ease-in-out; 
-  cursor: pointer; 
+  width: 100px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
   background-color: #961C1E;
-  color: white;
+  color: #FFFFFF;
+  font-size: 14px;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 5px;
-  cursor: pointer;
 }
 
 .importButton:hover,
@@ -106,23 +105,21 @@
 }
 
 .statusfilterDropdown {
-  border: 1px solid var(--border-color); 
-  border-radius: 8px; 
-  width: 150px; 
-  height: 35px; 
-  padding-right: 0 8px; 
-  font-size: 14px; 
-  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  width: 150px;
+  height: 35px;
+  padding: 0.5rem 8px; /* Corrected padding */
+  font-size: 14px;
 }
 
 .filterDropdown {
-  border: 1px solid var(--border-color); 
-  border-radius: 8px; 
-  width: 200px; 
-  height: 35px; 
-  padding-right: 0 8px; 
-  font-size: 14px; 
-  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  width: 200px;
+  height: 35px;
+  padding: 0.5rem 8px; /* Corrected padding */
+  font-size: 14px;
 }
 
 .firstColumn {
@@ -132,13 +129,13 @@
 /* ==================================== */
 /* Table Styling */
 .tableWrapper {
-  flex: 1; 
+  flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   border: 1px solid var(--border-color);
   border-radius: 6px;
   margin-bottom: 1rem;
-  max-height: unset; 
+  max-height: unset;
 }
 
 /* Custom Scrollbar Styles for WebKit (Chrome, Safari, Edge) */
@@ -192,16 +189,14 @@
   text-align: center;
   border-bottom: 1px solid #ccc;
   background-color: #D8D8D8;
-  white-space: normal; 
+  white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: top;
   height: 60px;
   z-index: 10;
 }
-.attendanceTable thead.tr:hover {
-  background-color: red;
-}
+
 /* Flexible column sizing. Adjust percentages as needed. */
 .attendanceTable thead th:nth-child(1) { width: 5%; } /* No. */
 .attendanceTable thead th:nth-child(2) { width: 10%; } /* Status */
@@ -222,7 +217,7 @@
 
 .attendanceTable tbody tr {
   transition: background-color 0.2s;
-  overflow: visible; 
+  overflow: visible;
 }
 
 .attendanceTable tbody tr:nth-child(even) {
@@ -231,7 +226,7 @@
 
 .attendanceTable tbody tr:hover {
   background-color: #f1f1f1;
-    color: black;
+  color: black;
 
 }
 
@@ -256,7 +251,7 @@ td.truncate {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: visible; 
+  overflow: visible;
 }
 
 .mainActionButton {
@@ -266,11 +261,11 @@ td.truncate {
   align-items: center;
   justify-content: center;
   padding: 6px;
-  font-size: 20px; 
+  font-size: 20px;
   border: none;
   border-radius: 6px;
-  background-color: #eee; 
-  color: #333; 
+  background-color: #eee;
+  color: #333;
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -279,34 +274,34 @@ td.truncate {
   background-color: #ddd;
 }
 
-/* actions  */
+/* actions   */
 .actionDropdown {
   position: absolute;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  z-index: 10000; 
+  z-index: 10000;
   display: flex;
   flex-direction: column;
   gap: 5px;
   padding: 8px;
-  min-width: 50px; 
+  min-width: 50px;
   white-space: nowrap;
   top: 60px; /*dropdown below the main action button*/
   /* right: 70px; drop down on the left side of the main action button*/
 }
 
-.actionDropdown button { 
-  display: flex; 
-  align-items: center; 
-  justify-content: flex-start; 
-  gap: 8px; 
-  width: 100%; 
+.actionDropdown button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  width: 100%;
   padding: 8px 12px;
-  font-size: 14px; 
-  border: none; 
-  border-radius: 6px; 
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.2s;
   color: #fff;

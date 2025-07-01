@@ -20,6 +20,7 @@ export interface Attendance {
 
 export const DailyReportLogic = () => {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showFacialRecognitionModal, setShowFacialRecognitionModal] = useState(false); // New state
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [openActionDropdownIndex, setOpenActionDropdownIndex] = useState<number | null>(null);
@@ -130,13 +131,15 @@ export const DailyReportLogic = () => {
     showSuccess('Success', 'Attendance record deleted.');
   };
 
-    const toggleActionDropdown = (index: number | null) => {
+  const toggleActionDropdown = (index: number | null) => {
     setOpenActionDropdownIndex(openActionDropdownIndex === index ? null : index);
   };
 
   return {
     showAddModal,
     setShowAddModal,
+    showFacialRecognitionModal, // Expose new state
+    setShowFacialRecognitionModal, // Expose new state setter
     searchTerm,
     setSearchTerm,
     statusFilter,

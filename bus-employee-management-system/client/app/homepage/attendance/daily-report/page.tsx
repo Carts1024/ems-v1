@@ -6,6 +6,7 @@ import PaginationComponent from '@/components/ui/pagination';
 import FilterDropDown from '@/components/ui/filterDropdown';
 import AttendanceModal from '@/components/modal/attendance/AttendanceModal';
 import { DailyReportLogic } from './dailyReportLogic';
+import FacialRecognitionModal from '@/components/modal/attendance/FacialRecognitionModal'; // New import
 import '@/styles/filters.css';
 
 export default function AttendancePage() {
@@ -32,6 +33,8 @@ export default function AttendancePage() {
     setSelectedAttendance,
     isViewMode,
     setIsViewMode,
+    showFacialRecognitionModal, // New state from logic
+    setShowFacialRecognitionModal, // New state setter from logic
   } = DailyReportLogic();
 
   return (
@@ -70,6 +73,14 @@ export default function AttendancePage() {
 
           <button className={styles.addAttendanceButton} onClick={() => setShowAddModal(true)}>
             <i className="ri-add-line" /> Record
+          </button>
+
+          {/* New button for Facial Recognition */}
+          <button
+            className={styles.facialRecognitionButton} // Define this style in attendance.module.css
+            onClick={() => setShowFacialRecognitionModal(true)}
+          >
+            <i className="ri-camera-line" /> Face Scan
           </button>
 
           <button className={styles.importButton}>
@@ -117,32 +128,30 @@ export default function AttendancePage() {
                     <td>{emp.position}</td>
                     <td>{emp.date}</td>
                     <td className={styles.actionCell}>
-                      {/* The main action button */}
                       <button
-                        className={styles.mainActionButton} // You might need to define this style
+                        className={styles.mainActionButton}
                         onClick={() => toggleActionDropdown(index)}
                       >
                         <i className="ri-more-2-fill" />
                       </button>
 
-                      {/* Action dropdown container, conditionally rendered */}
                       {openActionDropdownIndex === index && (
                         <div className={styles.actionDropdown}>
                           <button
                             className={styles.viewButton}
-                              onClick={() => {
-                                setSelectedAttendance(emp);
-                                setIsViewMode(true);
-                                setShowAddModal(true);
-                                toggleActionDropdown(null);
-                              }}
+                            onClick={() => {
+                              setSelectedAttendance(emp);
+                              setIsViewMode(true);
+                              setShowAddModal(true);
+                              toggleActionDropdown(null);
+                            }}
                           > <i className='ri-eye-line'/> View
                           </button>
                           <button
                             className={styles.deleteButton}
                             onClick={() => {
                               handleDeleteRequest(emp);
-                              toggleActionDropdown(null); // Close dropdown after action
+                              toggleActionDropdown(null);
                             }}
                           > <i className='ri-delete-bin-line' /> Delete
                           </button>
@@ -177,6 +186,22 @@ export default function AttendancePage() {
             onSubmit={handleAdd}
             defaultValue={selectedAttendance || undefined}
             isView={isViewMode}
+          />
+        )}
+
+        {/* Render Facial Recognition Modal */}
+        {showFacialRecognitionModal && (
+          <FacialRecognitionModal
+            onClose={() => setShowFacialRecognitionModal(false)}
+            onScanSuccess={(attendanceData) => {
+              // Handle successful scan, e.g., populate attendance form or record directly
+              console.log('Facial scan successful:', attendanceData);
+              // For demonstration, let's close this modal and open the attendance modal with pre-filled data
+              setShowFacialRecognitionModal(false);
+              setSelectedAttendance(attendanceData);
+              setIsViewMode(false); // Make it editable for manual review/edit
+              setShowAddModal(true);
+            }}
           />
         )}
       </div>

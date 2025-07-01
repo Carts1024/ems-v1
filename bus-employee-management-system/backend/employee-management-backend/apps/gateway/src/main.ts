@@ -15,6 +15,7 @@ async function bootstrap() {
 
   const port = configService.get<number>('app.port') || 3002;
   await app.listen(port);
+
 }
 // Handle the Promise explicitly:
 bootstrap().catch(err => {

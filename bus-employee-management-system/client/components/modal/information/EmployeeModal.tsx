@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './InformationModal.module.css';
 import { useEmployeeModal, Employee } from './EmployeeModalLogic';
 import { useEmployeeRecords } from './EmployeeRecordsLogic';
 import { showConfirmation } from '@/app/utils/swal';
+import { WorkExperience, Education } from '@/types/employee';
 
 import PersonalSection from './sections/PersonalSection';
 import WorkEducationSection from './sections/WorkEducationSection';
@@ -12,6 +14,7 @@ import WorkGovSection from './sections/WorkGovSection';
 import SalaryBenefitsSection from './sections/SalaryBenefitsSection';
 import ExitLeaveSection from './sections/ExitLeaveSection';
 
+// ---- Fixed, fully typed props interface ----
 interface EmployeeModalProps {
   isEdit: boolean;
   isReadOnly?: boolean;
@@ -19,6 +22,48 @@ interface EmployeeModalProps {
   existingEmployees: Employee[];
   onClose: () => void;
   onSubmit: (employee: Employee) => void;
+
+  // Work Experience
+  workExperiences: WorkExperience[];
+  setWorkExperiences: (val: WorkExperience[]) => void;
+  tempWork: WorkExperience;
+  setTempWork: (val: WorkExperience) => void;
+  editingWorkIndex: number | null;
+  setEditingWorkIndex: (val: number | null) => void;
+  addWork: () => void;
+  saveWork: () => void;
+  editWork: (index: number) => void;
+  cancelWorkEdit: () => void;
+  deleteWork: (index: number) => void;
+  isTempWorkValid: boolean;
+  workDateError: { from?: string; to?: string };
+  validateWorkDates: (from: string, to: string) => void;
+
+  // Education
+  educationList: Education[];
+  setEducationList: (val: Education[]) => void;
+  tempEduc: Education;
+  setTempEduc: (val: Education) => void;
+  editingEducIndex: number | null;
+  setEditingEducIndex: (val: number | null) => void;
+  addEducation: () => void;
+  saveEducation: () => void;
+  editEducation: (index: number) => void;
+  cancelEducationEdit: () => void;
+  deleteEducation: (index: number) => void;
+  isTempEducValid: boolean;
+  educDateError?: string;
+  setEducDateError?: (val: string) => void;
+
+  // Department and Position
+  departments: { id: number, departmentName: string }[];
+  positions: { id: number, positionName: string, departmentId: number }[];
+  filteredPositions: { id: number, positionName: string, departmentId: number }[];
+  selectedDepartmentId: number | null;
+  handleDepartmentChange: (departmentId: number) => void;
+
+  // Government ID Types
+  governmentIdTypes: { id: number, name: string }[];
 }
 
 const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
@@ -37,8 +82,43 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
     props.onClose
   );
 
-  const employeeRecords = useEmployeeRecords();
+  const employeeRecords = useEmployeeRecords(
+    (props.isEdit || props.isReadOnly) ? (props.defaultValue?.governmentIdList || []) : [], 
+    (props.isEdit || props.isReadOnly) ? props.defaultValue?.id : undefined,
+    props.governmentIdTypes
+  );
   const [hasChanges, setHasChanges] = useState(false);
+  const lastFetchedEmployeeIdRef = useRef<string | null>(null);
+
+  // Extract the fetch function to avoid dependency issues
+  const { fetchGovernmentIds, loadDeductionTypes, loadEmployeeDeductions, loadBenefitTypes, loadEmployeeBenefits } = employeeRecords;
+
+  // Load deduction and benefit types on mount
+  useEffect(() => {
+    loadDeductionTypes();
+    loadBenefitTypes();
+  }, [loadDeductionTypes, loadBenefitTypes]);
+
+  // Fetch government IDs when modal opens with an existing employee (only once per employee)
+  useEffect(() => {
+    if ((props.isEdit || props.isReadOnly) && props.defaultValue?.id && props.defaultValue.id !== lastFetchedEmployeeIdRef.current) {
+      // Small delay to prevent duplicate requests during fast transitions
+      const timeoutId = setTimeout(() => {
+        if (props.defaultValue?.id) {
+          fetchGovernmentIds(props.defaultValue.id);
+          loadEmployeeDeductions();
+          loadEmployeeBenefits();
+          lastFetchedEmployeeIdRef.current = props.defaultValue.id;
+        }
+      }, 50);
+      
+      return () => clearTimeout(timeoutId);
+    }
+    // Reset when modal closes or switches to add mode
+    if (!props.isEdit && !props.isReadOnly) {
+      lastFetchedEmployeeIdRef.current = null;
+    }
+  }, [props.isEdit, props.isReadOnly, props.defaultValue?.id, fetchGovernmentIds, loadEmployeeDeductions, loadEmployeeBenefits]);
 
   const handleChangeWrapper = (field: keyof Employee, value: string | string[]) => {
     if (!hasChanges && value !== props.defaultValue?.[field]) {
@@ -61,12 +141,24 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
 
   const handleSubmitWrapper = () => {
     if (!employeeRecords.validateGovernmentIds()) return;
-    handleSubmit();
+    
+    // Pass government IDs, benefits, and deductions to handleSubmit
+    handleSubmit(
+      employeeRecords.governmentIds || [], 
+      employeeRecords.benefitList || [], 
+      employeeRecords.deductionList || []
+    );
   };
 
   const handleUpdateConfirmWrapper = () => {
     if (!employeeRecords.validateGovernmentIds()) return;
-    handleUpdateConfirm();
+    
+    // Pass government IDs, benefits, and deductions to handleUpdateConfirm  
+    handleUpdateConfirm(
+      employeeRecords.governmentIds || [], 
+      employeeRecords.benefitList || [], 
+      employeeRecords.deductionList || []
+    );
   };
 
   return (
@@ -94,30 +186,64 @@ const EmployeeModal: React.FC<EmployeeModalProps> = (props) => {
         />
 
         <WorkEducationSection
-          {...employeeRecords}
+          workExperiences={props.workExperiences}
+          setWorkExperiences={props.setWorkExperiences}
+          tempWork={props.tempWork}
+          setTempWork={props.setTempWork}
+          editingWorkIndex={props.editingWorkIndex}
+          setEditingWorkIndex={props.setEditingWorkIndex}
+          addWork={props.addWork}
+          saveWork={props.saveWork}
+          editWork={props.editWork}
+          cancelWorkEdit={props.cancelWorkEdit}
+          deleteWork={props.deleteWork}
+          isTempWorkValid={props.isTempWorkValid}
+          workDateError={props.workDateError}
+          validateWorkDates={props.validateWorkDates}
+
+          educationList={props.educationList}
+          setEducationList={props.setEducationList}
+          tempEduc={props.tempEduc}
+          setTempEduc={props.setTempEduc}
+          editingEducIndex={props.editingEducIndex}
+          setEditingEducIndex={props.setEditingEducIndex}
+          addEducation={props.addEducation}
+          saveEducation={props.saveEducation}
+          editEducation={props.editEducation}
+          cancelEducationEdit={props.cancelEducationEdit}
+          deleteEducation={props.deleteEducation}
+          isTempEducValid={props.isTempEducValid}
+          educDateError={props.educDateError}
+          setEducDateError={props.setEducDateError}
           isReadOnly={props.isReadOnly}
         />
 
         <h3>Employment Information</h3>
         <WorkGovSection
+          {...employeeRecords}
           employee={employee}
           fieldErrors={fieldErrors}
           handleChangeWrapper={handleChangeWrapper}
           isReadOnly={!!props.isReadOnly}
-          {...employeeRecords}
+          governmentIdList={employee.governmentIdList ?? []}
+          departments={props.departments}
+          positions={props.positions}
+          filteredPositions={props.filteredPositions}
+          selectedDepartmentId={props.selectedDepartmentId}
+          handleDepartmentChange={props.handleDepartmentChange}
+          governmentIdTypes={props.governmentIdTypes}
         />
 
         <h3>Salary Information</h3>
         <SalaryBenefitsSection
+          {...employeeRecords}
           employee={employee}
           fieldErrors={fieldErrors}
           handleChangeWrapper={handleChangeWrapper}
           isReadOnly={props.isReadOnly}
-          {...employeeRecords}
         />
-
-        <h3>Related Forms/ Requests</h3>
-        <ExitLeaveSection />
+        {/* <h3>Related Forms/ Requests</h3>
+        <ExitLeaveSection /> */}
 
         <div className={styles.buttonGroup}>
           {props.isReadOnly ? (

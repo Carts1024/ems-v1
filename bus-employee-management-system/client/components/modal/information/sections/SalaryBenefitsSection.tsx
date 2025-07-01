@@ -1,4 +1,6 @@
-import React from 'react';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useState } from 'react';
 import styles from '../InformationModal.module.css';
 import { Employee } from '../EmployeeModalLogic';
 
@@ -8,6 +10,7 @@ interface Props {
   handleChangeWrapper: (field: keyof Employee, value: string | string[]) => void;
   isReadOnly?: boolean;
   deductionList: any[];
+  deductionTypes: { id: number, name: string }[];
   tempDeduct: any;
   editingDeductIndex: number | null;
   setTempDeduct: (val: any) => void;
@@ -18,8 +21,10 @@ interface Props {
   deleteDeduction: (index: number) => void;
   isTempDeductValid: boolean;
   deductFieldError: any;
+  updateBasicRate: (rate: number) => Promise<boolean>;
 
   benefitList: any[];
+  benefitTypes: { id: number, name: string }[];
   tempBenefit: any;
   editingBenefitIndex: number | null;
   setTempBenefit: (val: any) => void;
@@ -39,6 +44,7 @@ const SalaryBenefitsSection: React.FC<Props> = ({
   handleChangeWrapper,
   isReadOnly,
   deductionList,
+  deductionTypes,
   tempDeduct,
   editingDeductIndex,
   setTempDeduct,
@@ -49,7 +55,9 @@ const SalaryBenefitsSection: React.FC<Props> = ({
   deleteDeduction,
   isTempDeductValid,
   deductFieldError,
+  updateBasicRate,
   benefitList,
+  benefitTypes,
   tempBenefit,
   editingBenefitIndex,
   setTempBenefit,
@@ -62,6 +70,28 @@ const SalaryBenefitsSection: React.FC<Props> = ({
   benefitFieldError,
   setBenefitFieldError
 }) => {
+
+  // Force re-render when benefit list changes
+  const [renderKey, setRenderKey] = useState(0);
+  
+  useEffect(() => {
+    setRenderKey(prev => prev + 1);
+  }, [benefitList]);
+
+  // Create a stable reference to the benefit list
+  const stableBenefitList = [...benefitList];
+
+  const handleBasicRateBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+    const newRate = parseFloat(e.target.value);
+    if (!isNaN(newRate) && newRate !== parseFloat(employee.basicRate)) {
+      const success = await updateBasicRate(newRate);
+      if (!success) {
+        // Reset to original value if update failed
+        e.target.value = employee.basicRate;
+      }
+    }
+  };
+
   return (
     <div className={styles.sectionGroup}>
         <label className={styles.label}>Basic Rate</label>
@@ -69,13 +99,14 @@ const SalaryBenefitsSection: React.FC<Props> = ({
             type="number"
             step="0.01"
             min="0"
-            className={`${styles.inputField} ${fieldErrors.basicPay ? styles.inputError : ''}`}
-            value={employee.basicPay}
-            onChange={(e) => handleChangeWrapper('basicPay', e.target.value)}
+            className={`${styles.inputField} ${fieldErrors.basicRate ? styles.inputError : ''}`}
+            value={employee.basicRate}
+            onChange={(e) => handleChangeWrapper('basicRate', e.target.value)}
+            onBlur={handleBasicRateBlur}
             placeholder="Enter basic rate"
             disabled={isReadOnly}
         />
-        {fieldErrors.basicPay && <p className={styles.errorText}>{fieldErrors.basicPay}</p>}
+        {fieldErrors.basicRate && <p className={styles.errorText}>{fieldErrors.basicRate}</p>}
 
         {/* Deductions Table */}
         <div className={styles.sectionHeader}>
@@ -95,16 +126,16 @@ const SalaryBenefitsSection: React.FC<Props> = ({
                 <th>Type</th>
                 <th>Amount</th>
                 <th>Effective Date</th>
-                <th>End Date</th>
+                <th>End Date (Optional)</th>
                 <th>Status</th>
                 {!isReadOnly && <th>Actions</th>}
             </tr>
             </thead>
             <tbody>
             {[...deductionList, ...(editingDeductIndex === deductionList.length ? [{
-                reason: '', amount: '', frequency: '', effectiveDate: '', endDate: '', status: ''
+                reason: '', frequency: '', type: '', amount: '', effectiveDate: '', endDate: '', status: ''
             }] : [])].map((d, index) => (
-                <tr key={index}>
+                <tr key={d.id || `deduction-${index}`}>
                 {editingDeductIndex === index ? (
                     <>
                     <td>{index + 1}</td>
@@ -115,8 +146,8 @@ const SalaryBenefitsSection: React.FC<Props> = ({
                         onChange={(e) => setTempDeduct({ ...tempDeduct, reason: e.target.value })}
                         >
                         <option value="">Select reason</option>
-                        {['SSS', 'Pag-IBIG', 'PhilHealth', 'Withholding Tax', 'Cash Advance', 'Others'].map(reason => (
-                            <option key={reason} value={reason}>{reason}</option>
+                        {deductionTypes.map(type => (
+                            <option key={type.id} value={type.name}>{type.name}</option>
                         ))}
                         </select>
                         {deductFieldError.reason && <p className={styles.errorText}>{deductFieldError.reason}</p>}
@@ -170,6 +201,7 @@ const SalaryBenefitsSection: React.FC<Props> = ({
                         type="date"
                         className={styles.tableInput}
                         value={tempDeduct.endDate}
+                        placeholder="Optional - leave blank for ongoing"
                         onChange={(e) => setTempDeduct({ ...tempDeduct, endDate: e.target.value })}
                         />
                         {deductFieldError.endDate && <p className={styles.errorText}>{deductFieldError.endDate}</p>}
@@ -202,7 +234,7 @@ const SalaryBenefitsSection: React.FC<Props> = ({
                     <td>{d.type}</td>
                     <td>{d.amount}</td>
                     <td>{d.effectiveDate}</td>
-                    <td>{d.endDate}</td>
+                    <td>{d.endDate || 'Ongoing'}</td>
                     <td>{d.status}</td>
                     {!isReadOnly && (
                         <td className={styles.actionCell}>
@@ -226,7 +258,7 @@ const SalaryBenefitsSection: React.FC<Props> = ({
             </button>
             )}
         </div>
-        <table className={styles.benefitTable}>
+        <table className={styles.benefitTable} key={`benefit-table-${renderKey}`}>
             <thead>
             <tr>
                 <th>No.</th>
@@ -240,10 +272,10 @@ const SalaryBenefitsSection: React.FC<Props> = ({
             </tr>
             </thead>
             <tbody>
-            {[...benefitList, ...(editingBenefitIndex === benefitList.length ? [{
+            {[...stableBenefitList, ...(editingBenefitIndex === stableBenefitList.length ? [{
                 benefit: '', amount: '', frequency: '', effectiveDate: '', endDate: '', status: ''
             }] : [])].map((b, index) => (
-                <tr key={index}>
+                <tr key={`${b.id || 'new'}-${index}-${renderKey}`}>
                 {editingBenefitIndex === index ? (
                     <>
                     <td>{index + 1}</td>
@@ -254,8 +286,8 @@ const SalaryBenefitsSection: React.FC<Props> = ({
                         onChange={(e) => setTempBenefit({ ...tempBenefit, benefit: e.target.value })}
                         >
                         <option value="">Select benefit</option>
-                        {['Service Incentive Leave (SIL)', 'Holiday', '13-month Pay', 'Safety', 'Others'].map(benefit => (
-                            <option key={benefit} value={benefit}>{benefit}</option>
+                        {benefitTypes.map(type => (
+                            <option key={type.id} value={type.name}>{type.name}</option>
                         ))}
                         </select>
                         {benefitFieldError.benefit && <p className={styles.errorText}>{benefitFieldError.benefit}</p>}
@@ -303,17 +335,35 @@ const SalaryBenefitsSection: React.FC<Props> = ({
                         {benefitFieldError.endDate && <p className={styles.errorText}>{benefitFieldError.endDate}</p>}
                     </td>
                     <td>
-                        <select
-                        className={styles.tableInput}
-                        value={tempBenefit.status}
-                        onChange={(e) => setTempBenefit({ ...tempBenefit, status: e.target.value })}
-                        >
-                        <option value="">Select status</option>
-                        {['Active', 'Inactive', 'Pending', 'Terminated'].map(stat => (
-                            <option key={stat} value={stat}>{stat}</option>
-                        ))}
-                        </select>
-                        {benefitFieldError.status && <p className={styles.errorText}>{benefitFieldError.status}</p>}
+                        <span className={styles.autoCalculated}>
+                          {(() => {
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            
+                            if (!tempBenefit.effectiveDate) return 'Pending';
+                            
+                            const effective = new Date(tempBenefit.effectiveDate);
+                            effective.setHours(0, 0, 0, 0);
+                            
+                            // If no end date, it's active if effective date has passed
+                            if (!tempBenefit.endDate) {
+                              return effective <= today ? 'Active' : 'Pending';
+                            }
+                            
+                            const end = new Date(tempBenefit.endDate);
+                            end.setHours(0, 0, 0, 0);
+                            
+                            // Check date ranges
+                            if (today < effective) {
+                              return 'Pending'; // Not started yet
+                            } else if (today >= effective && today <= end) {
+                              return 'Active'; // Currently active
+                            } else {
+                              return 'Expired'; // Past end date
+                            }
+                          })()
+                          }
+                        </span>
                     </td>
                     <td className={styles.actionCell}>
                         <button className={styles.xButton} onClick={cancelBenefitEdit}><i className="ri-close-line" /></button>
@@ -330,7 +380,32 @@ const SalaryBenefitsSection: React.FC<Props> = ({
                     <td>{b.amount}</td>
                     <td>{b.effectiveDate}</td>
                     <td>{b.endDate}</td>
-                    <td>{b.status}</td>
+                    <td>{(() => {
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      
+                      if (!b.effectiveDate) return 'Pending';
+                      
+                      const effective = new Date(b.effectiveDate);
+                      effective.setHours(0, 0, 0, 0);
+                      
+                      // If no end date, it's active if effective date has passed
+                      if (!b.endDate) {
+                        return effective <= today ? 'Active' : 'Pending';
+                      }
+                      
+                      const end = new Date(b.endDate);
+                      end.setHours(0, 0, 0, 0);
+                      
+                      // Check date ranges
+                      if (today < effective) {
+                        return 'Pending'; // Not started yet
+                      } else if (today >= effective && today <= end) {
+                        return 'Active'; // Currently active
+                      } else {
+                        return 'Expired'; // Past end date
+                      }
+                    })()}</td>
                     {!isReadOnly && (
                         <td className={styles.actionCell}>
                         <button className={styles.editButton} onClick={() => editBenefit(index)}><i className="ri-edit-2-line" /></button>

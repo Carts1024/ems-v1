@@ -1,18 +1,18 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable prettier/prettier */
 import {
   Controller,
   Get,
   Post,
   Body,
   Param,
-  Put,
   Delete,
   NotFoundException,
   UsePipes,
   ValidationPipe,
   HttpCode,
   HttpStatus,
+  Query,
+  Patch,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -23,46 +23,50 @@ export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
   @Get()
-  async findAll() {
-    return await this.employeeService.proxyGet('/employees');
+  findAll() {
+    return this.employeeService.findAll();
+  }
+
+  @Get('ops')
+  getForOperations(@Query('role') role: string) {
+    return this.employeeService.fetchForOperations(role);
+  }
+
+  @Get('inv')
+  getForInventory() {
+    return this.employeeService.fetchInventory();
+  }
+
+  @Get('by-number/:employeeNumber')
+  findByEmployeeNumber(@Param('employeeNumber') employeeNumber: string) {
+    return this.employeeService.findByEmployeeNumber(employeeNumber);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const data = await this.employeeService.proxyGet(`/employees/${id}`);
-    if (!data) throw new NotFoundException('Employee not found');
-    return data;
+  findOne(@Param('id') id: string) {
+    return this.employeeService.findOne(id);
   }
 
   @Post()
   @UsePipes(new ValidationPipe({ whitelist: true }))
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createEmployeeDto: CreateEmployeeDto) {
-    return await this.employeeService.proxyPost(
-      '/employees',
-      createEmployeeDto,
-    );
+  create(@Body() createEmployeeDto: CreateEmployeeDto) {
+    return this.employeeService.create(createEmployeeDto);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  async update(
+  update(
     @Param('id') id: string,
     @Body() updateEmployeeDto: UpdateEmployeeDto,
   ) {
-    const updated = await this.employeeService.proxyPut(
-      `/employees/${id}`,
-      updateEmployeeDto,
-    );
-    if (!updated) throw new NotFoundException('Employee not found');
-    return updated;
+    return this.employeeService.update(id, updateEmployeeDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  async remove(@Param('id') id: string) {
-    const deleted = await this.employeeService.proxyDelete(`/employees/${id}`);
-    if (!deleted) throw new NotFoundException('Employee not found');
-    return deleted;
+  remove(@Param('id') id: string) {
+    return this.employeeService.remove(id);
   }
+
 }

@@ -57,6 +57,34 @@ const ExitLeaveSection: React.FC = () => {
             </tr>
         </tbody>
         </table>
+        <h4>Cash Advance</h4>
+        <div className={styles.tableWrapper}></div>
+        <table className={styles.leaveRequestTable}>
+        <thead>
+            <tr>
+            <th className={styles.firstColumn}>No.</th>
+            <th>Date Hired</th>
+            <th>Department</th>
+            <th>Position</th>
+            <th>Request Date</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Approved Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <td>1</td>
+            <td>2021-03-10</td>
+            <td>Operations</td>
+            <td>Driver</td>
+            <td>2024-03-01</td>
+            <td>Vacation Leave</td>
+            <td>2024-06-10</td>
+            <td>2024-06-17</td>
+            </tr>
+        </tbody>
+        </table>
         <br />
     </div>
   );

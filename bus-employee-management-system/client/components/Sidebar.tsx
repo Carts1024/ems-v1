@@ -20,12 +20,12 @@ const Sidebar = () => {
     });
     // Menu structure data
     const menuItems = [
-        // {
-        //     path: '/homepage',
-        //     name: 'Dashboard',
-        //     icon: 'ri-dashboard-line',
-        //     key: 'dashboard'
-        // },
+        {
+            path: '/homepage',
+            name: 'Dashboard',
+            icon: 'ri-dashboard-line',
+            key: 'dashboard'
+        },
         {
             name: 'Recruitment',
             icon: 'ri-user-add-line',

@@ -17,7 +17,7 @@
 
 .title {
   font-size: 24px;
-  font-weight: 600; /* changed from (bold) to 600 */
+  font-weight: 600; 
   margin-Bottom: 15px;
 }
 
@@ -43,12 +43,12 @@
   border-radius: 0 8px 8px 0;
   width: 400px;
   height: 35px;
-  padding: 0 8px; /* Corrected padding */
+  padding: 0 8px; 
   font-size: 14px;
 }
 
 .addAttendanceButton,
-.facialRecognitionButton { /* Added facialRecognitionButton here */
+.facialRecognitionButton {
   width: 150px;
   height: 35px;
   display: flex;
@@ -66,7 +66,7 @@
 }
 
 .addAttendanceButton:hover,
-.facialRecognitionButton:hover { /* Added facialRecognitionButton here */
+.facialRecognitionButton:hover { 
   background-color: #571415;
 }
 
@@ -109,7 +109,7 @@
   border-radius: 8px;
   width: 150px;
   height: 35px;
-  padding: 0.5rem 8px; /* Corrected padding */
+  padding: 0.5rem 8px; 
   font-size: 14px;
 }
 
@@ -118,7 +118,7 @@
   border-radius: 8px;
   width: 200px;
   height: 35px;
-  padding: 0.5rem 8px; /* Corrected padding */
+  padding: 0.5rem 8px; 
   font-size: 14px;
 }
 

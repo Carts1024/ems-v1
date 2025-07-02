@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { showConfirmation, showSuccess } from '@/app/utils/swal';
 import { FilterSection } from '@/components/ui/filterDropdown';
 
@@ -18,9 +16,7 @@ export interface Attendance {
   remarks: string;
 }
 
-export const DailyReportLogic = () => {
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showFacialRecognitionModal, setShowFacialRecognitionModal] = useState(false); // New state
+export const dailyReportLogic = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [openActionDropdownIndex, setOpenActionDropdownIndex] = useState<number | null>(null);
@@ -135,11 +131,41 @@ export const DailyReportLogic = () => {
     setOpenActionDropdownIndex(openActionDropdownIndex === index ? null : index);
   };
 
+
+  // Modal States and Handlers 
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showFaceScanOptionsModal, setShowFaceScanOptionsModal] = useState(false);
+  const [showFacialRecognitionModal, setShowFacialRecognitionModal] = useState(false);
+  const [showRegisterFaceModal, setShowRegisterFaceModal] = useState(false);
+
+  const handleFacialScanSuccess = (attendanceData: Attendance) => {
+    console.log('Simulated Facial scan successful:', attendanceData);
+    setShowFacialRecognitionModal(false);
+    setSelectedAttendance(attendanceData);
+    setIsViewMode(false);
+    setShowAddModal(true); 
+  };
+
+  const handleFaceRegistrationSuccess = (employeeId: string, employeeName: string, imageSrc: string) => {
+    console.log(`Simulated Face registered for ${employeeName} (ID: ${employeeId})`);
+    setShowRegisterFaceModal(false);
+    alert(`Successfully registered face for ${employeeName}!`);
+  };
+
+  // Functions to open specific modals from FaceScanOptionsModal
+  const openFacialRecognitionModal = () => {
+    setShowFaceScanOptionsModal(false); 
+    setShowFacialRecognitionModal(true); 
+  };
+
+  const openRegisterFaceModal = () => {
+    setShowFaceScanOptionsModal(false); 
+    setShowRegisterFaceModal(true); 
+  };
+
+
   return {
-    showAddModal,
-    setShowAddModal,
-    showFacialRecognitionModal, // Expose new state
-    setShowFacialRecognitionModal, // Expose new state setter
+    // Attendance Table & Filter Logic 
     searchTerm,
     setSearchTerm,
     statusFilter,
@@ -160,5 +186,21 @@ export const DailyReportLogic = () => {
     setSelectedAttendance,
     isViewMode,
     setIsViewMode,
+
+    // Modal States and Setters
+    showAddModal,
+    setShowAddModal,
+    showFaceScanOptionsModal,
+    setShowFaceScanOptionsModal,
+    showFacialRecognitionModal,
+    setShowFacialRecognitionModal,
+    showRegisterFaceModal,
+    setShowRegisterFaceModal,
+
+    // Modal Handlers
+    handleFacialScanSuccess,
+    handleFaceRegistrationSuccess,
+    openFacialRecognitionModal,
+    openRegisterFaceModal,
   };
 };

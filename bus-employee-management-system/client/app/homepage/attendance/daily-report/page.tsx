@@ -5,8 +5,10 @@ import styles from '@/app/homepage/attendance/attendance.module.css';
 import PaginationComponent from '@/components/ui/pagination';
 import FilterDropDown from '@/components/ui/filterDropdown';
 import AttendanceModal from '@/components/modal/attendance/AttendanceModal';
-import { DailyReportLogic } from './dailyReportLogic';
-import FacialRecognitionModal from '@/components/modal/attendance/FacialRecognitionModal'; // New import
+import { dailyReportLogic } from './dailyReportLogic';
+import FacialRecognitionModal from '@/components/modal/attendance/FacialRecognitionModal';
+import FaceScanOptionsModal from '@/components/modal/attendance/FaceScanOptionsModal';
+import RegisterFaceModal from '@/components/modal/attendance/RegisterFaceModal';
 import '@/styles/filters.css';
 
 export default function AttendancePage() {
@@ -33,9 +35,17 @@ export default function AttendancePage() {
     setSelectedAttendance,
     isViewMode,
     setIsViewMode,
-    showFacialRecognitionModal, // New state from logic
-    setShowFacialRecognitionModal, // New state setter from logic
-  } = DailyReportLogic();
+    showFaceScanOptionsModal,
+    setShowFaceScanOptionsModal,
+    showFacialRecognitionModal,
+    setShowFacialRecognitionModal,
+    showRegisterFaceModal,
+    setShowRegisterFaceModal,
+    handleFacialScanSuccess,
+    handleFaceRegistrationSuccess,
+    openFacialRecognitionModal,
+    openRegisterFaceModal,
+  } = dailyReportLogic(); 
 
   return (
     <div className={styles.base}>
@@ -75,10 +85,9 @@ export default function AttendancePage() {
             <i className="ri-add-line" /> Record
           </button>
 
-          {/* New button for Facial Recognition */}
           <button
-            className={styles.facialRecognitionButton} // Define this style in attendance.module.css
-            onClick={() => setShowFacialRecognitionModal(true)}
+            className={styles.facialRecognitionButton}
+            onClick={() => setShowFaceScanOptionsModal(true)}
           >
             <i className="ri-camera-line" /> Face Scan
           </button>
@@ -189,19 +198,25 @@ export default function AttendancePage() {
           />
         )}
 
-        {/* Render Facial Recognition Modal */}
+        {showFaceScanOptionsModal && (
+          <FaceScanOptionsModal
+            onClose={() => setShowFaceScanOptionsModal(false)}
+            onRecordAttendanceClick={openFacialRecognitionModal}
+            onRegisterFaceClick={openRegisterFaceModal}
+          />
+        )}
+
         {showFacialRecognitionModal && (
           <FacialRecognitionModal
             onClose={() => setShowFacialRecognitionModal(false)}
-            onScanSuccess={(attendanceData) => {
-              // Handle successful scan, e.g., populate attendance form or record directly
-              console.log('Facial scan successful:', attendanceData);
-              // For demonstration, let's close this modal and open the attendance modal with pre-filled data
-              setShowFacialRecognitionModal(false);
-              setSelectedAttendance(attendanceData);
-              setIsViewMode(false); // Make it editable for manual review/edit
-              setShowAddModal(true);
-            }}
+            onScanSuccess={handleFacialScanSuccess}
+          />
+        )}
+
+        {showRegisterFaceModal && (
+          <RegisterFaceModal
+            onClose={() => setShowRegisterFaceModal(false)}
+            onRegisterSuccess={handleFaceRegistrationSuccess}
           />
         )}
       </div>

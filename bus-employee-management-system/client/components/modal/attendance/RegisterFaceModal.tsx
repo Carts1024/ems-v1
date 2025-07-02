@@ -4,11 +4,10 @@ import React, { useRef, useEffect, useState } from 'react';
 import Webcam from 'react-webcam';
 import * as faceapi from 'face-api.js';
 import styles from './FacialRecognitionModal.module.css';
-import { Attendance } from '@/app/homepage/attendance/daily-report/dailyReportLogic';
 
-interface FacialRecognitionModalProps {
+interface RegisterFaceModalProps {
   onClose: () => void;
-  onScanSuccess: (attendance: Attendance) => void;
+  onRegisterSuccess: (employeeId: string, employeeName: string, imageSrc: string) => void;
 }
 
 const videoConstraints = {
@@ -17,17 +16,18 @@ const videoConstraints = {
   facingMode: 'user',
 };
 
-const MODEL_URL = '/models'; // 
+const MODEL_URL = '/models'; 
 
-const FacialRecognitionModal: React.FC<FacialRecognitionModalProps> = ({
+const RegisterFaceModal: React.FC<RegisterFaceModalProps> = ({
   onClose,
-  onScanSuccess,
+  onRegisterSuccess,
 }) => {
   const webcamRef = useRef<Webcam>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [loading, setLoading] = useState(true);
   const [detected, setDetected] = useState(false);
   const [status, setStatus] = useState('');
+  const [employeeNameInput, setEmployeeNameInput] = useState(''); 
 
   // 1. Load face-api.js models once
   useEffect(() => {
@@ -57,7 +57,10 @@ const FacialRecognitionModal: React.FC<FacialRecognitionModalProps> = ({
           if (detections.length > 0) {
             setDetected(true);
             drawBox(detections);
-            if (interval) clearInterval(interval); 
+          } else {
+            setDetected(false); // Clear detection if no face
+            const ctx = canvasRef.current?.getContext('2d');
+            if (ctx) ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clear canvas
           }
         }
       }, 500);
@@ -65,7 +68,6 @@ const FacialRecognitionModal: React.FC<FacialRecognitionModalProps> = ({
     return () => {
       if (interval) clearInterval(interval);
     };
-
   }, [loading]);
 
   // 3. Draw detection box
@@ -84,53 +86,48 @@ const FacialRecognitionModal: React.FC<FacialRecognitionModalProps> = ({
     }
   };
 
-  // 4. Capture frame and send for recognition
-  const handleCapture = async () => {
-    const imageSrc = webcamRef.current?.getScreenshot();
-    if (!imageSrc) return;
+  // 4. Handle face registration
+  const handleRegister = async () => {
+    if (!employeeNameInput.trim()) {
+      setStatus('Please enter employee name.');
+      return;
+    }
 
-    setStatus('Sending for recognition...');
+    const imageSrc = webcamRef.current?.getScreenshot();
+    if (!imageSrc) {
+      setStatus('No image captured.');
+      return;
+    }
+
+    setStatus('Registering face...');
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_PYTHON_API_URL}/recognize`,
+        `${process.env.NEXT_PUBLIC_PYTHON_API_URL}/register`, // Assuming a /register endpoint
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ imageBase64: imageSrc }),
+          body: JSON.stringify({
+            imageBase64: imageSrc,
+            employeeName: employeeNameInput.trim(),
+          }),
         }
       );
       const data = await res.json();
 
       if (data && data.employeeId) {
-        setStatus(`Recognized: ${data.employeeName}`);
-
-        const attendance: Attendance = {
-          employeeName: data.employeeName,
-          time: new Date().toISOString(),
-          type: data.type || 'Time In',
-          status: 'Present',
-          hiredate: '',
-          department: '',
-          position: '',
-          date: new Date().toISOString().split('T')[0],
-          timeIn: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-          timeOut: '',
-          remarks: 'Recognized via facial recognition',
-        };
+        setStatus(`Registration successful for ${data.employeeName}!`);
         setTimeout(() => {
-          onScanSuccess(attendance);
-        }, 1000);
+          onRegisterSuccess(data.employeeId, data.employeeName, imageSrc);
+          onClose(); 
+        }, 1500);
       } else {
-        setStatus('Face not recognized.');
-        setTimeout(() => setDetected(false), 2000);
+        setStatus(`Registration failed: ${data.message || 'Unknown error'}`);
       }
     } catch (e) {
-      console.error("Recognition error:", e);
-      setStatus('Recognition failed. Try again.');
-      setTimeout(() => setDetected(false), 2000);
+      console.error("Registration error:", e);
+      setStatus('Registration failed. Please try again.');
     }
   };
-
 
   return (
     <div className={styles.modalOverlay}>
@@ -140,7 +137,7 @@ const FacialRecognitionModal: React.FC<FacialRecognitionModalProps> = ({
         </button>
 
         <div className={styles.sectionHeader}>
-            <h1 className={styles.heading}>Facial Recognition Attendance</h1>
+            <h1 className={styles.heading}>Register Face</h1>
         </div>
 
         <div className={styles.cameraContainer}>
@@ -157,7 +154,6 @@ const FacialRecognitionModal: React.FC<FacialRecognitionModalProps> = ({
             height={videoConstraints.height}
             className={styles.canvas}
           />
-          {/* Placeholder content for when camera is not active/loaded */}
           {!webcamRef.current?.video?.readyState || loading ? (
              <div className={styles.cameraLoadingPlaceholder}>
                <i className={`ri-camera-fill ${styles.cameraIcon}`} />
@@ -175,20 +171,24 @@ const FacialRecognitionModal: React.FC<FacialRecognitionModalProps> = ({
           <p className={styles.statusText}>{loading ? 'Loading models...' : status}</p>
           {detected && (
             <p className={styles.detectedText}>
-              Face detected! Processing...
+              Face detected! Ready to register.
             </p>
           )}
         </div>
 
         <div className={styles.buttonGroup}>
             <button onClick={onClose} className={styles.cancelButton}>Close</button>
-            <button onClick={handleCapture} className={styles.submitButton} disabled={loading || !detected || status.includes('Recognized')}>
-                Record Attendance
+            <button
+                onClick={handleRegister}
+                className={styles.submitButton}
+                disabled={loading || !detected || !employeeNameInput.trim()}
+            >
+                <i className="ri-user-add-line" /> Register Face
             </button>
         </div>
       </div>
     </div>
   );
-}
+};
 
-export default FacialRecognitionModal;
+export default RegisterFaceModal;
